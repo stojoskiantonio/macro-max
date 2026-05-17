@@ -11,7 +11,13 @@ import androidx.appcompat.app.AppCompatDelegate
 class MacroMaxApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        // Apply saved theme (default: dark)
+        val isLight = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+            .getBoolean("light_mode", false)
+        AppCompatDelegate.setDefaultNightMode(
+            if (isLight) AppCompatDelegate.MODE_NIGHT_NO
+            else         AppCompatDelegate.MODE_NIGHT_YES
+        )
         createNotificationChannels()
         disableWindowSounds()
     }

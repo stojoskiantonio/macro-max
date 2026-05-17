@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.graphics.ColorUtils
 
 class MacroDonutView @JvmOverloads constructor(
     context: Context,
@@ -22,12 +23,20 @@ class MacroDonutView @JvmOverloads constructor(
     var targetCalories: Int = 0
         set(value) { field = value; invalidate() }
 
+    // Resolve colorOnSurface from the current theme so text adapts to light/dark
+    private val onSurface: Int = run {
+        val ta = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+        val c  = ta.getColor(0, Color.WHITE)
+        ta.recycle()
+        c
+    }
+
     private val strokeW = dp(13f)
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style       = Paint.Style.STROKE
         strokeWidth = dp(13f)
-        color       = Color.parseColor("#1AFFFFFF")
+        color       = ColorUtils.setAlphaComponent(onSurface, 26)   // ~10% opacity
     }
 
     private fun arcPaint(hex: String) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -39,17 +48,17 @@ class MacroDonutView @JvmOverloads constructor(
 
     private val proteinPaint = arcPaint("#4CAF50") // green
     private val fatPaint     = arcPaint("#EF5350") // red
-    private val carbPaint    = arcPaint("#64B5F6") // baby blue
+    private val carbPaint    = arcPaint("#64B5F6") // blue
 
     private val calPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color     = Color.WHITE
+        color     = onSurface
         textAlign = Paint.Align.CENTER
         textSize  = sp(18f)
         typeface  = Typeface.DEFAULT_BOLD
     }
 
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color     = Color.parseColor("#99FFFFFF")
+        color     = ColorUtils.setAlphaComponent(onSurface, 0x99)   // ~60% opacity
         textAlign = Paint.Align.CENTER
         textSize  = sp(9f)
     }
@@ -62,7 +71,6 @@ class MacroDonutView @JvmOverloads constructor(
         val radius = minOf(cx, cy) - strokeW / 2f - dp(6f)
         oval.set(cx - radius, cy - radius, cx + radius, cy + radius)
 
-        // Background ring
         canvas.drawCircle(cx, cy, radius, trackPaint)
 
         val proteinCal = proteinG * 4f
@@ -84,7 +92,6 @@ class MacroDonutView @JvmOverloads constructor(
             if (carbSweep > gap)    canvas.drawArc(oval, start + gap / 2f, carbSweep    - gap, false, carbPaint)
         }
 
-        // Center text — consumed calories + target label
         val calText  = totalCalories.toString()
         val label    = if (targetCalories > 0) "/ $targetCalories kcal" else "kcal"
         val calH     = calPaint.descent()   - calPaint.ascent()

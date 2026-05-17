@@ -63,7 +63,7 @@ class ActivityLevelSelectionActivity : AppCompatActivity() {
                 card.strokeWidth = dp(2)
                 card.setCardBackgroundColor(ColorUtils.setAlphaComponent(primary, 40))
             } else {
-                card.strokeColor = Color.parseColor("#44FFFFFF")
+                card.strokeColor = androidx.core.content.ContextCompat.getColor(this, R.color.card_stroke_unselected)
                 card.strokeWidth = dp(1)
                 card.setCardBackgroundColor(Color.TRANSPARENT)
             }

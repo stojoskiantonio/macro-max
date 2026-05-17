@@ -74,6 +74,14 @@
             android:exported="false" />
 
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".WeightHistoryActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".BarcodeScanActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

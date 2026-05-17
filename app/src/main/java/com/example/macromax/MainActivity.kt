@@ -112,6 +112,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         findViewById<ImageButton>(R.id.navProfile).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
+        findViewById<ImageButton>(R.id.navSettings).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
 
         // ── Water tracker ─────────────────────────────────────────────────────
         findViewById<MaterialButton>(R.id.btnWaterPlus).setOnClickListener {

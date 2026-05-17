@@ -100,6 +100,12 @@ class ProfileActivity : AppCompatActivity() {
 
         btnSaveProfile.setOnClickListener { saveProfile() }
 
+        // Weight progress shortcut
+        findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardWeightProgress)
+            .setOnClickListener {
+                startActivity(android.content.Intent(this, WeightHistoryActivity::class.java))
+            }
+
         // Logout
         findViewById<MaterialButton>(R.id.btnLogOut).setOnClickListener {
             MaterialAlertDialogBuilder(this)

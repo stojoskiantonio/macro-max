@@ -107,6 +107,24 @@
     <string name="profile_save">Save &amp; Recalculate</string>
     <string name="profile_saved">Profile saved!</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_settings">Settings</string>
+    <!-- Weight tracking -->
+    <string name="weight_progress_title">Weight Progress</string>
+    <string name="weight_progress_subtitle">Log and track your weight over time</string>
+    <string name="weight_stat_start">Start</string>
+    <string name="weight_stat_current">Current</string>
+    <string name="weight_stat_change">Change</string>
+    <string name="weight_chart_label">WEIGHT OVER TIME</string>
+    <string name="weight_no_data">No entries yet — log your first weight below</string>
+    <string name="weight_log_today">Log Today\'s Weight</string>
+    <string name="weight_log_save">Save</string>
+    <string name="weight_saved">Weight logged!</string>
+    <string name="weight_history_title">History</string>
+    <string name="weight_history_empty">No past entries yet</string>
+    <string name="weight_today">Today</string>
+
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_light_mode">Light mode</string>
 
     <!-- Barcode scanner -->
     <string name="scan_barcode">Scan barcode</string>

@@ -38,7 +38,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#1AFFFFFF" />
+        android:background="@color/divider_line" />
 
     <!-- Search bar + scan button -->
     <LinearLayout
@@ -195,7 +195,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#1AFFFFFF" />
+        android:background="@color/divider_line" />
 
     <!-- Manual entry fallback -->
     <com.google.android.material.button.MaterialButton

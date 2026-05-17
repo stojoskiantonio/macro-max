@@ -107,6 +107,24 @@
     <string name="profile_save">Зачувај и пресметај</string>
     <string name="profile_saved">Профилот е зачуван!</string>
     <string name="nav_profile">Профил</string>
+    <string name="nav_settings">Поставки</string>
+    <!-- Следење на тежина -->
+    <string name="weight_progress_title">Напредок во тежина</string>
+    <string name="weight_progress_subtitle">Евидентирај и следи ја тежината со текот на времето</string>
+    <string name="weight_stat_start">Почеток</string>
+    <string name="weight_stat_current">Тековна</string>
+    <string name="weight_stat_change">Промена</string>
+    <string name="weight_chart_label">ТЕЖИНА НИЗ ВРЕМЕТО</string>
+    <string name="weight_no_data">Сè уште нема внесено — додај ја првата тежина подолу</string>
+    <string name="weight_log_today">Внеси денешна тежина</string>
+    <string name="weight_log_save">Зачувај</string>
+    <string name="weight_saved">Тежината е зачувана!</string>
+    <string name="weight_history_title">Историја</string>
+    <string name="weight_history_empty">Сè уште нема минати внесувања</string>
+    <string name="weight_today">Денес</string>
+
+    <string name="settings_appearance">Изглед</string>
+    <string name="settings_light_mode">Светол режим</string>
 
     <!-- Скенер за баркод -->
     <string name="scan_barcode">Скенирај баркод</string>

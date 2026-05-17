@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark-mode overrides -->
+    <color name="divider_line">#1AFFFFFF</color>
+    <color name="icon_surface">#33FFFFFF</color>
+    <color name="icon_surface_stroke">#55FFFFFF</color>
+    <color name="card_stroke_unselected">#44FFFFFF</color>
+</resources>

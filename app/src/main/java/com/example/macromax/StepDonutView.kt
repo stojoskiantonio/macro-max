@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.graphics.ColorUtils
 
 class StepDonutView @JvmOverloads constructor(
     context: Context,
@@ -18,28 +19,36 @@ class StepDonutView @JvmOverloads constructor(
     var centerText: String = "0"
         set(value) { field = value; invalidate() }
 
+    // Resolve colorOnSurface from the current theme so text adapts to light/dark
+    private val onSurface: Int = run {
+        val ta = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+        val c  = ta.getColor(0, Color.WHITE)
+        ta.recycle()
+        c
+    }
+
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style       = Paint.Style.STROKE
         strokeWidth = dp(13f)
-        color       = Color.parseColor("#1AFFFFFF")
+        color       = ColorUtils.setAlphaComponent(onSurface, 26)   // ~10% opacity
     }
 
     private val arcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style       = Paint.Style.STROKE
         strokeWidth = dp(13f)
-        color       = Color.parseColor("#FF9800") // orange
+        color       = Color.parseColor("#FF9800") // orange — fine on both backgrounds
         strokeCap   = Paint.Cap.ROUND
     }
 
     private val calPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color     = Color.WHITE
+        color     = onSurface
         textAlign = Paint.Align.CENTER
         textSize  = sp(18f)
         typeface  = Typeface.DEFAULT_BOLD
     }
 
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color     = Color.parseColor("#99FFFFFF")
+        color     = ColorUtils.setAlphaComponent(onSurface, 0x99)   // ~60% opacity
         textAlign = Paint.Align.CENTER
         textSize  = sp(9f)
     }
