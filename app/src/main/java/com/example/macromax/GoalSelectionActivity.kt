@@ -64,7 +64,7 @@ class GoalSelectionActivity : AppCompatActivity() {
     }
 
     private fun goToNext() {
-        startActivity(Intent(this, MacroResultActivity::class.java))
+        startActivity(Intent(this, ActivityLevelSelectionActivity::class.java))
         finish()
     }
 

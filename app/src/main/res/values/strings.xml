@@ -34,6 +34,19 @@
     <string name="goal_maintain_desc">Stay at your current level</string>
     <string name="goal_gain">Gain Weight</string>
     <string name="goal_gain_desc">Build muscle, bulk up</string>
+    <!-- Activity level -->
+    <string name="activity_title">How active are you?</string>
+    <string name="activity_sedentary">Sedentary</string>
+    <string name="activity_sedentary_desc">Desk job, little or no exercise</string>
+    <string name="activity_light">Lightly Active</string>
+    <string name="activity_light_desc">Light exercise 1–3 days / week</string>
+    <string name="activity_moderate">Moderately Active</string>
+    <string name="activity_moderate_desc">Moderate exercise 3–5 days / week</string>
+    <string name="activity_active">Very Active</string>
+    <string name="activity_active_desc">Hard exercise 6–7 days / week</string>
+    <string name="activity_extra">Extra Active</string>
+    <string name="activity_extra_desc">Physical job or twice-daily training</string>
+
     <string name="result_loading_title_gain">Building your muscle gain plan…</string>
     <string name="result_loading_title_lose">Building your weight loss plan…</string>
     <string name="result_loading_title_maintain">Building your maintenance plan…</string>

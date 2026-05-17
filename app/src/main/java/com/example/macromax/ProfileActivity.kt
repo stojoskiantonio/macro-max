@@ -38,6 +38,12 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var rbLose: RadioButton
     private lateinit var rbMaintain: RadioButton
     private lateinit var rbGain: RadioButton
+    private lateinit var rgActivity: RadioGroup
+    private lateinit var rbSedentary: RadioButton
+    private lateinit var rbLight: RadioButton
+    private lateinit var rbModerate: RadioButton
+    private lateinit var rbActive: RadioButton
+    private lateinit var rbExtra: RadioButton
     private lateinit var etWaterGoal: TextInputEditText
     private lateinit var tvCurrentTargets: TextView
     private lateinit var tvCurrentMacros: TextView
@@ -74,6 +80,12 @@ class ProfileActivity : AppCompatActivity() {
         rbLose           = findViewById(R.id.rbLose)
         rbMaintain       = findViewById(R.id.rbMaintain)
         rbGain           = findViewById(R.id.rbGain)
+        rgActivity       = findViewById(R.id.rgActivity)
+        rbSedentary      = findViewById(R.id.rbSedentary)
+        rbLight          = findViewById(R.id.rbLight)
+        rbModerate       = findViewById(R.id.rbModerate)
+        rbActive         = findViewById(R.id.rbActive)
+        rbExtra          = findViewById(R.id.rbExtra)
         etWaterGoal      = findViewById(R.id.etWaterGoal)
         tvCurrentTargets = findViewById(R.id.tvCurrentTargets)
         tvCurrentMacros  = findViewById(R.id.tvCurrentMacros)
@@ -173,6 +185,16 @@ class ProfileActivity : AppCompatActivity() {
             else   -> rbMaintain.isChecked = true
         }
 
+        // Activity level
+        val activityLevel = prefs.getString("activity_level", "moderate") ?: "moderate"
+        when (activityLevel) {
+            "sedentary" -> rbSedentary.isChecked = true
+            "light"     -> rbLight.isChecked     = true
+            "active"    -> rbActive.isChecked    = true
+            "extra"     -> rbExtra.isChecked     = true
+            else        -> rbModerate.isChecked  = true
+        }
+
         // Show current targets
         val targetCal  = prefs.getInt("target_calories",  0)
         val targetPro  = prefs.getInt("target_protein_g", 0)
@@ -211,6 +233,13 @@ class ProfileActivity : AppCompatActivity() {
             rbGain.isChecked -> "gain"
             else             -> "maintain"
         }
+        val activityLevel = when {
+            rbSedentary.isChecked -> "sedentary"
+            rbLight.isChecked     -> "light"
+            rbActive.isChecked    -> "active"
+            rbExtra.isChecked     -> "extra"
+            else                  -> "moderate"
+        }
 
         // Recalculate targets (Mifflin-St Jeor)
         val weightKg = if (weightUnit == "lbs") weightVal / 2.205 else weightVal.toDouble()
@@ -219,7 +248,7 @@ class ProfileActivity : AppCompatActivity() {
         } else {
             10 * weightKg + 6.25 * heightCm - 5 * age - 161
         }
-        val tdee           = bmr * 1.5
+        val tdee = bmr * ActivityLevelSelectionActivity.multiplier(activityLevel)
         val targetCalories = when (goal) {
             "gain" -> tdee + 700
             "lose" -> tdee - 400
@@ -241,7 +270,8 @@ class ProfileActivity : AppCompatActivity() {
             putString("weight_unit",   weightUnit)
             putInt("height_cm",        heightCm)
             putString("user_gender",   gender)
-            putString("user_goal",     goal)
+            putString("user_goal",      goal)
+            putString("activity_level", activityLevel)
             putInt("target_calories",  targetCalories)
             putInt("target_protein_g", proteinG)
             putInt("target_fat_g",     fatG)

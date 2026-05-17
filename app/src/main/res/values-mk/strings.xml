@@ -34,6 +34,19 @@
     <string name="goal_maintain_desc">Остани на моменталното ниво</string>
     <string name="goal_gain">Зголемување</string>
     <string name="goal_gain_desc">Изградба на мускули</string>
+    <!-- Ниво на активност -->
+    <string name="activity_title">Колку си активен/а?</string>
+    <string name="activity_sedentary">Неактивен</string>
+    <string name="activity_sedentary_desc">Седечка работа, малку или без вежбање</string>
+    <string name="activity_light">Лесно активен</string>
+    <string name="activity_light_desc">Лесно вежбање 1–3 дена / неделно</string>
+    <string name="activity_moderate">Умерено активен</string>
+    <string name="activity_moderate_desc">Умерено вежбање 3–5 дена / неделно</string>
+    <string name="activity_active">Многу активен</string>
+    <string name="activity_active_desc">Интензивно вежбање 6–7 дена / неделно</string>
+    <string name="activity_extra">Екстремно активен</string>
+    <string name="activity_extra_desc">Физичка работа или двапати дневно тренинг</string>
+
     <string name="result_loading_title_gain">Правиме план за зголемување…</string>
     <string name="result_loading_title_lose">Правиме план за слабеење…</string>
     <string name="result_loading_title_maintain">Правиме план за одржување…</string>

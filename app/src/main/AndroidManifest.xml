@@ -50,6 +50,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ActivityLevelSelectionActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MacroResultActivity"
             android:exported="false" />
 

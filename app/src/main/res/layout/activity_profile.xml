@@ -253,6 +253,55 @@
                     android:text="@string/goal_gain" />
             </RadioGroup>
 
+            <!-- Activity Level -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_title"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:alpha="0.5"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="10dp" />
+
+            <RadioGroup
+                android:id="@+id/rgActivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+
+                <RadioButton
+                    android:id="@+id/rbSedentary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_sedentary" />
+
+                <RadioButton
+                    android:id="@+id/rbLight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_light" />
+
+                <RadioButton
+                    android:id="@+id/rbModerate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_moderate" />
+
+                <RadioButton
+                    android:id="@+id/rbActive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_active" />
+
+                <RadioButton
+                    android:id="@+id/rbExtra"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_extra" />
+            </RadioGroup>
+
             <!-- Current targets preview card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardCurrentTargets"

@@ -39,8 +39,9 @@ class MacroResultActivity : AppCompatActivity() {
             10 * weightKg + 6.25 * heightCm - 5 * age - 161
         }
 
-        // TDEE — moderate activity multiplier
-        val tdee = bmr * 1.5
+        // TDEE — use saved activity level multiplier
+        val activityLevel = prefs.getString("activity_level", "moderate") ?: "moderate"
+        val tdee = bmr * ActivityLevelSelectionActivity.multiplier(activityLevel)
 
         val targetCalories = when (goal) {
             "gain" -> tdee + 700
