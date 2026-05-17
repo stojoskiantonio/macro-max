@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".MacroMaxApp"
@@ -25,7 +27,39 @@
         </activity>
 
         <activity
+            android:name=".AgeSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".WeightSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".GenderSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HeightSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".GoalSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MacroResultActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".LogFoodActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HistoryActivity"
             android:exported="false" />
 
         <!-- Facebook Login -->
@@ -40,6 +74,16 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
+        <!-- Persists the user's language choice across app restarts -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
