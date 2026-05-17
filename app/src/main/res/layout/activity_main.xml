@@ -355,12 +355,43 @@
         android:src="@drawable/ic_add"
         android:contentDescription="@string/log_food_title" />
 
-    <!-- Bottom navigation bar -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <!-- Bottom navigation bar — plain icon strip, no Material indicator -->
+    <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_gravity="bottom"
-        app:menu="@menu/bottom_nav_menu" />
+        android:orientation="horizontal"
+        android:background="?attr/colorSurface"
+        android:elevation="8dp">
+
+        <ImageButton
+            android:id="@+id/navHome"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_home"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/nav_home" />
+
+        <ImageButton
+            android:id="@+id/navHistory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_history"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/menu_history" />
+
+        <ImageButton
+            android:id="@+id/navProfile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_person"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/nav_profile" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

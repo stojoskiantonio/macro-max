@@ -80,6 +80,19 @@
     <string name="nav_home">Home</string>
     <string name="menu_history">History</string>
     <string name="history_empty">No history yet.\nStart logging food to see past days here.</string>
+    <string name="history_no_entries">No food logged on this day</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_personal_info">Personal Info</string>
+    <string name="profile_age">Age</string>
+    <string name="profile_weight">Weight</string>
+    <string name="profile_height_cm">Height (cm)</string>
+    <string name="profile_current_targets">Current Targets</string>
+    <string name="profile_no_targets">No targets set yet</string>
+    <string name="profile_save">Save &amp; Recalculate</string>
+    <string name="profile_saved">Profile saved!</string>
+    <string name="nav_profile">Profile</string>
 
     <!-- Facebook Login — replace with values from developers.facebook.com -->
     <string name="facebook_app_id">YOUR_FACEBOOK_APP_ID</string>

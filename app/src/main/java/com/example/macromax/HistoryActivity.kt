@@ -2,17 +2,26 @@ package com.example.macromax
 
 import android.os.Bundle
 import android.view.View
+import android.widget.CalendarView
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import org.json.JSONArray
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class HistoryActivity : AppCompatActivity() {
+
+    private lateinit var tvSelectedDate: TextView
+    private lateinit var cardDaySummary: MaterialCardView
+    private lateinit var tvDayTotalCal: TextView
+    private lateinit var tvDayMacros: TextView
+    private lateinit var containerEntries: LinearLayout
+    private lateinit var tvEmpty: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,69 +29,77 @@ class HistoryActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btnHistoryBack).setOnClickListener { finish() }
 
-        val rv    = findViewById<RecyclerView>(R.id.rvHistory)
-        val empty = findViewById<TextView>(R.id.tvHistoryEmpty)
+        tvSelectedDate   = findViewById(R.id.tvSelectedDate)
+        cardDaySummary   = findViewById(R.id.cardDaySummary)
+        tvDayTotalCal    = findViewById(R.id.tvDayTotalCal)
+        tvDayMacros      = findViewById(R.id.tvDayMacros)
+        containerEntries = findViewById(R.id.containerDayEntries)
+        tvEmpty          = findViewById(R.id.tvHistoryEmpty)
 
-        rv.layoutManager = LinearLayoutManager(this)
+        val calendarView = findViewById<CalendarView>(R.id.calendarView)
 
-        val days = loadHistory()
+        // Prevent selecting future dates
+        calendarView.maxDate = System.currentTimeMillis()
 
-        if (days.isEmpty()) {
-            empty.visibility = View.VISIBLE
-            rv.visibility    = View.GONE
-        } else {
-            empty.visibility = View.GONE
-            rv.visibility    = View.VISIBLE
-            rv.adapter       = HistoryDayAdapter(days)
+        // Show today's entries on open
+        showEntriesForKey(todayDateKey())
+
+        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            val cal = Calendar.getInstance()
+            cal.set(year, month, dayOfMonth)
+            val key = SimpleDateFormat("yyyyMMdd", Locale.US).format(cal.time)
+            showEntriesForKey(key)
         }
     }
 
-    private fun loadHistory(): List<DayHistory> {
-        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val today   = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+    private fun showEntriesForKey(dateKey: String) {
+        tvSelectedDate.text = formatDate(dateKey)
 
-        // Collect all food_log_YYYYMMDD keys, newest first, skip today
-        val dayKeys = prefs.all.keys
-            .filter { it.startsWith("food_log_") }
-            .map    { it.removePrefix("food_log_") }
-            .filter { it != today }          // today is shown on the home screen
-            .sortedDescending()
+        val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val json  = prefs.getString("food_log_$dateKey", "[]") ?: "[]"
+        val arr   = JSONArray(json)
 
-        return dayKeys.mapNotNull { key ->
-            val json = prefs.getString("food_log_$key", "[]") ?: "[]"
-            val arr  = JSONArray(json)
-            if (arr.length() == 0) return@mapNotNull null   // skip empty days
+        containerEntries.removeAllViews()
 
-            val entries = mutableListOf<FoodEntry>()
-            var totalCal = 0; var totalPro = 0; var totalFat = 0; var totalCarb = 0
+        if (arr.length() == 0) {
+            cardDaySummary.visibility = View.GONE
+            tvEmpty.visibility        = View.VISIBLE
+            return
+        }
 
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                val e = FoodEntry(
-                    name     = obj.getString("name"),
-                    calories = obj.getInt("cal"),
-                    proteinG = obj.getInt("pro"),
-                    fatG     = obj.getInt("fat"),
-                    carbsG   = obj.getInt("car")
-                )
-                entries.add(e)
-                totalCal  += e.calories
-                totalPro  += e.proteinG
-                totalFat  += e.fatG
-                totalCarb += e.carbsG
-            }
+        tvEmpty.visibility = View.GONE
 
-            DayHistory(
-                dateKey      = key,
-                displayDate  = formatDate(key),
-                entries      = entries,
-                totalCalories = totalCal,
-                totalProtein  = totalPro,
-                totalFat      = totalFat,
-                totalCarbs    = totalCarb
+        var totalCal = 0; var totalPro = 0; var totalFat = 0; var totalCarb = 0
+
+        for (i in 0 until arr.length()) {
+            val obj   = arr.getJSONObject(i)
+            val entry = FoodEntry(
+                name     = obj.getString("name"),
+                calories = obj.getInt("cal"),
+                proteinG = obj.getInt("pro"),
+                fatG     = obj.getInt("fat"),
+                carbsG   = obj.getInt("car")
             )
+            totalCal  += entry.calories
+            totalPro  += entry.proteinG
+            totalFat  += entry.fatG
+            totalCarb += entry.carbsG
+
+            val row = layoutInflater.inflate(
+                R.layout.item_history_food_row, containerEntries, false
+            )
+            row.findViewById<TextView>(R.id.tvHistoryFoodName).text = entry.name
+            row.findViewById<TextView>(R.id.tvHistoryFoodCal).text  = "${entry.calories} kcal"
+            containerEntries.addView(row)
         }
+
+        tvDayTotalCal.text      = totalCal.toString()
+        tvDayMacros.text        = "P ${totalPro}g  ·  F ${totalFat}g  ·  C ${totalCarb}g"
+        cardDaySummary.visibility = View.VISIBLE
     }
+
+    private fun todayDateKey() =
+        SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
 
     private fun formatDate(key: String): String {
         return try {

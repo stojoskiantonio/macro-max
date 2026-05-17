@@ -21,7 +21,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -86,16 +85,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // ── Bottom navigation ─────────────────────────────────────────────────
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        bottomNav.selectedItemId = R.id.nav_home
-        bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_history -> {
-                    startActivity(Intent(this, HistoryActivity::class.java))
-                    false // keep Home highlighted while on this screen
-                }
-                else -> true
-            }
+        findViewById<ImageButton>(R.id.navHome).setOnClickListener { /* already here */ }
+        findViewById<ImageButton>(R.id.navHistory).setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
+        findViewById<ImageButton>(R.id.navProfile).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
 
         // ── Step sensor setup ─────────────────────────────────────────────────
