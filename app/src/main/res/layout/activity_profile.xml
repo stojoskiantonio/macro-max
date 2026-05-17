@@ -59,14 +59,32 @@
                 android:gravity="center"
                 android:layout_marginBottom="24dp">
 
-                <TextView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:gravity="center"
-                    android:text="👤"
-                    android:textSize="40sp"
-                    android:background="@drawable/bg_circle_avatar"
-                    android:layout_marginBottom="10dp" />
+                <FrameLayout
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_marginBottom="10dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivProfileAvatar"
+                        android:layout_width="88dp"
+                        android:layout_height="88dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_person"
+                        android:background="@drawable/bg_circle_avatar"
+                        android:padding="18dp"
+                        app:shapeAppearanceOverlay="@style/CircleImageView" />
+
+                    <ImageView
+                        android:id="@+id/ivEditBadge"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="bottom|end"
+                        android:src="@drawable/ic_camera"
+                        android:background="@drawable/bg_edit_badge"
+                        android:padding="5dp"
+                        android:contentDescription="Change photo" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/tvProfileName"
@@ -125,7 +143,7 @@
                         android:id="@+id/etProfileWeight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
+                        android:inputType="number"
                         android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -278,6 +296,32 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Daily water goal -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_water_section"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:alpha="0.5"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/profile_water_goal"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etWaterGoal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:imeOptions="actionDone" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Save button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveProfile"
@@ -285,6 +329,29 @@
                 android:layout_height="56dp"
                 android:text="@string/profile_save"
                 android:textSize="15sp" />
+
+            <!-- Account section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_account_section"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:alpha="0.5"
+                android:letterSpacing="0.1"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Log out button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogOut"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="@string/btn_log_out"
+                android:textSize="15sp"
+                android:textColor="#EF5350"
+                app:strokeColor="#EF5350" />
 
         </LinearLayout>
     </ScrollView>

@@ -16,6 +16,7 @@ import java.util.Locale
 
 class HistoryActivity : AppCompatActivity() {
 
+    private lateinit var weeklyChart: WeeklyCalorieChartView
     private lateinit var tvSelectedDate: TextView
     private lateinit var cardDaySummary: MaterialCardView
     private lateinit var tvDayTotalCal: TextView
@@ -29,6 +30,7 @@ class HistoryActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btnHistoryBack).setOnClickListener { finish() }
 
+        weeklyChart      = findViewById(R.id.weeklyChart)
         tvSelectedDate   = findViewById(R.id.tvSelectedDate)
         cardDaySummary   = findViewById(R.id.cardDaySummary)
         tvDayTotalCal    = findViewById(R.id.tvDayTotalCal)
@@ -41,6 +43,9 @@ class HistoryActivity : AppCompatActivity() {
         // Prevent selecting future dates
         calendarView.maxDate = System.currentTimeMillis()
 
+        // Load weekly chart
+        loadWeeklyChart()
+
         // Show today's entries on open
         showEntriesForKey(todayDateKey())
 
@@ -50,6 +55,31 @@ class HistoryActivity : AppCompatActivity() {
             val key = SimpleDateFormat("yyyyMMdd", Locale.US).format(cal.time)
             showEntriesForKey(key)
         }
+    }
+
+    private fun loadWeeklyChart() {
+        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val target = prefs.getInt("target_calories", 0)
+        val fmt    = SimpleDateFormat("yyyyMMdd", Locale.US)
+        val dayFmt = SimpleDateFormat("EEE", Locale.getDefault())
+
+        val bars = (6 downTo 0).map { daysAgo ->
+            val cal = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -daysAgo) }
+            val key  = fmt.format(cal.time)
+            val json = prefs.getString("food_log_$key", "[]") ?: "[]"
+            val arr  = JSONArray(json)
+            var consumed = 0
+            for (i in 0 until arr.length()) consumed += arr.getJSONObject(i).optInt("cal", 0)
+
+            WeeklyCalorieChartView.DayBar(
+                label    = dayFmt.format(cal.time).take(3),
+                consumed = consumed,
+                isToday  = daysAgo == 0
+            )
+        }
+
+        weeklyChart.target = target
+        weeklyChart.bars   = bars
     }
 
     private fun showEntriesForKey(dateKey: String) {
@@ -71,26 +101,46 @@ class HistoryActivity : AppCompatActivity() {
 
         var totalCal = 0; var totalPro = 0; var totalFat = 0; var totalCarb = 0
 
-        for (i in 0 until arr.length()) {
-            val obj   = arr.getJSONObject(i)
-            val entry = FoodEntry(
+        // Parse all entries
+        val entries = (0 until arr.length()).map { i ->
+            val obj = arr.getJSONObject(i)
+            FoodEntry(
                 name     = obj.getString("name"),
                 calories = obj.getInt("cal"),
                 proteinG = obj.getInt("pro"),
                 fatG     = obj.getInt("fat"),
-                carbsG   = obj.getInt("car")
+                carbsG   = obj.getInt("car"),
+                mealType = obj.optString("meal", "other")
             )
+        }
+
+        entries.forEach { entry ->
             totalCal  += entry.calories
             totalPro  += entry.proteinG
             totalFat  += entry.fatG
             totalCarb += entry.carbsG
+        }
 
-            val row = layoutInflater.inflate(
-                R.layout.item_history_food_row, containerEntries, false
-            )
-            row.findViewById<TextView>(R.id.tvHistoryFoodName).text = entry.name
-            row.findViewById<TextView>(R.id.tvHistoryFoodCal).text  = "${entry.calories} kcal"
-            containerEntries.addView(row)
+        // Group by meal type and inflate with headers
+        val mealOrder = listOf("breakfast", "lunch", "dinner", "snack", "other")
+        val grouped   = entries.groupBy { it.mealType.lowercase().ifBlank { "other" } }
+
+        for (mealType in mealOrder) {
+            val group = grouped[mealType] ?: continue
+
+            // Meal type header
+            val header = layoutInflater.inflate(R.layout.item_meal_header, containerEntries, false)
+            header.findViewById<TextView>(R.id.tvMealHeader).text =
+                FoodLogAdapter.mealLabel(this, mealType)
+            containerEntries.addView(header)
+
+            // Food rows
+            group.forEach { entry ->
+                val row = layoutInflater.inflate(R.layout.item_history_food_row, containerEntries, false)
+                row.findViewById<TextView>(R.id.tvHistoryFoodName).text = entry.name
+                row.findViewById<TextView>(R.id.tvHistoryFoodCal).text  = "${entry.calories} kcal"
+                containerEntries.addView(row)
+            }
         }
 
         tvDayTotalCal.text      = totalCal.toString()

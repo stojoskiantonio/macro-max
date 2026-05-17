@@ -19,29 +19,42 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingTop="12dp">
+            android:paddingTop="16dp">
 
-            <!-- Settings button row -->
-            <FrameLayout
+            <!-- Greeting + streak row -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
 
-                <ImageButton
-                    android:id="@+id/btnSettings"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="end"
-                    android:src="@drawable/ic_settings"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Settings" />
-            </FrameLayout>
+                <TextView
+                    android:id="@+id/tvGreeting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="Good morning!" />
+
+                <TextView
+                    android:id="@+id/tvStreak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:text="🔥 5 day streak" />
+
+            </LinearLayout>
 
             <!-- Macro overview card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardMacros"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 app:cardCornerRadius="18dp"
@@ -82,7 +95,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
+                            android:layout_marginBottom="3dp">
 
                             <TextView
                                 android:layout_width="10dp"
@@ -109,13 +122,24 @@
                                 tools:text="160g / 240g" />
                         </LinearLayout>
 
+                        <ProgressBar
+                            android:id="@+id/pbProtein"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:layout_marginBottom="9dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="#4CAF50"
+                            android:progressBackgroundTint="#334CAF50" />
+
                         <!-- Fat row -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
+                            android:layout_marginBottom="3dp">
 
                             <TextView
                                 android:layout_width="10dp"
@@ -142,12 +166,24 @@
                                 tools:text="55g / 70g" />
                         </LinearLayout>
 
+                        <ProgressBar
+                            android:id="@+id/pbFat"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:layout_marginBottom="9dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="#EF5350"
+                            android:progressBackgroundTint="#33EF5350" />
+
                         <!-- Carbs row -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="3dp">
 
                             <TextView
                                 android:layout_width="10dp"
@@ -173,6 +209,16 @@
                                 android:textStyle="bold"
                                 tools:text="180g / 220g" />
                         </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/pbCarbs"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="#64B5F6"
+                            android:progressBackgroundTint="#3364B5F6" />
 
                     </LinearLayout>
                 </LinearLayout>
@@ -287,13 +333,125 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Water intake card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardWater"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="14dp">
+
+                    <!-- Title row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_water"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="Water" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/water_title"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/tvWaterCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            tools:text="3 / 8" />
+
+                    </LinearLayout>
+
+                    <!-- Progress bar -->
+                    <ProgressBar
+                        android:id="@+id/pbWater"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="6dp"
+                        android:layout_marginBottom="12dp"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressTint="#64B5F6"
+                        android:progressBackgroundTint="#3364B5F6" />
+
+                    <!-- Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnWaterMinus"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:text="−"
+                            android:textSize="18sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            app:cornerRadius="20dp" />
+
+                        <TextView
+                            android:id="@+id/tvWaterGlasses"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textSize="13sp"
+                            android:alpha="0.7"
+                            tools:text="0 glasses" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnWaterPlus"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:text="+"
+                            android:textSize="18sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            app:cornerRadius="20dp" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Today's Food section header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginBottom="8dp"
                 android:paddingHorizontal="4dp">
 

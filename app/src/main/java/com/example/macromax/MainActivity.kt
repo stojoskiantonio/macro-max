@@ -1,5 +1,7 @@
 package com.example.macromax
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
@@ -10,7 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
-import android.widget.PopupMenu
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -20,14 +22,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.FirebaseAuth
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -36,6 +39,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var stepSensor: Sensor? = null
 
+    private lateinit var tvGreeting: TextView
+    private lateinit var tvStreak: TextView
     private lateinit var tvStepCount: TextView
     private lateinit var tvCaloriesBurned: TextView
     private lateinit var stepDonut: StepDonutView
@@ -44,9 +49,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var tvProteinVal: TextView
     private lateinit var tvFatVal: TextView
     private lateinit var tvCarbsVal: TextView
+    private lateinit var pbProtein: ProgressBar
+    private lateinit var pbFat: ProgressBar
+    private lateinit var pbCarbs: ProgressBar
     private lateinit var tvTotalConsumed: TextView
     private lateinit var tvNoFood: TextView
     private lateinit var rvFoodLog: RecyclerView
+
+    private lateinit var tvWaterCount: TextView
+    private lateinit var tvWaterGlasses: TextView
+    private lateinit var pbWater: ProgressBar
 
     private val stepGoal = 10_000
 
@@ -65,18 +77,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // ── Bind views ───────────────────────────────────────────────────────
+        tvGreeting       = findViewById(R.id.tvGreeting)
+        tvStreak         = findViewById(R.id.tvStreak)
         macroDonut       = findViewById(R.id.macroDonut)
         tvProteinVal     = findViewById(R.id.tvProteinVal)
         tvFatVal         = findViewById(R.id.tvFatVal)
         tvCarbsVal       = findViewById(R.id.tvCarbsVal)
+        pbProtein        = findViewById(R.id.pbProtein)
+        pbFat            = findViewById(R.id.pbFat)
+        pbCarbs          = findViewById(R.id.pbCarbs)
         tvTotalConsumed  = findViewById(R.id.tvTotalConsumed)
         tvNoFood         = findViewById(R.id.tvNoFood)
         rvFoodLog        = findViewById(R.id.rvFoodLog)
         tvStepCount      = findViewById(R.id.tvStepCount)
         tvCaloriesBurned = findViewById(R.id.tvCaloriesBurned)
         stepDonut        = findViewById(R.id.stepDonut)
+        tvWaterCount     = findViewById(R.id.tvWaterCount)
+        tvWaterGlasses   = findViewById(R.id.tvWaterGlasses)
+        pbWater          = findViewById(R.id.pbWater)
 
-        // ── RecyclerView setup ────────────────────────────────────────────────
+        // ── RecyclerView ──────────────────────────────────────────────────────
         rvFoodLog.layoutManager = LinearLayoutManager(this)
 
         // ── FAB ───────────────────────────────────────────────────────────────
@@ -93,7 +113,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
-        // ── Step sensor setup ─────────────────────────────────────────────────
+        // ── Water tracker ─────────────────────────────────────────────────────
+        findViewById<MaterialButton>(R.id.btnWaterPlus).setOnClickListener {
+            adjustWater(+1)
+        }
+        findViewById<MaterialButton>(R.id.btnWaterMinus).setOnClickListener {
+            adjustWater(-1)
+        }
+
+        // ── Step sensor ───────────────────────────────────────────────────────
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         stepSensor    = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         if (stepSensor != null) requestActivityPermissionIfNeeded()
@@ -103,32 +131,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val todayKey = todayDateKey()
         updateStepUI(prefs.getInt("steps_$todayKey", 0))
 
-        // ── Settings dropdown ─────────────────────────────────────────────────
-        findViewById<ImageButton>(R.id.btnSettings).setOnClickListener { anchor ->
-            val popup = PopupMenu(this, anchor)
-            popup.menuInflater.inflate(R.menu.menu_main, popup.menu)
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.action_logout -> {
-                        FirebaseAuth.getInstance().signOut()
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                        true
-                    }
-                    else -> false
-                }
-            }
-            popup.show()
-        }
+        // ── Daily summary notification ────────────────────────────────────────
+        scheduleDailySummaryNotification()
     }
 
     override fun onResume() {
         super.onResume()
-
-        // Reload food log and update macro card every time we come back
+        updateGreeting()
         refreshFoodLog()
+        refreshWater()
+        refreshStreak()
 
-        // Re-register step sensor
         stepSensor?.also { sensor ->
             if (hasActivityPermission()) {
                 sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
@@ -141,23 +154,90 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
     }
 
+    // ── Greeting ─────────────────────────────────────────────────────────────
+
+    private fun updateGreeting() {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        tvGreeting.text = when {
+            hour < 12 -> "Good morning! ☀️"
+            hour < 18 -> "Good afternoon! 🌤"
+            else      -> "Good evening! 🌙"
+        }
+    }
+
+    // ── Streak ───────────────────────────────────────────────────────────────
+
+    private fun refreshStreak() {
+        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val streak = calculateStreak(prefs)
+        if (streak > 0) {
+            tvStreak.text       = getString(R.string.streak_days, streak)
+            tvStreak.visibility = View.VISIBLE
+        } else {
+            tvStreak.visibility = View.GONE
+        }
+    }
+
+    private fun calculateStreak(prefs: android.content.SharedPreferences): Int {
+        var streak = 0
+        val cal    = Calendar.getInstance()
+        // Start from yesterday — today may not be complete yet
+        cal.add(Calendar.DAY_OF_YEAR, -1)
+        repeat(365) {
+            val key  = SimpleDateFormat("yyyyMMdd", Locale.US).format(cal.time)
+            val json = prefs.getString("food_log_$key", "[]") ?: "[]"
+            if (JSONArray(json).length() > 0) {
+                streak++
+                cal.add(Calendar.DAY_OF_YEAR, -1)
+            } else {
+                return streak
+            }
+        }
+        return streak
+    }
+
+    // ── Water tracker ────────────────────────────────────────────────────────
+
+    private fun waterKey() = "water_glasses_${todayDateKey()}"
+
+    private fun waterGoal(): Int =
+        getSharedPreferences("macromax_prefs", MODE_PRIVATE).getInt("water_goal", 8)
+
+    private fun adjustWater(delta: Int) {
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val current = prefs.getInt(waterKey(), 0)
+        val updated = (current + delta).coerceAtLeast(0)
+        prefs.edit().putInt(waterKey(), updated).apply()
+        updateWaterUI(updated)
+    }
+
+    private fun refreshWater() {
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val glasses = prefs.getInt(waterKey(), 0)
+        updateWaterUI(glasses)
+    }
+
+    private fun updateWaterUI(glasses: Int) {
+        val goal = waterGoal()
+        tvWaterCount.text   = "$glasses / $goal"
+        tvWaterGlasses.text = getString(R.string.water_glasses_label, glasses)
+        pbWater.progress    = if (goal > 0) (glasses * 100 / goal).coerceAtMost(100) else 0
+    }
+
     // ── Food log ─────────────────────────────────────────────────────────────
 
     private fun refreshFoodLog() {
-        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-
-        // Daily targets saved during onboarding
+        val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val targetCal  = prefs.getInt("target_calories",  0)
         val targetPro  = prefs.getInt("target_protein_g", 0)
         val targetFat  = prefs.getInt("target_fat_g",     0)
         val targetCarb = prefs.getInt("target_carbs_g",   0)
 
-        // Today's consumed totals from food log
         val logKey = "food_log_${todayDateKey()}"
         val json   = prefs.getString(logKey, "[]") ?: "[]"
         val arr    = JSONArray(json)
 
-        val entries = mutableListOf<FoodEntry>()
+        val entries   = mutableListOf<FoodEntry>()
         var totalCal  = 0
         var totalPro  = 0
         var totalFat  = 0
@@ -170,7 +250,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 calories  = obj.getInt("cal"),
                 proteinG  = obj.getInt("pro"),
                 fatG      = obj.getInt("fat"),
-                carbsG    = obj.getInt("car")
+                carbsG    = obj.getInt("car"),
+                mealType  = obj.optString("meal", "other")
             )
             entries.add(entry)
             totalCal  += entry.calories
@@ -179,22 +260,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             totalCarb += entry.carbsG
         }
 
-        // Update macro donut (center shows consumed / target)
+        // Macro donut
         macroDonut.totalCalories  = totalCal
         macroDonut.targetCalories = targetCal
         macroDonut.proteinG       = totalPro
         macroDonut.fatG           = totalFat
         macroDonut.carbG          = totalCarb
 
-        // Labels: consumed / target  (hide target part if not set yet)
+        // Labels
         tvProteinVal.text = if (targetPro > 0) "${totalPro}g / ${targetPro}g" else "${totalPro}g"
         tvFatVal.text     = if (targetFat > 0) "${totalFat}g / ${targetFat}g" else "${totalFat}g"
         tvCarbsVal.text   = if (targetCarb > 0) "${totalCarb}g / ${targetCarb}g" else "${totalCarb}g"
 
+        // Progress bars (capped at 100%)
+        pbProtein.progress = if (targetPro > 0) ((totalPro  * 100) / targetPro).coerceAtMost(100)  else 0
+        pbFat.progress     = if (targetFat > 0) ((totalFat  * 100) / targetFat).coerceAtMost(100)  else 0
+        pbCarbs.progress   = if (targetCarb > 0) ((totalCarb * 100) / targetCarb).coerceAtMost(100) else 0
+
         // Header total
         tvTotalConsumed.text = if (targetCal > 0) "$totalCal / $targetCal kcal" else "$totalCal kcal"
 
-        // Update food list
+        // Food list — grouped by meal type
         if (entries.isEmpty()) {
             tvNoFood.visibility  = View.VISIBLE
             rvFoodLog.visibility = View.GONE
@@ -202,9 +288,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             tvNoFood.visibility  = View.GONE
             rvFoodLog.visibility = View.VISIBLE
             rvFoodLog.adapter    = FoodLogAdapter(
-                items         = entries,
-                onEditClick   = { index, entry -> showEditDialog(index, entry) },
-                onDeleteClick = { index -> showDeleteConfirmation(index) }
+                items         = FoodLogAdapter.buildItems(entries),
+                onEditClick   = { rawIndex, entry -> showEditDialog(rawIndex, entry) },
+                onDeleteClick = { rawIndex -> showDeleteConfirmation(rawIndex) }
             )
         }
     }
@@ -219,7 +305,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val etFat   = view.findViewById<TextInputEditText>(R.id.etManualFat)
         val etCarbs = view.findViewById<TextInputEditText>(R.id.etManualCarbs)
 
-        // Pre-fill with existing values
         etName.setText(entry.name)
         etCal.setText(entry.calories.toString())
         etPro.setText(entry.proteinG.toString())
@@ -239,10 +324,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
                 val updated = FoodEntry(
                     name     = name,
-                    calories = calStr.toIntOrNull()                          ?: 0,
-                    proteinG = etPro.text.toString().trim().toIntOrNull()    ?: 0,
-                    fatG     = etFat.text.toString().trim().toIntOrNull()    ?: 0,
-                    carbsG   = etCarbs.text.toString().trim().toIntOrNull()  ?: 0
+                    calories = calStr.toIntOrNull()                         ?: 0,
+                    proteinG = etPro.text.toString().trim().toIntOrNull()   ?: 0,
+                    fatG     = etFat.text.toString().trim().toIntOrNull()   ?: 0,
+                    carbsG   = etCarbs.text.toString().trim().toIntOrNull() ?: 0
                 )
                 updateEntryInLog(index, updated)
                 refreshFoodLog()
@@ -268,11 +353,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val logKey = "food_log_${todayDateKey()}"
         val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
         arr.put(index, JSONObject().apply {
-            put("name", updated.name)
-            put("cal",  updated.calories)
-            put("pro",  updated.proteinG)
-            put("fat",  updated.fatG)
-            put("car",  updated.carbsG)
+            put("name", updated.name); put("cal", updated.calories)
+            put("pro",  updated.proteinG); put("fat", updated.fatG); put("car", updated.carbsG)
         })
         prefs.edit().putString(logKey, arr.toString()).apply()
     }
@@ -283,6 +365,33 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
         arr.remove(index)
         prefs.edit().putString(logKey, arr.toString()).apply()
+    }
+
+    // ── Daily notification ───────────────────────────────────────────────────
+
+    private fun scheduleDailySummaryNotification() {
+        val alarmManager  = getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent        = Intent(this, DailySummaryReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Fire at 8 PM today; if already past, fire tomorrow
+        val triggerTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 20)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_YEAR, 1)
+        }.timeInMillis
+
+        alarmManager.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
     }
 
     // ── Step sensor ──────────────────────────────────────────────────────────

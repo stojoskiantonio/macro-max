@@ -1,22 +1,25 @@
 package com.example.macromax
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -39,6 +42,16 @@ class LogFoodActivity : AppCompatActivity() {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var searchJob: Job? = null
 
+    private val scanLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val barcode = result.data?.getStringExtra(BarcodeScanActivity.EXTRA_BARCODE) ?: return@registerForActivityResult
+            lookupBarcode(barcode)
+        }
+    }
+
+    private lateinit var cgMealType: ChipGroup
     private lateinit var rvResults: RecyclerView
     private lateinit var progressSearch: CircularProgressIndicator
     private lateinit var tvSearchHint: TextView
@@ -51,11 +64,21 @@ class LogFoodActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
 
+        cgMealType     = findViewById(R.id.cgMealType)
         rvResults      = findViewById(R.id.rvSearchResults)
         progressSearch = findViewById(R.id.progressSearch)
         tvSearchHint   = findViewById(R.id.tvSearchHint)
         layoutNoResults = findViewById(R.id.layoutNoResults)
         tvNoResults    = findViewById(R.id.tvNoResults)
+
+        // Pre-select meal type based on time of day
+        val defaultChipId = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+            in 5..9   -> R.id.chipBreakfast
+            in 10..14 -> R.id.chipLunch
+            in 15..20 -> R.id.chipDinner
+            else      -> R.id.chipSnack
+        }
+        findViewById<com.google.android.material.chip.Chip>(defaultChipId).isChecked = true
 
         rvResults.layoutManager = LinearLayoutManager(this)
 
@@ -68,6 +91,11 @@ class LogFoodActivity : AppCompatActivity() {
                 onQueryChanged(query)
             }
         })
+
+        // Barcode scan button
+        findViewById<ImageButton>(R.id.btnScanBarcode).setOnClickListener {
+            scanLauncher.launch(Intent(this, BarcodeScanActivity::class.java))
+        }
 
         // Manual entry fallback
         findViewById<MaterialButton>(R.id.btnManualEntry).setOnClickListener {
@@ -214,7 +242,8 @@ class LogFoodActivity : AppCompatActivity() {
                         calories  = (food.caloriesPer100g * factor).toInt(),
                         proteinG  = (food.proteinPer100g  * factor).toInt(),
                         fatG      = (food.fatPer100g      * factor).toInt(),
-                        carbsG    = (food.carbsPer100g    * factor).toInt()
+                        carbsG    = (food.carbsPer100g    * factor).toInt(),
+                        mealType  = selectedMealType()
                     )
                 )
                 Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
@@ -253,7 +282,8 @@ class LogFoodActivity : AppCompatActivity() {
                         calories  = calStr.toIntOrNull()                               ?: 0,
                         proteinG  = etPro.text.toString().trim().toIntOrNull()         ?: 0,
                         fatG      = etFat.text.toString().trim().toIntOrNull()         ?: 0,
-                        carbsG    = etCarbs.text.toString().trim().toIntOrNull()       ?: 0
+                        carbsG    = etCarbs.text.toString().trim().toIntOrNull()       ?: 0,
+                        mealType  = selectedMealType()
                     )
                 )
                 Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
@@ -261,6 +291,63 @@ class LogFoodActivity : AppCompatActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    // ── Barcode lookup ────────────────────────────────────────────────────────
+
+    private fun lookupBarcode(barcode: String) {
+        showState(State.LOADING)
+        searchJob?.cancel()
+        searchJob = scope.launch {
+            val food = try { fetchByBarcode(barcode) } catch (e: Exception) { null }
+            if (food == null) {
+                showNoResults(getString(R.string.barcode_not_found))
+            } else {
+                showState(State.HINT)
+                showPortionDialog(food)
+            }
+        }
+    }
+
+    private suspend fun fetchByBarcode(barcode: String): FoodSearchResult? =
+        withContext(Dispatchers.IO) {
+            val url  = URL("https://world.openfoodfacts.org/api/v0/product/$barcode.json")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = 10_000
+            conn.readTimeout    = 10_000
+            conn.setRequestProperty("User-Agent", "MacroMax Android App")
+            try {
+                val body = conn.inputStream.bufferedReader().readText()
+                val root = JSONObject(body)
+                if (root.optInt("status", 0) == 0) return@withContext null
+
+                val p = root.optJSONObject("product") ?: return@withContext null
+                val name = p.optString("product_name").trim().ifEmpty { return@withContext null }
+                val n    = p.optJSONObject("nutriments") ?: return@withContext null
+                val kcal = n.optDouble("energy-kcal_100g", -1.0)
+                if (kcal < 0) return@withContext null
+
+                FoodSearchResult(
+                    name            = name,
+                    brand           = p.optString("brands").split(",").first().trim(),
+                    caloriesPer100g = kcal.toInt(),
+                    proteinPer100g  = n.optDouble("proteins_100g",     0.0).toFloat(),
+                    fatPer100g      = n.optDouble("fat_100g",          0.0).toFloat(),
+                    carbsPer100g    = n.optDouble("carbohydrates_100g",0.0).toFloat()
+                )
+            } finally {
+                conn.disconnect()
+            }
+        }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private fun selectedMealType(): String = when (cgMealType.checkedChipId) {
+        R.id.chipBreakfast -> "breakfast"
+        R.id.chipLunch     -> "lunch"
+        R.id.chipDinner    -> "dinner"
+        R.id.chipSnack     -> "snack"
+        else               -> "other"
     }
 
     // ── Persistence ───────────────────────────────────────────────────────────
@@ -275,6 +362,7 @@ class LogFoodActivity : AppCompatActivity() {
             put("pro",  entry.proteinG)
             put("fat",  entry.fatG)
             put("car",  entry.carbsG)
+            put("meal", entry.mealType)
         })
         prefs.edit().putString(logKey, arr.toString()).apply()
     }

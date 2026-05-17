@@ -5,5 +5,6 @@ data class FoodEntry(
     val calories: Int,
     val proteinG: Int,
     val fatG: Int,
-    val carbsG: Int
+    val carbsG: Int,
+    val mealType: String = "other"
 )

@@ -81,6 +81,7 @@
     <string name="menu_history">History</string>
     <string name="history_empty">No history yet.\nStart logging food to see past days here.</string>
     <string name="history_no_entries">No food logged on this day</string>
+    <string name="history_weekly_chart">This Week</string>
 
     <!-- Profile screen -->
     <string name="profile_title">Profile</string>
@@ -93,6 +94,41 @@
     <string name="profile_save">Save &amp; Recalculate</string>
     <string name="profile_saved">Profile saved!</string>
     <string name="nav_profile">Profile</string>
+
+    <!-- Barcode scanner -->
+    <string name="scan_barcode">Scan barcode</string>
+    <string name="scan_hint">Point the camera at a barcode</string>
+    <string name="barcode_not_found">Product not found — try searching by name</string>
+
+    <!-- Profile water goal -->
+    <string name="profile_water_section">Water Goal</string>
+    <string name="profile_water_goal">Daily glasses goal</string>
+
+    <!-- Meal types -->
+    <string name="meal_breakfast">Breakfast</string>
+    <string name="meal_lunch">Lunch</string>
+    <string name="meal_dinner">Dinner</string>
+    <string name="meal_snack">Snack</string>
+    <string name="meal_other">Other</string>
+
+    <!-- Water tracker -->
+    <string name="water_title">Water Intake</string>
+    <string name="water_glasses">%d / 8 glasses</string>
+    <string name="water_glasses_label">%d glasses</string>
+
+    <!-- Streak -->
+    <string name="streak_days">🔥 %d day streak</string>
+
+    <!-- Notification channel -->
+    <string name="notif_channel_name">Daily Summary</string>
+    <string name="notif_channel_desc">End-of-day calorie reminder</string>
+    <string name="notif_summary_title">Daily Summary</string>
+    <string name="notif_summary_remaining">%d kcal remaining today — keep it up!</string>
+    <string name="notif_summary_goal_hit">You\'ve hit your calorie goal today! 🎉</string>
+
+    <!-- Profile logout -->
+    <string name="profile_account_section">Account</string>
+    <string name="profile_logout_confirm">Log out of Macro Max?</string>
 
     <!-- Facebook Login — replace with values from developers.facebook.com -->
     <string name="facebook_app_id">YOUR_FACEBOOK_APP_ID</string>

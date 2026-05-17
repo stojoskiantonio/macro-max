@@ -50,6 +50,10 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.facebook.login)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.mlkit.barcode)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

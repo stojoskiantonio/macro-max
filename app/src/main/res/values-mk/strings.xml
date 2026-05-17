@@ -81,6 +81,7 @@
     <string name="menu_history">Историја</string>
     <string name="history_empty">Сè уште нема историја.\nПочни да внесуваш храна за да видиш минати денови.</string>
     <string name="history_no_entries">Нема внесена храна за овој ден</string>
+    <string name="history_weekly_chart">Оваа недела</string>
 
     <!-- Профил -->
     <string name="profile_title">Профил</string>
@@ -93,6 +94,41 @@
     <string name="profile_save">Зачувај и пресметај</string>
     <string name="profile_saved">Профилот е зачуван!</string>
     <string name="nav_profile">Профил</string>
+
+    <!-- Скенер за баркод -->
+    <string name="scan_barcode">Скенирај баркод</string>
+    <string name="scan_hint">Насочи ја камерата кон баркодот</string>
+    <string name="barcode_not_found">Производот не е пронајден — пробај со пребарување</string>
+
+    <!-- Цел за вода во профил -->
+    <string name="profile_water_section">Цел за вода</string>
+    <string name="profile_water_goal">Дневна цел (чаши)</string>
+
+    <!-- Видови оброци -->
+    <string name="meal_breakfast">Појадок</string>
+    <string name="meal_lunch">Ручек</string>
+    <string name="meal_dinner">Вечера</string>
+    <string name="meal_snack">Ужина</string>
+    <string name="meal_other">Друго</string>
+
+    <!-- Вода -->
+    <string name="water_title">Внес на вода</string>
+    <string name="water_glasses">%d / 8 чаши</string>
+    <string name="water_glasses_label">%d чаши</string>
+
+    <!-- Серија -->
+    <string name="streak_days">🔥 %d-дневна серија</string>
+
+    <!-- Нотификации -->
+    <string name="notif_channel_name">Дневен преглед</string>
+    <string name="notif_channel_desc">Потсетник за калории на крај од денот</string>
+    <string name="notif_summary_title">Дневен преглед</string>
+    <string name="notif_summary_remaining">Уште %d kcal за денес — продолжи!</string>
+    <string name="notif_summary_goal_hit">Ја достигна калориската цел денес! 🎉</string>
+
+    <!-- Профил одјава -->
+    <string name="profile_account_section">Сметка</string>
+    <string name="profile_logout_confirm">Одјава од Macro Max?</string>
 
     <string name="facebook_app_id">YOUR_FACEBOOK_APP_ID</string>
     <string name="fb_login_protocol_scheme">fbYOUR_FACEBOOK_APP_ID</string>
