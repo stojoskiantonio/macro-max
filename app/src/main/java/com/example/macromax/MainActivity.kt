@@ -4,14 +4,17 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -60,6 +63,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var tvWaterGlasses: TextView
     private lateinit var pbWater: ProgressBar
 
+    private lateinit var tvWorkoutsEmpty: TextView
+    private lateinit var containerWorkouts: LinearLayout
+
+    private var workoutCaloriesToday = 0
     private val stepGoal = 10_000
 
     companion object {
@@ -95,6 +102,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         tvWaterCount     = findViewById(R.id.tvWaterCount)
         tvWaterGlasses   = findViewById(R.id.tvWaterGlasses)
         pbWater          = findViewById(R.id.pbWater)
+        tvWorkoutsEmpty  = findViewById(R.id.tvWorkoutsEmpty)
+        containerWorkouts = findViewById(R.id.containerWorkouts)
 
         // ── RecyclerView ──────────────────────────────────────────────────────
         rvFoodLog.layoutManager = LinearLayoutManager(this)
@@ -114,6 +123,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         findViewById<ImageButton>(R.id.navSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        // ── Workout logging ───────────────────────────────────────────────────
+        findViewById<MaterialButton>(R.id.btnLogWorkout).setOnClickListener {
+            startActivity(Intent(this, WorkoutLogActivity::class.java))
         }
 
         // ── Water tracker ─────────────────────────────────────────────────────
@@ -144,6 +158,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         refreshFoodLog()
         refreshWater()
         refreshStreak()
+        refreshWorkouts()
 
         stepSensor?.also { sensor ->
             if (hasActivityPermission()) {
@@ -421,11 +436,107 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
     private fun updateStepUI(steps: Int) {
-        val burned = (steps * 0.04).toInt()
+        val stepCalories  = (steps * 0.04).toInt()
+        val totalBurned   = stepCalories + workoutCaloriesToday
         tvStepCount.text      = steps.toString()
-        tvCaloriesBurned.text = "$burned kcal"
+        tvCaloriesBurned.text = "$totalBurned kcal"
         stepDonut.progress    = (steps.toFloat() / stepGoal).coerceIn(0f, 1f)
-        stepDonut.centerText  = burned.toString()
+        stepDonut.centerText  = totalBurned.toString()
+    }
+
+    // ── Workouts ──────────────────────────────────────────────────────────────
+
+    private fun refreshWorkouts() {
+        val prefs    = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val workouts = WorkoutRepository.load(prefs, todayDateKey())
+        workoutCaloriesToday = workouts.sumOf { it.caloriesBurned }
+
+        // Re-render step UI so total burned reflects new workout calories
+        val steps = prefs.getInt("steps_${todayDateKey()}", 0)
+        updateStepUI(steps)
+
+        containerWorkouts.removeAllViews()
+        if (workouts.isEmpty()) {
+            tvWorkoutsEmpty.visibility   = View.VISIBLE
+            containerWorkouts.visibility = View.GONE
+        } else {
+            tvWorkoutsEmpty.visibility   = View.GONE
+            containerWorkouts.visibility = View.VISIBLE
+            workouts.forEachIndexed { idx, workout ->
+                if (idx > 0) containerWorkouts.addView(dividerView())
+                containerWorkouts.addView(buildWorkoutRow(workout))
+            }
+        }
+    }
+
+    private fun buildWorkoutRow(workout: WorkoutEntry): View {
+        val dp  = resources.displayMetrics.density
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity     = Gravity.CENTER_VERTICAL
+            setPadding(0, (10 * dp).toInt(), 0, (10 * dp).toInt())
+        }
+
+        val left = LinearLayout(this).apply {
+            orientation  = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        left.addView(TextView(this).apply {
+            text     = workout.exerciseName
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(getColor(android.R.color.transparent).let {
+                val ta = obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+                val c  = ta.getColor(0, android.graphics.Color.BLACK); ta.recycle(); c
+            })
+        })
+        left.addView(TextView(this).apply {
+            text     = "${workout.durationMinutes} min"
+            textSize = 11f
+            alpha    = 0.5f
+        })
+
+        val tvCal = TextView(this).apply {
+            text     = "${workout.caloriesBurned} kcal"
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            val ta = obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+            setTextColor(ta.getColor(0, android.graphics.Color.BLACK)); ta.recycle()
+        }
+
+        val btnDelete = ImageButton(this).apply {
+            setImageResource(android.R.drawable.ic_menu_delete)
+            background = null
+            alpha      = 0.4f
+            setPadding((8 * dp).toInt(), 0, 0, 0)
+            setOnClickListener { confirmDeleteWorkout(workout) }
+        }
+
+        row.addView(left)
+        row.addView(tvCal)
+        row.addView(btnDelete)
+        return row
+    }
+
+    private fun dividerView(): View = View(this).apply {
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            (0.75f * resources.displayMetrics.density).toInt()
+        )
+        setBackgroundColor(getColor(R.color.divider_line))
+    }
+
+    private fun confirmDeleteWorkout(workout: WorkoutEntry) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.workout_delete_title)
+            .setMessage(R.string.workout_delete_message)
+            .setPositiveButton(R.string.btn_delete) { _, _ ->
+                val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                WorkoutRepository.delete(prefs, todayDateKey(), workout.id)
+                refreshWorkouts()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

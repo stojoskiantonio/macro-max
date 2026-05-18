@@ -95,6 +95,7 @@
     <string name="history_empty">Сè уште нема историја.\nПочни да внесуваш храна за да видиш минати денови.</string>
     <string name="history_no_entries">Нема внесена храна за овој ден</string>
     <string name="history_weekly_chart">Оваа недела</string>
+    <string name="history_pick_date">Избери датум</string>
 
     <!-- Профил -->
     <string name="profile_title">Профил</string>
@@ -108,6 +109,64 @@
     <string name="profile_saved">Профилот е зачуван!</string>
     <string name="nav_profile">Профил</string>
     <string name="nav_settings">Поставки</string>
+    <!-- АИ анализа на фотографија -->
+    <string name="gemini_api_key">YOUR_GEMINI_API_KEY</string>
+    <string name="ai_scan_title">АИ скен на оброк</string>
+    <string name="ai_scan_btn">АИ скен</string>
+    <string name="ai_scan_prompt">Насочи ја камерата кон оброкот</string>
+    <string name="ai_scan_sub">АИ ќе ги процени калориите и макроите од фотографијата</string>
+    <string name="ai_take_photo">Сними фото</string>
+    <string name="ai_pick_gallery">Избери од галерија</string>
+    <string name="ai_analyze">Анализирај со АИ</string>
+    <string name="ai_retake">Пресними</string>
+    <string name="ai_analyzing">Анализирање на оброкот…</string>
+    <string name="ai_analyzing_sub">Gemini ги идентификува состојките и ги проценува порциите</string>
+    <string name="ai_breakdown">Идентификувани ставки</string>
+    <string name="ai_conf_high">Висока доверба</string>
+    <string name="ai_conf_medium">Средна доверба</string>
+    <string name="ai_conf_low">Ниска доверба</string>
+    <string name="ai_log_meal">Внеси го овој оброк</string>
+    <string name="ai_edit_log">Измени и внеси</string>
+    <string name="ai_edit_title">Прегледај и измени</string>
+    <string name="ai_retry">Обиди се повторно</string>
+    <string name="ai_select_meal_type">Избери вид на оброк</string>
+    <string name="ai_log_confirm">Внеси</string>
+    <string name="ai_no_api_key">Gemini API клучот не е конфигуриран. Додај го во Поставки.</string>
+    <string name="ai_analysis_error">Анализата не успеа: %s</string>
+
+    <!-- Рецепти -->
+    <string name="tab_recipes">Рецепти</string>
+    <string name="recipes_title">Мои рецепти</string>
+    <string name="recipes_empty">Сè уште нема рецепти — допри + за да создадеш prvi</string>
+    <string name="recipe_new">Нов рецепт</string>
+    <string name="recipe_edit_title">Измени рецепт</string>
+    <string name="recipe_save">Зачувај</string>
+    <string name="recipe_saved">Рецептот е зачуван!</string>
+    <string name="recipe_deleted">Рецептот е избришан</string>
+    <string name="recipe_delete_title">Избриши рецепт</string>
+    <string name="recipe_delete_message">Да се избрише „%s"? Ова не може да се врати.</string>
+    <string name="recipe_name_hint">Име на рецептот</string>
+    <string name="recipe_servings_hint">Порции</string>
+    <string name="recipe_ingredients_label">Состојки</string>
+    <string name="recipe_add_ingredient">Додај состојка</string>
+    <string name="recipe_totals_label">Вкупно по порција</string>
+    <string name="recipe_per_serving">%d порција/и: %d kcal  ·  P %dg  F %dg  C %dg</string>
+    <string name="recipe_total_all">Цел рецепт: %d kcal  ·  P %dg  F %dg  C %dg</string>
+    <string name="recipe_no_ingredients">Додај барем една состојка</string>
+    <string name="recipe_manage">Управувај со рецепти →</string>
+    <string name="recipe_log_message">Внеси 1 порција: %d kcal  ·  P %dg  F %dg  C %dg</string>
+    <string name="recipe_log_confirm">Внеси</string>
+
+    <!-- Омилени -->
+    <string name="tab_search">Пребарај</string>
+    <string name="tab_favourites">Омилени</string>
+    <string name="favourites_empty">Сè уште нема омилени — зачувај оброк за да го видиш тука</string>
+    <string name="btn_save_favourite">Зачувај во омилени ⭐</string>
+    <string name="favourite_saved">Зачувано во омилени!</string>
+    <string name="favourite_deleted">Отстрането од омилени</string>
+    <string name="delete_favourite_title">Отстрани омилен</string>
+    <string name="delete_favourite_message">Отстрани „%s" од омилените?</string>
+
     <!-- Следење на тежина -->
     <string name="weight_progress_title">Напредок во тежина</string>
     <string name="weight_progress_subtitle">Евидентирај и следи ја тежината со текот на времето</string>
@@ -125,6 +184,21 @@
 
     <string name="settings_appearance">Изглед</string>
     <string name="settings_light_mode">Светол режим</string>
+
+    <!-- Јазик -->
+    <string name="settings_ai_section">АИ функции</string>
+    <string name="settings_gemini_key_label">Gemini API клуч</string>
+    <string name="settings_gemini_key_hint_small">Потребен за АИ анализа на фотографија</string>
+    <string name="settings_gemini_key_field_hint">Залепи го твојот API клуч тука</string>
+    <string name="settings_gemini_key_save">Зачувај</string>
+    <string name="settings_gemini_key_saved">API клучот е зачуван ✓</string>
+    <string name="settings_gemini_key_cleared">API клучот е отстранет</string>
+    <string name="settings_gemini_key_footer">Земи бесплатен клуч на aistudio.google.com → Get API key. Не треба кредитна картичка.</string>
+
+    <string name="settings_language_section">Јазик</string>
+    <string name="settings_language_label">Јазик на апликацијата</string>
+    <string name="lang_english">English</string>
+    <string name="lang_macedonian">Македонски</string>
 
     <!-- Скенер за баркод -->
     <string name="scan_barcode">Скенирај баркод</string>
@@ -156,6 +230,30 @@
     <string name="notif_summary_title">Дневен преглед</string>
     <string name="notif_summary_remaining">Уште %d kcal за денес — продолжи!</string>
     <string name="notif_summary_goal_hit">Ја достигна калориската цел денес! 🎉</string>
+
+    <!-- Тренинг -->
+    <string name="workout_section_title">Тренинзи</string>
+    <string name="workout_log_btn">+ Внеси</string>
+    <string name="workout_empty">Нема тренинзи денес — притисни + за внес</string>
+    <string name="workout_log_title">Внеси тренинг</string>
+    <string name="workout_exercise_label">Вид на вежба</string>
+    <string name="workout_duration_label">Времетраење</string>
+    <string name="workout_duration_hint">0</string>
+    <string name="workout_minutes_suffix">мин</string>
+    <string name="workout_est_calories">~%d kcal проценето</string>
+    <string name="workout_save_btn">Зачувај тренинг</string>
+    <string name="workout_saved">Тренингот е зачуван!</string>
+    <string name="workout_delete_title">Отстрани тренинг</string>
+    <string name="workout_delete_message">Да се отстрани овој тренинг?</string>
+    <string name="workout_type_running">Трчање</string>
+    <string name="workout_type_walking">Одење</string>
+    <string name="workout_type_cycling">Велосипед</string>
+    <string name="workout_type_swimming">Пливање</string>
+    <string name="workout_type_weights">Тежини</string>
+    <string name="workout_type_hiit">HIIT</string>
+    <string name="workout_type_jump_rope">Јаже</string>
+    <string name="workout_type_yoga">Јога</string>
+    <string name="workout_type_other">Друго</string>
 
     <!-- Профил одјава -->
     <string name="profile_account_section">Сметка</string>

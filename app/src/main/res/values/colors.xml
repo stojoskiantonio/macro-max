@@ -3,6 +3,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Macro colours -->
+    <color name="macro_protein">#4CAF50</color>
+    <color name="macro_fat">#EF5350</color>
+    <color name="macro_carbs">#2196F3</color>
+
     <!-- Light-mode adaptive colours (overridden in values-night/colors.xml) -->
     <color name="divider_line">#14000000</color>
     <color name="icon_surface">#12000000</color>

@@ -98,4 +98,12 @@
 
     </LinearLayout>
 
+    <!-- Save as favourite checkbox -->
+    <CheckBox
+        android:id="@+id/cbSaveFavourite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/btn_save_favourite" />
+
 </LinearLayout>

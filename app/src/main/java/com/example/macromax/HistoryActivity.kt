@@ -2,27 +2,35 @@ package com.example.macromax
 
 import android.os.Bundle
 import android.view.View
-import android.widget.CalendarView
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
 import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class HistoryActivity : AppCompatActivity() {
 
-    private lateinit var weeklyChart: WeeklyCalorieChartView
-    private lateinit var tvSelectedDate: TextView
-    private lateinit var cardDaySummary: MaterialCardView
-    private lateinit var tvDayTotalCal: TextView
-    private lateinit var tvDayMacros: TextView
+    private lateinit var weeklyChart:     WeeklyCalorieChartView
+    private lateinit var cardDatePicker:  MaterialCardView
+    private lateinit var tvSelectedDate:  TextView
+    private lateinit var cardDaySummary:  MaterialCardView
+    private lateinit var cardEntries:     MaterialCardView
+    private lateinit var tvDayTotalCal:   TextView
+    private lateinit var tvDayMacros:     TextView
     private lateinit var containerEntries: LinearLayout
-    private lateinit var tvEmpty: TextView
+    private lateinit var tvEmpty:         TextView
+
+    // Track the currently displayed date key so the picker preselects it
+    private var currentDateKey = todayDateKey()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,31 +39,63 @@ class HistoryActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btnHistoryBack).setOnClickListener { finish() }
 
         weeklyChart      = findViewById(R.id.weeklyChart)
+        cardDatePicker   = findViewById(R.id.cardDatePicker)
         tvSelectedDate   = findViewById(R.id.tvSelectedDate)
         cardDaySummary   = findViewById(R.id.cardDaySummary)
+        cardEntries      = findViewById(R.id.cardEntries)
         tvDayTotalCal    = findViewById(R.id.tvDayTotalCal)
         tvDayMacros      = findViewById(R.id.tvDayMacros)
         containerEntries = findViewById(R.id.containerDayEntries)
         tvEmpty          = findViewById(R.id.tvHistoryEmpty)
 
-        val calendarView = findViewById<CalendarView>(R.id.calendarView)
-
-        // Prevent selecting future dates
-        calendarView.maxDate = System.currentTimeMillis()
-
-        // Load weekly chart
         loadWeeklyChart()
+        showEntriesForKey(currentDateKey)
 
-        // Show today's entries on open
-        showEntriesForKey(todayDateKey())
+        cardDatePicker.setOnClickListener { openDatePicker() }
+    }
 
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val cal = Calendar.getInstance()
-            cal.set(year, month, dayOfMonth)
-            val key = SimpleDateFormat("yyyyMMdd", Locale.US).format(cal.time)
+    // ── Date picker ───────────────────────────────────────────────────────────
+
+    private fun openDatePicker() {
+        // Preselect the currently shown date (convert local date key → UTC ms)
+        val utcFmt = SimpleDateFormat("yyyyMMdd", Locale.US).also {
+            it.timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val preselect = try {
+            utcFmt.parse(currentDateKey)?.time
+                ?: MaterialDatePicker.todayInUtcMilliseconds()
+        } catch (e: Exception) {
+            MaterialDatePicker.todayInUtcMilliseconds()
+        }
+
+        val constraints = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointBackward.now())
+            .build()
+
+        val picker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(getString(R.string.history_pick_date))
+            .setSelection(preselect)
+            .setCalendarConstraints(constraints)
+            .build()
+
+        picker.addOnPositiveButtonClickListener { selectionMs ->
+            // MaterialDatePicker returns UTC midnight; extract date parts in UTC
+            val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+            utcCal.timeInMillis = selectionMs
+            val key = String.format(
+                "%04d%02d%02d",
+                utcCal.get(Calendar.YEAR),
+                utcCal.get(Calendar.MONTH) + 1,
+                utcCal.get(Calendar.DAY_OF_MONTH)
+            )
+            currentDateKey = key
             showEntriesForKey(key)
         }
+
+        picker.show(supportFragmentManager, "history_date_picker")
     }
+
+    // ── Weekly chart ──────────────────────────────────────────────────────────
 
     private fun loadWeeklyChart() {
         val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
@@ -82,7 +122,10 @@ class HistoryActivity : AppCompatActivity() {
         weeklyChart.bars   = bars
     }
 
+    // ── Day detail ────────────────────────────────────────────────────────────
+
     private fun showEntriesForKey(dateKey: String) {
+        currentDateKey    = dateKey
         tvSelectedDate.text = formatDate(dateKey)
 
         val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
@@ -93,6 +136,7 @@ class HistoryActivity : AppCompatActivity() {
 
         if (arr.length() == 0) {
             cardDaySummary.visibility = View.GONE
+            cardEntries.visibility    = View.GONE
             tvEmpty.visibility        = View.VISIBLE
             return
         }
@@ -101,7 +145,6 @@ class HistoryActivity : AppCompatActivity() {
 
         var totalCal = 0; var totalPro = 0; var totalFat = 0; var totalCarb = 0
 
-        // Parse all entries
         val entries = (0 until arr.length()).map { i ->
             val obj = arr.getJSONObject(i)
             FoodEntry(
@@ -114,14 +157,14 @@ class HistoryActivity : AppCompatActivity() {
             )
         }
 
-        entries.forEach { entry ->
-            totalCal  += entry.calories
-            totalPro  += entry.proteinG
-            totalFat  += entry.fatG
-            totalCarb += entry.carbsG
+        entries.forEach {
+            totalCal  += it.calories
+            totalPro  += it.proteinG
+            totalFat  += it.fatG
+            totalCarb += it.carbsG
         }
 
-        // Group by meal type and inflate with headers
+        // Group by meal type and build rows
         val mealOrder = listOf("breakfast", "lunch", "dinner", "snack", "other")
         val grouped   = entries.groupBy { it.mealType.lowercase().ifBlank { "other" } }
 
@@ -135,26 +178,50 @@ class HistoryActivity : AppCompatActivity() {
             containerEntries.addView(header)
 
             // Food rows
-            group.forEach { entry ->
+            group.forEachIndexed { idx, entry ->
                 val row = layoutInflater.inflate(R.layout.item_history_food_row, containerEntries, false)
-                row.findViewById<TextView>(R.id.tvHistoryFoodName).text = entry.name
-                row.findViewById<TextView>(R.id.tvHistoryFoodCal).text  = "${entry.calories} kcal"
+                row.findViewById<TextView>(R.id.tvHistoryFoodName).text  = entry.name
+                row.findViewById<TextView>(R.id.tvHistoryFoodCal).text   = "${entry.calories}"
+                row.findViewById<TextView>(R.id.tvHistoryFoodMacros).text =
+                    "P ${entry.proteinG}g  ·  F ${entry.fatG}g  ·  C ${entry.carbsG}g"
                 containerEntries.addView(row)
+
+                // Thin divider between rows (not after last in group)
+                if (idx < group.size - 1) {
+                    val div = View(this)
+                    val lp  = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (0.75f * resources.displayMetrics.density).toInt()
+                    ).apply { setMargins(16.dp, 0, 16.dp, 0) }
+                    div.layoutParams = lp
+                    div.setBackgroundColor(getColor(R.color.divider_line))
+                    containerEntries.addView(div)
+                }
             }
         }
 
-        tvDayTotalCal.text      = totalCal.toString()
-        tvDayMacros.text        = "P ${totalPro}g  ·  F ${totalFat}g  ·  C ${totalCarb}g"
+        tvDayTotalCal.text = totalCal.toString()
+        tvDayMacros.text   = "P ${totalPro}g  ·  F ${totalFat}g  ·  C ${totalCarb}g"
         cardDaySummary.visibility = View.VISIBLE
+        cardEntries.visibility    = View.VISIBLE
     }
 
-    private fun todayDateKey() =
-        SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private val Int.dp: Int get() = (this * resources.displayMetrics.density).toInt()
+
+    private fun todayDateKey() = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
 
     private fun formatDate(key: String): String {
         return try {
             val parsed = SimpleDateFormat("yyyyMMdd", Locale.US).parse(key) ?: return key
-            SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()).format(parsed)
+            val today = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+            if (key == today) {
+                getString(R.string.weight_today) + " — " +
+                SimpleDateFormat("MMMM d", Locale.getDefault()).format(parsed)
+            } else {
+                SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()).format(parsed)
+            }
         } catch (e: Exception) {
             key
         }

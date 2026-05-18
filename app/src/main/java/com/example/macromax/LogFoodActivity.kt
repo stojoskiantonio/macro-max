@@ -6,7 +6,9 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
+import android.widget.CheckBox
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -52,11 +55,19 @@ class LogFoodActivity : AppCompatActivity() {
     }
 
     private lateinit var cgMealType: ChipGroup
+    private lateinit var toggleTab: MaterialButtonToggleGroup
+    private lateinit var paneSearch: LinearLayout
+    private lateinit var paneFavourites: View
+    private lateinit var paneRecipes: View
     private lateinit var rvResults: RecyclerView
+    private lateinit var rvFavourites: RecyclerView
+    private lateinit var rvRecipesLog: RecyclerView
     private lateinit var progressSearch: CircularProgressIndicator
     private lateinit var tvSearchHint: TextView
     private lateinit var layoutNoResults: View
     private lateinit var tvNoResults: TextView
+    private lateinit var tvFavEmpty: TextView
+    private lateinit var tvRecipesEmpty: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,12 +75,20 @@ class LogFoodActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
 
-        cgMealType     = findViewById(R.id.cgMealType)
-        rvResults      = findViewById(R.id.rvSearchResults)
-        progressSearch = findViewById(R.id.progressSearch)
-        tvSearchHint   = findViewById(R.id.tvSearchHint)
+        cgMealType      = findViewById(R.id.cgMealType)
+        toggleTab       = findViewById(R.id.toggleTab)
+        paneSearch      = findViewById(R.id.paneSearch)
+        paneFavourites  = findViewById(R.id.paneFavourites)
+        paneRecipes     = findViewById(R.id.paneRecipes)
+        rvResults       = findViewById(R.id.rvSearchResults)
+        rvFavourites    = findViewById(R.id.rvFavourites)
+        rvRecipesLog    = findViewById(R.id.rvRecipesLog)
+        progressSearch  = findViewById(R.id.progressSearch)
+        tvSearchHint    = findViewById(R.id.tvSearchHint)
         layoutNoResults = findViewById(R.id.layoutNoResults)
-        tvNoResults    = findViewById(R.id.tvNoResults)
+        tvNoResults     = findViewById(R.id.tvNoResults)
+        tvFavEmpty      = findViewById(R.id.tvFavEmpty)
+        tvRecipesEmpty  = findViewById(R.id.tvRecipesEmpty)
 
         // Pre-select meal type based on time of day
         val defaultChipId = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
@@ -80,7 +99,20 @@ class LogFoodActivity : AppCompatActivity() {
         }
         findViewById<com.google.android.material.chip.Chip>(defaultChipId).isChecked = true
 
-        rvResults.layoutManager = LinearLayoutManager(this)
+        rvResults.layoutManager    = LinearLayoutManager(this)
+        rvFavourites.layoutManager = LinearLayoutManager(this)
+        rvRecipesLog.layoutManager = LinearLayoutManager(this)
+
+        // Tab toggle
+        toggleTab.check(R.id.btnTabSearch)
+        toggleTab.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            when (checkedId) {
+                R.id.btnTabSearch    -> showSearchPane()
+                R.id.btnTabFavourites -> showFavouritesPane()
+                R.id.btnTabRecipes   -> showRecipesPane()
+            }
+        }
 
         // Live search with 500 ms debounce
         findViewById<TextInputEditText>(R.id.etSearch).addTextChangedListener(object : TextWatcher {
@@ -101,6 +133,17 @@ class LogFoodActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.btnManualEntry).setOnClickListener {
             showManualEntryDialog()
         }
+
+        // Manage recipes button
+        findViewById<MaterialButton>(R.id.btnManageRecipes).setOnClickListener {
+            startActivity(Intent(this, RecipeListActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh recipes pane if it's currently showing
+        if (paneRecipes.visibility == View.VISIBLE) refreshRecipes()
     }
 
     override fun onDestroy() {
@@ -108,7 +151,114 @@ class LogFoodActivity : AppCompatActivity() {
         scope.cancel()
     }
 
-    // ── Search ───────────────────────────────────────────────────────────────
+    // ── Tab switching ─────────────────────────────────────────────────────────
+
+    private fun showSearchPane() {
+        paneSearch.visibility     = View.VISIBLE
+        paneFavourites.visibility = View.GONE
+        paneRecipes.visibility    = View.GONE
+    }
+
+    private fun showFavouritesPane() {
+        paneSearch.visibility     = View.GONE
+        paneFavourites.visibility = View.VISIBLE
+        paneRecipes.visibility    = View.GONE
+        refreshFavourites()
+    }
+
+    private fun showRecipesPane() {
+        paneSearch.visibility     = View.GONE
+        paneFavourites.visibility = View.GONE
+        paneRecipes.visibility    = View.VISIBLE
+        refreshRecipes()
+    }
+
+    private fun refreshRecipes() {
+        val list = RecipeRepository.load(getSharedPreferences("macromax_prefs", MODE_PRIVATE))
+        if (list.isEmpty()) {
+            rvRecipesLog.visibility  = View.GONE
+            tvRecipesEmpty.visibility = View.VISIBLE
+        } else {
+            tvRecipesEmpty.visibility = View.GONE
+            rvRecipesLog.visibility  = View.VISIBLE
+            rvRecipesLog.adapter = RecipeAdapter(
+                items = list,
+                onTap = { recipe -> confirmLogRecipe(recipe) }
+            )
+        }
+    }
+
+    private fun confirmLogRecipe(recipe: Recipe) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(recipe.name)
+            .setMessage(
+                getString(R.string.recipe_log_message,
+                    recipe.calPerServing, recipe.protPerServing,
+                    recipe.fatPerServing, recipe.carbPerServing)
+            )
+            .setPositiveButton(R.string.recipe_log_confirm) { _, _ ->
+                saveEntry(FoodEntry(
+                    name     = recipe.name,
+                    calories = recipe.calPerServing,
+                    proteinG = recipe.protPerServing,
+                    fatG     = recipe.fatPerServing,
+                    carbsG   = recipe.carbPerServing,
+                    mealType = selectedMealType()
+                ))
+                Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun refreshFavourites() {
+        val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val list  = FavouritesRepository.load(prefs)
+        if (list.isEmpty()) {
+            rvFavourites.visibility = View.GONE
+            tvFavEmpty.visibility   = View.VISIBLE
+        } else {
+            tvFavEmpty.visibility   = View.GONE
+            rvFavourites.visibility = View.VISIBLE
+            rvFavourites.adapter = FavouritesAdapter(
+                items    = list,
+                onAdd    = { fav -> logFavourite(fav) },
+                onDelete = { fav -> confirmDeleteFavourite(fav) }
+            )
+        }
+    }
+
+    private fun logFavourite(fav: FavouriteFood) {
+        saveEntry(
+            FoodEntry(
+                name     = fav.name,
+                calories = fav.calories,
+                proteinG = fav.proteinG,
+                fatG     = fav.fatG,
+                carbsG   = fav.carbsG,
+                mealType = selectedMealType()
+            )
+        )
+        Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+        finish()
+    }
+
+    private fun confirmDeleteFavourite(fav: FavouriteFood) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.delete_favourite_title)
+            .setMessage(getString(R.string.delete_favourite_message, fav.name))
+            .setPositiveButton(R.string.btn_delete) { _, _ ->
+                val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                FavouritesRepository.delete(prefs, fav.name)
+                Toast.makeText(this, getString(R.string.favourite_deleted), Toast.LENGTH_SHORT).show()
+                refreshFavourites()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    // ── Search ────────────────────────────────────────────────────────────────
 
     private fun onQueryChanged(query: String) {
         searchJob?.cancel()
@@ -125,9 +275,9 @@ class LogFoodActivity : AppCompatActivity() {
                 null
             }
             when {
-                results == null      -> showNoResults(getString(R.string.search_error))
-                results.isEmpty()    -> showNoResults(getString(R.string.search_no_results))
-                else                 -> showResults(results)
+                results == null   -> showNoResults(getString(R.string.search_error))
+                results.isEmpty() -> showNoResults(getString(R.string.search_no_results))
+                else              -> showResults(results)
             }
         }
     }
@@ -204,20 +354,32 @@ class LogFoodActivity : AppCompatActivity() {
     // ── Portion dialog ────────────────────────────────────────────────────────
 
     private fun showPortionDialog(food: FoodSearchResult) {
+        val dp = resources.displayMetrics.density
+        val hPad = (24 * dp).toInt()
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(hPad, 0, hPad, (8 * dp).toInt())
+        }
+
         val tilGrams = TextInputLayout(this, null,
             com.google.android.material.R.attr.textInputOutlinedStyle
         ).apply {
-            hint      = getString(R.string.hint_amount_g)
+            hint       = getString(R.string.hint_amount_g)
             suffixText = "g"
-            setPadding(
-                (24 * resources.displayMetrics.density).toInt(), 0,
-                (24 * resources.displayMetrics.density).toInt(), 0
-            )
         }
         val etGrams = TextInputEditText(this).apply {
-            inputType  = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         }
         tilGrams.addView(etGrams)
+
+        val cbFavourite = CheckBox(this).apply {
+            text = getString(R.string.btn_save_favourite)
+            setPadding(0, (8 * dp).toInt(), 0, 0)
+        }
+
+        container.addView(tilGrams)
+        container.addView(cbFavourite)
 
         MaterialAlertDialogBuilder(this)
             .setTitle(food.name)
@@ -228,7 +390,7 @@ class LogFoodActivity : AppCompatActivity() {
                 "C ${food.carbsPer100g.toInt()}g" +
                 "\n${getString(R.string.per_100g)}"
             )
-            .setView(tilGrams)
+            .setView(container)
             .setPositiveButton(R.string.btn_add) { _, _ ->
                 val grams = etGrams.text.toString().toFloatOrNull()
                 if (grams == null || grams <= 0f) {
@@ -236,17 +398,32 @@ class LogFoodActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
                 val factor = grams / 100f
-                saveEntry(
-                    FoodEntry(
-                        name      = food.name,
-                        calories  = (food.caloriesPer100g * factor).toInt(),
-                        proteinG  = (food.proteinPer100g  * factor).toInt(),
-                        fatG      = (food.fatPer100g      * factor).toInt(),
-                        carbsG    = (food.carbsPer100g    * factor).toInt(),
-                        mealType  = selectedMealType()
-                    )
+                val entry = FoodEntry(
+                    name     = food.name,
+                    calories = (food.caloriesPer100g * factor).toInt(),
+                    proteinG = (food.proteinPer100g  * factor).toInt(),
+                    fatG     = (food.fatPer100g      * factor).toInt(),
+                    carbsG   = (food.carbsPer100g    * factor).toInt(),
+                    mealType = selectedMealType()
                 )
-                Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                saveEntry(entry)
+
+                if (cbFavourite.isChecked) {
+                    val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                    FavouritesRepository.save(
+                        prefs,
+                        FavouriteFood(
+                            name     = entry.name,
+                            calories = entry.calories,
+                            proteinG = entry.proteinG,
+                            fatG     = entry.fatG,
+                            carbsG   = entry.carbsG
+                        )
+                    )
+                    Toast.makeText(this, getString(R.string.favourite_saved), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                }
                 finish()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -264,6 +441,7 @@ class LogFoodActivity : AppCompatActivity() {
         val etPro    = view.findViewById<TextInputEditText>(R.id.etManualProtein)
         val etFat    = view.findViewById<TextInputEditText>(R.id.etManualFat)
         val etCarbs  = view.findViewById<TextInputEditText>(R.id.etManualCarbs)
+        val cbFav    = view.findViewById<CheckBox>(R.id.cbSaveFavourite)
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.btn_add_manually)
@@ -276,17 +454,32 @@ class LogFoodActivity : AppCompatActivity() {
                 if (calStr.isEmpty()) { tilCal.error  = getString(R.string.error_required); valid = false } else tilCal.error  = null
                 if (!valid) return@setPositiveButton
 
-                saveEntry(
-                    FoodEntry(
-                        name      = name,
-                        calories  = calStr.toIntOrNull()                               ?: 0,
-                        proteinG  = etPro.text.toString().trim().toIntOrNull()         ?: 0,
-                        fatG      = etFat.text.toString().trim().toIntOrNull()         ?: 0,
-                        carbsG    = etCarbs.text.toString().trim().toIntOrNull()       ?: 0,
-                        mealType  = selectedMealType()
-                    )
+                val entry = FoodEntry(
+                    name     = name,
+                    calories = calStr.toIntOrNull()                         ?: 0,
+                    proteinG = etPro.text.toString().trim().toIntOrNull()   ?: 0,
+                    fatG     = etFat.text.toString().trim().toIntOrNull()   ?: 0,
+                    carbsG   = etCarbs.text.toString().trim().toIntOrNull() ?: 0,
+                    mealType = selectedMealType()
                 )
-                Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                saveEntry(entry)
+
+                if (cbFav.isChecked) {
+                    val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                    FavouritesRepository.save(
+                        prefs,
+                        FavouriteFood(
+                            name     = entry.name,
+                            calories = entry.calories,
+                            proteinG = entry.proteinG,
+                            fatG     = entry.fatG,
+                            carbsG   = entry.carbsG
+                        )
+                    )
+                    Toast.makeText(this, getString(R.string.favourite_saved), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                }
                 finish()
             }
             .setNegativeButton(android.R.string.cancel, null)

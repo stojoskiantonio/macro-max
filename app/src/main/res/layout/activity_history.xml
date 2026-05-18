@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -33,63 +34,12 @@
 
     </LinearLayout>
 
-    <!-- Thin divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/divider_line" />
 
-    <!-- Weekly chart card -->
-    <com.google.android.material.card.MaterialCardView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="4dp"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="14dp"
-            android:paddingBottom="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/history_weekly_chart"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                android:letterSpacing="0.1"
-                android:alpha="0.5"
-                android:layout_marginBottom="10dp" />
-
-            <com.example.macromax.WeeklyCalorieChartView
-                android:id="@+id/weeklyChart"
-                android:layout_width="match_parent"
-                android:layout_height="130dp" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Calendar -->
-    <CalendarView
-        android:id="@+id/calendarView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <!-- Divider above day detail -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_line" />
-
-    <!-- Day detail — scrollable -->
+    <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -100,28 +50,101 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingBottom="24dp">
 
-            <!-- Selected date label -->
-            <TextView
-                android:id="@+id/tvSelectedDate"
-                android:layout_width="wrap_content"
+            <!-- Weekly chart card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp">
 
-            <!-- Day summary card (hidden when no entries) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/history_weekly_chart"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.1"
+                        android:alpha="0.5"
+                        android:layout_marginBottom="10dp" />
+
+                    <com.example.macromax.WeeklyCalorieChartView
+                        android:id="@+id/weeklyChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="130dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Date selector row -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardDatePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="14dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_history"
+                        android:layout_marginEnd="12dp"
+                        android:contentDescription="Calendar" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:alpha="0.4"
+                        android:contentDescription="Pick date" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Day summary card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardDaySummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -164,12 +187,25 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Individual food entries (added programmatically) -->
-            <LinearLayout
-                android:id="@+id/containerDayEntries"
+            <!-- Food entries card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardEntries"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:layout_marginHorizontal="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:id="@+id/containerDayEntries"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="8dp" />
+
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Empty state -->
             <TextView
@@ -180,7 +216,7 @@
                 android:gravity="center"
                 android:alpha="0.4"
                 android:textSize="13sp"
-                android:paddingVertical="24dp"
+                android:paddingVertical="32dp"
                 android:visibility="gone" />
 
         </LinearLayout>

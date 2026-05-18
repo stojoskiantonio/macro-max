@@ -95,6 +95,7 @@
     <string name="history_empty">No history yet.\nStart logging food to see past days here.</string>
     <string name="history_no_entries">No food logged on this day</string>
     <string name="history_weekly_chart">This Week</string>
+    <string name="history_pick_date">Select a date</string>
 
     <!-- Profile screen -->
     <string name="profile_title">Profile</string>
@@ -126,6 +127,80 @@
     <string name="settings_appearance">Appearance</string>
     <string name="settings_light_mode">Light mode</string>
 
+    <!-- AI Photo Analysis -->
+    <!-- Replace with your Gemini API key from https://aistudio.google.com/app/apikey -->
+    <string name="gemini_api_key">YOUR_GEMINI_API_KEY</string>
+    <string name="ai_scan_title">AI Meal Scan</string>
+    <string name="ai_scan_btn">AI Scan</string>
+    <string name="ai_scan_prompt">Point your camera at a meal</string>
+    <string name="ai_scan_sub">AI will estimate calories and macros from the photo</string>
+    <string name="ai_take_photo">Take Photo</string>
+    <string name="ai_pick_gallery">Choose from Gallery</string>
+    <string name="ai_analyze">Analyze with AI</string>
+    <string name="ai_retake">Retake</string>
+    <string name="ai_analyzing">Analyzing your meal…</string>
+    <string name="ai_analyzing_sub">Gemini is identifying foods and estimating portions</string>
+    <string name="ai_breakdown">Identified items</string>
+    <string name="ai_conf_high">High confidence</string>
+    <string name="ai_conf_medium">Medium confidence</string>
+    <string name="ai_conf_low">Low confidence</string>
+    <string name="ai_log_meal">Log This Meal</string>
+    <string name="ai_edit_log">Edit &amp; Log</string>
+    <string name="ai_edit_title">Review &amp; Edit</string>
+    <string name="ai_retry">Try Again</string>
+    <string name="ai_select_meal_type">Select meal type</string>
+    <string name="ai_log_confirm">Log</string>
+    <string name="ai_no_api_key">Gemini API key not configured. Add it in Settings → AI Features.</string>
+    <string name="ai_analysis_error">Analysis failed: %s</string>
+
+    <!-- Recipes -->
+    <string name="tab_recipes">Recipes</string>
+    <string name="recipes_title">My Recipes</string>
+    <string name="recipes_empty">No recipes yet — tap + to create your first</string>
+    <string name="recipe_new">New Recipe</string>
+    <string name="recipe_edit_title">Edit Recipe</string>
+    <string name="recipe_save">Save</string>
+    <string name="recipe_saved">Recipe saved!</string>
+    <string name="recipe_deleted">Recipe deleted</string>
+    <string name="recipe_delete_title">Delete recipe</string>
+    <string name="recipe_delete_message">Delete "%s"? This cannot be undone.</string>
+    <string name="recipe_name_hint">Recipe name</string>
+    <string name="recipe_servings_hint">Servings</string>
+    <string name="recipe_ingredients_label">Ingredients</string>
+    <string name="recipe_add_ingredient">Add ingredient</string>
+    <string name="recipe_totals_label">Totals per serving</string>
+    <string name="recipe_per_serving">%d serving(s): %d kcal  ·  P %dg  F %dg  C %dg</string>
+    <string name="recipe_total_all">Full recipe: %d kcal  ·  P %dg  F %dg  C %dg</string>
+    <string name="recipe_no_ingredients">Add at least one ingredient</string>
+    <string name="recipe_manage">Manage recipes →</string>
+    <string name="recipe_log_message">Log 1 serving: %d kcal  ·  P %dg  F %dg  C %dg</string>
+    <string name="recipe_log_confirm">Log</string>
+
+    <!-- Favourites -->
+    <string name="tab_search">Search</string>
+    <string name="tab_favourites">Favourites</string>
+    <string name="favourites_empty">No favourites yet — save a meal to see it here</string>
+    <string name="btn_save_favourite">Save as favourite ⭐</string>
+    <string name="favourite_saved">Saved to favourites!</string>
+    <string name="favourite_deleted">Removed from favourites</string>
+    <string name="delete_favourite_title">Remove favourite</string>
+    <string name="delete_favourite_message">Remove "%s" from favourites?</string>
+
+    <!-- Language -->
+    <string name="settings_ai_section">AI Features</string>
+    <string name="settings_gemini_key_label">Gemini API Key</string>
+    <string name="settings_gemini_key_hint_small">Required for AI meal photo analysis</string>
+    <string name="settings_gemini_key_field_hint">Paste your API key here</string>
+    <string name="settings_gemini_key_save">Save</string>
+    <string name="settings_gemini_key_saved">API key saved ✓</string>
+    <string name="settings_gemini_key_cleared">API key removed</string>
+    <string name="settings_gemini_key_footer">Get a free key at aistudio.google.com → Get API key. No credit card required.</string>
+
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language_label">App language</string>
+    <string name="lang_english">English</string>
+    <string name="lang_macedonian">Македонски</string>
+
     <!-- Barcode scanner -->
     <string name="scan_barcode">Scan barcode</string>
     <string name="scan_hint">Point the camera at a barcode</string>
@@ -156,6 +231,30 @@
     <string name="notif_summary_title">Daily Summary</string>
     <string name="notif_summary_remaining">%d kcal remaining today — keep it up!</string>
     <string name="notif_summary_goal_hit">You\'ve hit your calorie goal today! 🎉</string>
+
+    <!-- Workout logging -->
+    <string name="workout_section_title">Workouts</string>
+    <string name="workout_log_btn">+ Log</string>
+    <string name="workout_empty">No workouts today — tap + to log one</string>
+    <string name="workout_log_title">Log Workout</string>
+    <string name="workout_exercise_label">Exercise type</string>
+    <string name="workout_duration_label">Duration</string>
+    <string name="workout_duration_hint">0</string>
+    <string name="workout_minutes_suffix">min</string>
+    <string name="workout_est_calories">~%d kcal estimated</string>
+    <string name="workout_save_btn">Save Workout</string>
+    <string name="workout_saved">Workout logged!</string>
+    <string name="workout_delete_title">Remove workout</string>
+    <string name="workout_delete_message">Remove this workout from today\'s log?</string>
+    <string name="workout_type_running">Running</string>
+    <string name="workout_type_walking">Walking</string>
+    <string name="workout_type_cycling">Cycling</string>
+    <string name="workout_type_swimming">Swimming</string>
+    <string name="workout_type_weights">Weights</string>
+    <string name="workout_type_hiit">HIIT</string>
+    <string name="workout_type_jump_rope">Jump Rope</string>
+    <string name="workout_type_yoga">Yoga</string>
+    <string name="workout_type_other">Other</string>
 
     <!-- Profile logout -->
     <string name="profile_account_section">Account</string>

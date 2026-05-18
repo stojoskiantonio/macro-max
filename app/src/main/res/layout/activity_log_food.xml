@@ -40,55 +40,13 @@
         android:layout_height="1dp"
         android:background="@color/divider_line" />
 
-    <!-- Search bar + scan button -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="4dp">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilSearch"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/hint_search_food"
-            app:startIconDrawable="@drawable/ic_search"
-            app:startIconTint="?attr/colorOnSurfaceVariant"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                android:imeOptions="actionSearch"
-                android:singleLine="true" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <ImageButton
-            android:id="@+id/btnScanBarcode"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="4dp"
-            android:src="@drawable/ic_barcode_scan"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/scan_barcode" />
-
-    </LinearLayout>
-
     <!-- Meal type chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
         android:paddingHorizontal="12dp"
+        android:paddingTop="10dp"
         android:paddingBottom="4dp">
 
         <com.google.android.material.chip.ChipGroup
@@ -129,80 +87,260 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <!-- Content area — states swap via visibility -->
-    <FrameLayout
+    <!-- Search / Favourites tab toggle -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleTab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="2dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabSearch"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="@string/tab_search"
+            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabFavourites"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="@string/tab_favourites"
+            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabRecipes"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="@string/tab_recipes"
+            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- ── SEARCH PANE ──────────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/paneSearch"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <!-- Idle hint -->
+        <!-- Search bar + scan button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="4dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSearch"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/hint_search_food"
+                app:startIconDrawable="@drawable/ic_search"
+                app:startIconTint="?attr/colorOnSurfaceVariant"
+                app:endIconMode="clear_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnScanBarcode"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_barcode_scan"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/scan_barcode" />
+
+        </LinearLayout>
+
+        <!-- Content area — states swap via visibility -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <!-- Idle hint -->
+            <TextView
+                android:id="@+id/tvSearchHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/search_food_hint"
+                android:gravity="center"
+                android:alpha="0.4"
+                android:textSize="14sp"
+                android:paddingHorizontal="32dp"
+                android:visibility="visible" />
+
+            <!-- Loading spinner -->
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:visibility="gone" />
+
+            <!-- Results list -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSearchResults"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp"
+                android:visibility="gone" />
+
+            <!-- No results / error -->
+            <LinearLayout
+                android:id="@+id/layoutNoResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingHorizontal="32dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvNoResults"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_no_results"
+                    android:alpha="0.5"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- Divider above bottom buttons -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_line" />
+
+        <!-- Bottom action row: manual entry -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnManualEntry"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/btn_add_manually" />
+
+    </LinearLayout>
+
+    <!-- ── RECIPES PANE ────────────────────────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/paneRecipes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
         <TextView
-            android:id="@+id/tvSearchHint"
+            android:id="@+id/tvRecipesEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/search_food_hint"
+            android:text="@string/recipes_empty"
             android:gravity="center"
             android:alpha="0.4"
             android:textSize="14sp"
             android:paddingHorizontal="32dp"
-            android:visibility="visible" />
-
-        <!-- Loading spinner -->
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progressSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true"
             android:visibility="gone" />
 
-        <!-- Results list -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSearchResults"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingTop="4dp"
-            android:paddingBottom="8dp"
-            android:visibility="gone" />
+            android:orientation="vertical">
 
-        <!-- No results / error -->
-        <LinearLayout
-            android:id="@+id/layoutNoResults"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingHorizontal="32dp"
-            android:visibility="gone">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRecipesLog"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp" />
 
-            <TextView
-                android:id="@+id/tvNoResults"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/search_no_results"
-                android:alpha="0.5"
-                android:textSize="14sp"
-                android:gravity="center" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_line" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageRecipes"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="@string/recipe_manage" />
 
         </LinearLayout>
 
     </FrameLayout>
 
-    <!-- Divider above manual entry button -->
-    <View
+    <!-- ── FAVOURITES PANE ──────────────────────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/paneFavourites"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_line" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
 
-    <!-- Manual entry fallback -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnManualEntry"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="@string/btn_add_manually" />
+        <!-- Empty state -->
+        <TextView
+            android:id="@+id/tvFavEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/favourites_empty"
+            android:gravity="center"
+            android:alpha="0.4"
+            android:textSize="14sp"
+            android:paddingHorizontal="32dp"
+            android:visibility="gone" />
+
+        <!-- Favourites list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFavourites"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
+
+    </FrameLayout>
 
 </LinearLayout>
