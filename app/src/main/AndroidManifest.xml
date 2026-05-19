@@ -99,6 +99,10 @@
             android:name=".WorkoutLogActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ReportsActivity"
+            android:exported="false" />
+
         <receiver
             android:name=".DailySummaryReceiver"
             android:exported="false">

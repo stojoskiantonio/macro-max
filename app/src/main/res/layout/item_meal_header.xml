@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:paddingTop="14dp"
@@ -9,13 +11,22 @@
 
     <TextView
         android:id="@+id/tvMealHeader"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:textSize="11sp"
         android:textStyle="bold"
         android:textAllCaps="true"
         android:letterSpacing="0.12"
         android:textColor="?attr/colorPrimary"
         android:alpha="0.85" />
+
+    <TextView
+        android:id="@+id/tvMealCalories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:alpha="0.55"
+        android:visibility="gone" />
 
 </LinearLayout>

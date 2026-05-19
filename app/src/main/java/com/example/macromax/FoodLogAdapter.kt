@@ -9,7 +9,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 sealed class FoodLogItem {
-    data class Header(val mealType: String) : FoodLogItem()
+    data class Header(
+        val mealType: String,
+        val calConsumed: Int = 0,
+        val calTarget: Int = 0
+    ) : FoodLogItem()
     data class Entry(val rawIndex: Int, val food: FoodEntry) : FoodLogItem()
 }
 
@@ -31,8 +35,15 @@ class FoodLogAdapter(
             else        -> context.getString(R.string.meal_other)
         }
 
-        /** Build a grouped FoodLogItem list from a flat indexed list of entries. */
-        fun buildItems(entries: List<FoodEntry>): List<FoodLogItem> {
+        /**
+         * Build a grouped FoodLogItem list from a flat indexed list of entries.
+         * [mealTargets] is an optional map of mealType → calorie target to show
+         * progress in each section header.
+         */
+        fun buildItems(
+            entries: List<FoodEntry>,
+            mealTargets: Map<String, Int> = emptyMap()
+        ): List<FoodLogItem> {
             val order   = listOf("breakfast", "lunch", "dinner", "snack", "other")
             val indexed = entries.mapIndexed { i, e -> i to e }
             val grouped = indexed.groupBy { (_, e) -> e.mealType.lowercase().ifBlank { "other" } }
@@ -40,7 +51,9 @@ class FoodLogAdapter(
             return buildList {
                 for (mealType in order) {
                     val group = grouped[mealType] ?: continue
-                    add(FoodLogItem.Header(mealType))
+                    val consumed = group.sumOf { (_, e) -> e.calories }
+                    val target   = mealTargets[mealType] ?: 0
+                    add(FoodLogItem.Header(mealType, consumed, target))
                     group.forEach { (rawIndex, food) -> add(FoodLogItem.Entry(rawIndex, food)) }
                 }
             }
@@ -48,7 +61,8 @@ class FoodLogAdapter(
     }
 
     class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvHeader: TextView = view.findViewById(R.id.tvMealHeader)
+        val tvHeader: TextView   = view.findViewById(R.id.tvMealHeader)
+        val tvCalories: TextView = view.findViewById(R.id.tvMealCalories)
     }
 
     class EntryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -74,8 +88,15 @@ class FoodLogAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is FoodLogItem.Header -> {
-                (holder as HeaderViewHolder).tvHeader.text =
-                    mealLabel(holder.itemView.context, item.mealType)
+                (holder as HeaderViewHolder).apply {
+                    tvHeader.text = mealLabel(itemView.context, item.mealType)
+                    if (item.calTarget > 0) {
+                        tvCalories.text      = "${item.calConsumed} / ${item.calTarget} kcal"
+                        tvCalories.visibility = View.VISIBLE
+                    } else {
+                        tvCalories.visibility = View.GONE
+                    }
+                }
             }
             is FoodLogItem.Entry -> {
                 (holder as EntryViewHolder).apply {

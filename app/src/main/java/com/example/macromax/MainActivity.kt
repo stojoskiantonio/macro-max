@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var containerWorkouts: LinearLayout
 
     private var workoutCaloriesToday = 0
-    private val stepGoal = 10_000
 
     companion object {
         private const val PERMISSION_REQUEST_ACTIVITY = 100
@@ -120,6 +119,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         findViewById<ImageButton>(R.id.navProfile).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        findViewById<ImageButton>(R.id.navReports).setOnClickListener {
+            startActivity(Intent(this, ReportsActivity::class.java))
         }
         findViewById<ImageButton>(R.id.navSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -298,6 +300,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         // Header total
         tvTotalConsumed.text = if (targetCal > 0) "$totalCal / $targetCal kcal" else "$totalCal kcal"
 
+        // Per-meal calorie targets (from Settings splits)
+        val mealTargets: Map<String, Int> = if (targetCal > 0) {
+            val b = prefs.getInt(SettingsActivity.PREF_MEAL_SPLIT_BREAKFAST, SettingsActivity.DEFAULT_SPLIT_BREAKFAST)
+            val l = prefs.getInt(SettingsActivity.PREF_MEAL_SPLIT_LUNCH,     SettingsActivity.DEFAULT_SPLIT_LUNCH)
+            val d = prefs.getInt(SettingsActivity.PREF_MEAL_SPLIT_DINNER,    SettingsActivity.DEFAULT_SPLIT_DINNER)
+            val s = prefs.getInt(SettingsActivity.PREF_MEAL_SPLIT_SNACK,     SettingsActivity.DEFAULT_SPLIT_SNACK)
+            mapOf(
+                "breakfast" to (targetCal * b / 100),
+                "lunch"     to (targetCal * l / 100),
+                "dinner"    to (targetCal * d / 100),
+                "snack"     to (targetCal * s / 100)
+            )
+        } else emptyMap()
+
+        // Meal breakdown card (shown only when calorie targets are set)
+        updateMealBreakdown(entries, mealTargets)
+
+        // Live budget notification (no-op if disabled in Settings)
+        BudgetNotifHelper.update(this, totalCal, totalPro, totalFat, totalCarb)
+
         // Food list — grouped by meal type
         if (entries.isEmpty()) {
             tvNoFood.visibility  = View.VISIBLE
@@ -306,10 +328,41 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             tvNoFood.visibility  = View.GONE
             rvFoodLog.visibility = View.VISIBLE
             rvFoodLog.adapter    = FoodLogAdapter(
-                items         = FoodLogAdapter.buildItems(entries),
+                items         = FoodLogAdapter.buildItems(entries, mealTargets),
                 onEditClick   = { rawIndex, entry -> showEditDialog(rawIndex, entry) },
                 onDeleteClick = { rawIndex -> showDeleteConfirmation(rawIndex) }
             )
+        }
+    }
+
+    private fun updateMealBreakdown(entries: List<FoodEntry>, mealTargets: Map<String, Int>) {
+        val card = findViewById<View>(R.id.cardMealBreakdown)
+        if (mealTargets.isEmpty()) {
+            card.visibility = View.GONE
+            return
+        }
+        card.visibility = View.VISIBLE
+
+        val consumed = entries
+            .groupBy { it.mealType.lowercase().ifBlank { "other" } }
+            .mapValues { (_, list) -> list.sumOf { it.calories } }
+
+        data class MealIds(val kcalId: Int, val pbId: Int, val ofId: Int)
+
+        val meals = listOf(
+            "breakfast" to MealIds(R.id.tvMealBfastKcal,  R.id.pbMealBfast,  R.id.tvMealBfastOf),
+            "lunch"     to MealIds(R.id.tvMealLunchKcal,  R.id.pbMealLunch,  R.id.tvMealLunchOf),
+            "dinner"    to MealIds(R.id.tvMealDinnerKcal, R.id.pbMealDinner, R.id.tvMealDinnerOf),
+            "snack"     to MealIds(R.id.tvMealSnackKcal,  R.id.pbMealSnack,  R.id.tvMealSnackOf)
+        )
+
+        for ((mealType, ids) in meals) {
+            val eat = consumed[mealType] ?: 0
+            val tgt = mealTargets[mealType] ?: 0
+            findViewById<TextView>(ids.kcalId).text    = eat.toString()
+            findViewById<ProgressBar>(ids.pbId).progress =
+                if (tgt > 0) ((eat * 100) / tgt).coerceAtMost(100) else 0
+            findViewById<TextView>(ids.ofId).text      = "of $tgt"
         }
     }
 
@@ -388,27 +441,31 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // ── Daily notification ───────────────────────────────────────────────────
 
     private fun scheduleDailySummaryNotification() {
-        val alarmManager  = getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent        = Intent(this, DailySummaryReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
+        val prefs        = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent       = Intent(this, DailySummaryReceiver::class.java)
+        val pending      = PendingIntent.getBroadcast(
             this, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Fire at 8 PM today; if already past, fire tomorrow
+        if (!prefs.getBoolean(SettingsActivity.PREF_NOTIF_ENABLED, true)) {
+            alarmManager.cancel(pending)
+            return
+        }
+
+        val hour   = prefs.getInt(SettingsActivity.PREF_NOTIF_HOUR,   20)
+        val minute = prefs.getInt(SettingsActivity.PREF_NOTIF_MINUTE,  0)
         val triggerTime = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 20)
-            set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
             if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_YEAR, 1)
         }.timeInMillis
 
         alarmManager.setInexactRepeating(
-            AlarmManager.RTC_WAKEUP,
-            triggerTime,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
+            AlarmManager.RTC_WAKEUP, triggerTime, AlarmManager.INTERVAL_DAY, pending
         )
     }
 
@@ -435,12 +492,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
+    private fun stepGoal(): Int =
+        getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+            .getInt(SettingsActivity.PREF_STEP_GOAL, 10_000)
+
     private fun updateStepUI(steps: Int) {
-        val stepCalories  = (steps * 0.04).toInt()
-        val totalBurned   = stepCalories + workoutCaloriesToday
+        val goal         = stepGoal()
+        val stepCalories = (steps * 0.04).toInt()
+        val totalBurned  = stepCalories + workoutCaloriesToday
         tvStepCount.text      = steps.toString()
         tvCaloriesBurned.text = "$totalBurned kcal"
-        stepDonut.progress    = (steps.toFloat() / stepGoal).coerceIn(0f, 1f)
+        stepDonut.progress    = (steps.toFloat() / goal).coerceIn(0f, 1f)
         stepDonut.centerText  = totalBurned.toString()
     }
 

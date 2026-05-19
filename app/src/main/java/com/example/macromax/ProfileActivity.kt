@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RadioButton
@@ -16,6 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import java.io.FileOutputStream
@@ -27,10 +29,12 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvProfileName: TextView
     private lateinit var etProfileAge: TextInputEditText
     private lateinit var etProfileWeight: TextInputEditText
+    private lateinit var tilProfileWeight: TextInputLayout
     private lateinit var etProfileHeight: TextInputEditText
-    private lateinit var rgWeightUnit: RadioGroup
-    private lateinit var rbKg: RadioButton
-    private lateinit var rbLbs: RadioButton
+    private lateinit var tilHeightMetric: TextInputLayout
+    private lateinit var rowHeightImperial: View
+    private lateinit var etProfileHeightFt: TextInputEditText
+    private lateinit var etProfileHeightIn: TextInputEditText
     private lateinit var rgGender: RadioGroup
     private lateinit var rbMale: RadioButton
     private lateinit var rbFemale: RadioButton
@@ -51,7 +55,6 @@ class ProfileActivity : AppCompatActivity() {
 
     private val avatarFile get() = File(filesDir, "profile_picture.jpg")
 
-    // Image picker launcher
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let { saveAndDisplayAvatar(it) }
@@ -61,37 +64,37 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        // Back button
         findViewById<ImageButton>(R.id.btnProfileBack).setOnClickListener { finish() }
 
         // Bind views
-        ivProfileAvatar  = findViewById(R.id.ivProfileAvatar)
-        tvProfileName    = findViewById(R.id.tvProfileName)
-        etProfileAge     = findViewById(R.id.etProfileAge)
-        etProfileWeight  = findViewById(R.id.etProfileWeight)
-        etProfileHeight  = findViewById(R.id.etProfileHeight)
-        rgWeightUnit     = findViewById(R.id.rgWeightUnit)
-        rbKg             = findViewById(R.id.rbKg)
-        rbLbs            = findViewById(R.id.rbLbs)
-        rgGender         = findViewById(R.id.rgGender)
-        rbMale           = findViewById(R.id.rbMale)
-        rbFemale         = findViewById(R.id.rbFemale)
-        rgGoal           = findViewById(R.id.rgGoal)
-        rbLose           = findViewById(R.id.rbLose)
-        rbMaintain       = findViewById(R.id.rbMaintain)
-        rbGain           = findViewById(R.id.rbGain)
-        rgActivity       = findViewById(R.id.rgActivity)
-        rbSedentary      = findViewById(R.id.rbSedentary)
-        rbLight          = findViewById(R.id.rbLight)
-        rbModerate       = findViewById(R.id.rbModerate)
-        rbActive         = findViewById(R.id.rbActive)
-        rbExtra          = findViewById(R.id.rbExtra)
-        etWaterGoal      = findViewById(R.id.etWaterGoal)
-        tvCurrentTargets = findViewById(R.id.tvCurrentTargets)
-        tvCurrentMacros  = findViewById(R.id.tvCurrentMacros)
-        btnSaveProfile   = findViewById(R.id.btnSaveProfile)
+        ivProfileAvatar      = findViewById(R.id.ivProfileAvatar)
+        tvProfileName        = findViewById(R.id.tvProfileName)
+        etProfileAge         = findViewById(R.id.etProfileAge)
+        etProfileWeight      = findViewById(R.id.etProfileWeight)
+        tilProfileWeight     = findViewById(R.id.tilProfileWeight)
+        etProfileHeight      = findViewById(R.id.etProfileHeight)
+        tilHeightMetric      = findViewById(R.id.tilHeightMetric)
+        rowHeightImperial    = findViewById(R.id.rowHeightImperial)
+        etProfileHeightFt    = findViewById(R.id.etProfileHeightFt)
+        etProfileHeightIn    = findViewById(R.id.etProfileHeightIn)
+        rgGender             = findViewById(R.id.rgGender)
+        rbMale               = findViewById(R.id.rbMale)
+        rbFemale             = findViewById(R.id.rbFemale)
+        rgGoal               = findViewById(R.id.rgGoal)
+        rbLose               = findViewById(R.id.rbLose)
+        rbMaintain           = findViewById(R.id.rbMaintain)
+        rbGain               = findViewById(R.id.rbGain)
+        rgActivity           = findViewById(R.id.rgActivity)
+        rbSedentary          = findViewById(R.id.rbSedentary)
+        rbLight              = findViewById(R.id.rbLight)
+        rbModerate           = findViewById(R.id.rbModerate)
+        rbActive             = findViewById(R.id.rbActive)
+        rbExtra              = findViewById(R.id.rbExtra)
+        etWaterGoal          = findViewById(R.id.etWaterGoal)
+        tvCurrentTargets     = findViewById(R.id.tvCurrentTargets)
+        tvCurrentMacros      = findViewById(R.id.tvCurrentMacros)
+        btnSaveProfile       = findViewById(R.id.btnSaveProfile)
 
-        // Tapping the avatar or the camera badge opens the image picker
         val openPicker = { pickImageLauncher.launch("image/*") }
         ivProfileAvatar.setOnClickListener { openPicker() }
         findViewById<ImageView>(R.id.ivEditBadge).setOnClickListener { openPicker() }
@@ -103,7 +106,7 @@ class ProfileActivity : AppCompatActivity() {
         // Weight progress shortcut
         findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardWeightProgress)
             .setOnClickListener {
-                startActivity(android.content.Intent(this, WeightHistoryActivity::class.java))
+                startActivity(Intent(this, WeightHistoryActivity::class.java))
             }
 
         // Logout
@@ -141,7 +144,7 @@ class ProfileActivity : AppCompatActivity() {
             val bmp = BitmapFactory.decodeFile(avatarFile.absolutePath)
             if (bmp != null) {
                 ivProfileAvatar.setImageBitmap(bmp)
-                ivProfileAvatar.setPadding(0, 0, 0, 0) // remove icon padding when photo is set
+                ivProfileAvatar.setPadding(0, 0, 0, 0)
             }
         }
     }
@@ -149,37 +152,50 @@ class ProfileActivity : AppCompatActivity() {
     // ── Load / Save profile ──────────────────────────────────────────────────
 
     private fun loadProfile() {
-        // Display name: Firebase display name, guest name, or email prefix
-        val user = FirebaseAuth.getInstance().currentUser
+        val user  = FirebaseAuth.getInstance().currentUser
         val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+
         val displayName = when {
             !user?.displayName.isNullOrBlank() -> user!!.displayName!!
             !user?.email.isNullOrBlank()       -> user!!.email!!.substringBefore("@")
             else                               -> prefs.getString("user_name", "") ?: ""
         }
         tvProfileName.text = displayName
-
-        // Show saved profile picture if one exists
         displaySavedAvatar()
 
-        // Pre-fill fields from prefs
-        // weight_value is stored as Int (from NumberPicker in onboarding)
-        val age        = prefs.getInt("user_age", 0)
-        val weightVal  = prefs.getInt("weight_value", 0)
-        val weightUnit = prefs.getString("weight_unit", "kg") ?: "kg"
-        val heightCm   = prefs.getInt("height_cm", 0)
-        val gender     = prefs.getString("user_gender", "male") ?: "male"
-        val goal       = prefs.getString("user_goal", "maintain") ?: "maintain"
+        val age       = prefs.getInt("user_age", 0)
+        val weightVal = prefs.getInt("weight_value", 0)
+        val heightCm  = prefs.getInt("height_cm", 0)
+        val gender    = prefs.getString("user_gender", "male")    ?: "male"
+        val goal      = prefs.getString("user_goal", "maintain")  ?: "maintain"
 
+        val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, SettingsActivity.UNITS_METRIC) ==
+                SettingsActivity.UNITS_IMPERIAL
+
+        // Weight field
         if (age > 0)       etProfileAge.setText(age.toString())
         if (weightVal > 0) etProfileWeight.setText(weightVal.toString())
-        if (heightCm > 0)  etProfileHeight.setText(heightCm.toString())
+        tilProfileWeight.hint = getString(R.string.profile_weight) +
+                if (isImperial) " (${getString(R.string.weight_lbs)})"
+                else            " (${getString(R.string.weight_kg)})"
+
+        // Height field(s)
+        if (isImperial) {
+            tilHeightMetric.visibility   = View.GONE
+            rowHeightImperial.visibility = View.VISIBLE
+            if (heightCm > 0) {
+                val totalInches = (heightCm / 2.54).toInt()
+                etProfileHeightFt.setText((totalInches / 12).toString())
+                etProfileHeightIn.setText((totalInches % 12).toString())
+            }
+        } else {
+            tilHeightMetric.visibility   = View.VISIBLE
+            rowHeightImperial.visibility = View.GONE
+            if (heightCm > 0) etProfileHeight.setText(heightCm.toString())
+        }
 
         val waterGoal = prefs.getInt("water_goal", 8)
         etWaterGoal.setText(waterGoal.toString())
-
-        // Weight unit
-        if (weightUnit == "lbs") rbLbs.isChecked = true else rbKg.isChecked = true
 
         // Gender
         if (gender == "female") rbFemale.isChecked = true else rbMale.isChecked = true
@@ -201,7 +217,7 @@ class ProfileActivity : AppCompatActivity() {
             else        -> rbModerate.isChecked  = true
         }
 
-        // Show current targets
+        // Current targets
         val targetCal  = prefs.getInt("target_calories",  0)
         val targetPro  = prefs.getInt("target_protein_g", 0)
         val targetFat  = prefs.getInt("target_fat_g",     0)
@@ -219,21 +235,40 @@ class ProfileActivity : AppCompatActivity() {
     private fun saveProfile() {
         val ageStr    = etProfileAge.text.toString().trim()
         val weightStr = etProfileWeight.text.toString().trim()
-        val heightStr = etProfileHeight.text.toString().trim()
+
+        val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, SettingsActivity.UNITS_METRIC) ==
+                SettingsActivity.UNITS_IMPERIAL
+        val weightUnit = if (isImperial) "lbs" else "kg"
 
         // Validate
         var valid = true
         if (ageStr.isEmpty())    { etProfileAge.error    = getString(R.string.error_required); valid = false }
         if (weightStr.isEmpty()) { etProfileWeight.error = getString(R.string.error_required); valid = false }
-        if (heightStr.isEmpty()) { etProfileHeight.error = getString(R.string.error_required); valid = false }
+        if (isImperial) {
+            if (etProfileHeightFt.text.toString().trim().isEmpty()) {
+                etProfileHeightFt.error = getString(R.string.error_required); valid = false
+            }
+        } else {
+            if (etProfileHeight.text.toString().trim().isEmpty()) {
+                etProfileHeight.error = getString(R.string.error_required); valid = false
+            }
+        }
         if (!valid) return
 
         val age       = ageStr.toIntOrNull()   ?: return
         val weightVal = weightStr.toIntOrNull() ?: return
-        val heightCm  = heightStr.toIntOrNull() ?: return
 
-        val weightUnit = if (rbLbs.isChecked) "lbs" else "kg"
-        val gender     = if (rbFemale.isChecked) "female" else "male"
+        // Height: convert ft+in → cm for storage (always stored as cm internally)
+        val heightCm: Int = if (isImperial) {
+            val ft  = etProfileHeightFt.text.toString().trim().toIntOrNull() ?: 0
+            val ins = etProfileHeightIn.text.toString().trim().toIntOrNull() ?: 0
+            ((ft * 12 + ins) * 2.54).roundToInt()
+        } else {
+            etProfileHeight.text.toString().trim().toIntOrNull() ?: return
+        }
+
+        val gender = if (rbFemale.isChecked) "female" else "male"
         val goal = when {
             rbLose.isChecked -> "lose"
             rbGain.isChecked -> "gain"
@@ -269,23 +304,22 @@ class ProfileActivity : AppCompatActivity() {
         val waterGoal = etWaterGoal.text.toString().trim().toIntOrNull()?.coerceAtLeast(1) ?: 8
 
         // Save to prefs
-        getSharedPreferences("macromax_prefs", MODE_PRIVATE).edit().apply {
-            putInt("water_goal",       waterGoal)
-            putInt("user_age",         age)
-            putInt("weight_value",     weightVal)
-            putString("weight_unit",   weightUnit)
-            putInt("height_cm",        heightCm)
-            putString("user_gender",   gender)
+        prefs.edit().apply {
+            putInt("water_goal",        waterGoal)
+            putInt("user_age",          age)
+            putInt("weight_value",      weightVal)
+            putString("weight_unit",    weightUnit)
+            putInt("height_cm",         heightCm)
+            putString("user_gender",    gender)
             putString("user_goal",      goal)
             putString("activity_level", activityLevel)
-            putInt("target_calories",  targetCalories)
-            putInt("target_protein_g", proteinG)
-            putInt("target_fat_g",     fatG)
-            putInt("target_carbs_g",   carbG)
+            putInt("target_calories",   targetCalories)
+            putInt("target_protein_g",  proteinG)
+            putInt("target_fat_g",      fatG)
+            putInt("target_carbs_g",    carbG)
             apply()
         }
 
-        // Refresh displayed targets
         tvCurrentTargets.text = "$targetCalories kcal / day"
         tvCurrentMacros.text  = "P ${proteinG}g  ·  F ${fatG}g  ·  C ${carbG}g"
 

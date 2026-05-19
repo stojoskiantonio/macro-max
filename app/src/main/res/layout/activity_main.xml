@@ -522,6 +522,236 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Meal Breakdown card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMealBreakdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:visibility="gone"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meal_breakdown_title"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginBottom="10dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- Breakfast column -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/meal_short_breakfast"
+                                android:textSize="10sp"
+                                android:alpha="0.5"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/tvMealBfastKcal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary"
+                                android:text="0" />
+
+                            <ProgressBar
+                                android:id="@+id/pbMealBfast"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="3dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressTint="?attr/colorPrimary"
+                                android:progressBackgroundTint="?attr/colorSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tvMealBfastOf"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="9sp"
+                                android:alpha="0.45"
+                                android:text="—" />
+
+                        </LinearLayout>
+
+                        <!-- Lunch column -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/meal_short_lunch"
+                                android:textSize="10sp"
+                                android:alpha="0.5"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/tvMealLunchKcal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary"
+                                android:text="0" />
+
+                            <ProgressBar
+                                android:id="@+id/pbMealLunch"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="3dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressTint="?attr/colorPrimary"
+                                android:progressBackgroundTint="?attr/colorSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tvMealLunchOf"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="9sp"
+                                android:alpha="0.45"
+                                android:text="—" />
+
+                        </LinearLayout>
+
+                        <!-- Dinner column -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/meal_short_dinner"
+                                android:textSize="10sp"
+                                android:alpha="0.5"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/tvMealDinnerKcal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary"
+                                android:text="0" />
+
+                            <ProgressBar
+                                android:id="@+id/pbMealDinner"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="3dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressTint="?attr/colorPrimary"
+                                android:progressBackgroundTint="?attr/colorSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tvMealDinnerOf"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="9sp"
+                                android:alpha="0.45"
+                                android:text="—" />
+
+                        </LinearLayout>
+
+                        <!-- Snack column -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/meal_short_snack"
+                                android:textSize="10sp"
+                                android:alpha="0.5"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/tvMealSnackKcal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary"
+                                android:text="0" />
+
+                            <ProgressBar
+                                android:id="@+id/pbMealSnack"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="3dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressTint="?attr/colorPrimary"
+                                android:progressBackgroundTint="?attr/colorSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tvMealSnackOf"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="9sp"
+                                android:alpha="0.45"
+                                android:text="—" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Today's Food section header -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -626,6 +856,15 @@
             android:src="@drawable/ic_person"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/nav_profile" />
+
+        <ImageButton
+            android:id="@+id/navReports"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_bar_chart"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/nav_reports" />
 
         <ImageButton
             android:id="@+id/navSettings"

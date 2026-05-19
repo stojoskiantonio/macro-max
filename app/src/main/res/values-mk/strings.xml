@@ -195,6 +195,17 @@
     <string name="settings_gemini_key_cleared">API клучот е отстранет</string>
     <string name="settings_gemini_key_footer">Земи бесплатен клуч на aistudio.google.com → Get API key. Не треба кредитна картичка.</string>
 
+    <string name="settings_notifications_section">Нотификации</string>
+    <string name="settings_notif_summary_label">Дневен преглед</string>
+    <string name="settings_notif_summary_desc">Потсетник за калории на крај од денот</string>
+    <string name="settings_notif_time_label">Време на нотификација</string>
+    <string name="settings_activity_section">Активност</string>
+    <string name="settings_step_goal_label">Дневна цел за чекори</string>
+    <string name="settings_step_goal_hint">Чекори</string>
+    <string name="settings_units_section">Единици</string>
+    <string name="settings_units_label">Систем на мерење</string>
+    <string name="settings_units_metric">Метрички (kg, cm)</string>
+    <string name="settings_units_imperial">Имперски (lbs, ft)</string>
     <string name="settings_language_section">Јазик</string>
     <string name="settings_language_label">Јазик на апликацијата</string>
     <string name="lang_english">English</string>
@@ -224,12 +235,41 @@
     <!-- Серија -->
     <string name="streak_days">🔥 %d-дневна серија</string>
 
+    <!-- Нотификација за живо следење -->
+    <string name="notif_budget_channel_name">Калориски буџет</string>
+    <string name="notif_budget_channel_desc">Преостанати калории за денот во живо</string>
+    <string name="notif_budget_remaining">%d kcal преостануваат денес</string>
+    <string name="notif_budget_goal_hit">Калориската цел е достигната! 🎉</string>
+    <string name="notif_budget_consumed">%d kcal внесено денес</string>
+    <string name="notif_budget_macros_remaining">P %dg · F %dg · C %dg преостануваат</string>
+    <string name="notif_budget_macros_consumed">P %dg · F %dg · C %dg внесено</string>
+    <string name="settings_budget_notif_label">Живо следење</string>
+    <string name="settings_budget_notif_desc">Преостанати калории во лентата за известувања</string>
+
     <!-- Нотификации -->
     <string name="notif_channel_name">Дневен преглед</string>
     <string name="notif_channel_desc">Потсетник за калории на крај од денот</string>
     <string name="notif_summary_title">Дневен преглед</string>
     <string name="notif_summary_remaining">Уште %d kcal за денес — продолжи!</string>
     <string name="notif_summary_goal_hit">Ја достигна калориската цел денес! 🎉</string>
+
+    <!-- Извештаи -->
+    <string name="nav_reports">Извештај</string>
+    <string name="reports_title">Извештај за напредок</string>
+    <string name="reports_this_week">Оваа недела</string>
+    <string name="reports_this_month">Овој месец</string>
+    <string name="reports_section_calories">Калории</string>
+    <string name="reports_section_macros">Макроа · просек на внесени денови</string>
+    <string name="reports_section_workouts">Тренинзи</string>
+    <string name="reports_section_streak">Конзистентност</string>
+    <string name="reports_avg_day">просек / ден</string>
+    <string name="reports_target">цел</string>
+    <string name="reports_on_target">во цел</string>
+    <string name="reports_days_logged">%1$d од %2$d дена внесено</string>
+    <string name="reports_sessions">сесии</string>
+    <string name="reports_kcal_burned">kcal изгорено</string>
+    <string name="reports_current_streak">ден серија</string>
+    <string name="reports_logged_days">дена внесено</string>
 
     <!-- Тренинг -->
     <string name="workout_section_title">Тренинзи</string>
@@ -258,6 +298,19 @@
     <!-- Профил одјава -->
     <string name="profile_account_section">Сметка</string>
     <string name="profile_logout_confirm">Одјава од Macro Max?</string>
+
+    <!-- Распределение на оброци (главен екран) -->
+    <string name="meal_breakdown_title">Распределба на оброци</string>
+    <string name="meal_short_breakfast">Појадок</string>
+    <string name="meal_short_lunch">Ручек</string>
+    <string name="meal_short_dinner">Вечера</string>
+    <string name="meal_short_snack">Ужина</string>
+
+    <!-- Поставки: Цели по оброк -->
+    <string name="settings_meal_targets_section">Цели по оброк</string>
+    <string name="settings_meal_targets_desc">% од дневната калориска цел</string>
+    <string name="settings_meal_target_hint">Процент (1–99)</string>
+    <string name="settings_meal_total">Вкупно: %d%%</string>
 
     <string name="facebook_app_id">YOUR_FACEBOOK_APP_ID</string>
     <string name="fb_login_protocol_scheme">fbYOUR_FACEBOOK_APP_ID</string>

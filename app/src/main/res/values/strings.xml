@@ -196,6 +196,17 @@
     <string name="settings_gemini_key_cleared">API key removed</string>
     <string name="settings_gemini_key_footer">Get a free key at aistudio.google.com → Get API key. No credit card required.</string>
 
+    <string name="settings_notifications_section">Notifications</string>
+    <string name="settings_notif_summary_label">Daily Summary</string>
+    <string name="settings_notif_summary_desc">End-of-day calorie recap</string>
+    <string name="settings_notif_time_label">Notification time</string>
+    <string name="settings_activity_section">Activity</string>
+    <string name="settings_step_goal_label">Daily step goal</string>
+    <string name="settings_step_goal_hint">Steps</string>
+    <string name="settings_units_section">Units</string>
+    <string name="settings_units_label">Measurement system</string>
+    <string name="settings_units_metric">Metric (kg, cm)</string>
+    <string name="settings_units_imperial">Imperial (lbs, ft)</string>
     <string name="settings_language_section">Language</string>
     <string name="settings_language_label">App language</string>
     <string name="lang_english">English</string>
@@ -225,12 +236,41 @@
     <!-- Streak -->
     <string name="streak_days">🔥 %d day streak</string>
 
+    <!-- Live budget notification -->
+    <string name="notif_budget_channel_name">Calorie Budget</string>
+    <string name="notif_budget_channel_desc">Live calories remaining for the day</string>
+    <string name="notif_budget_remaining">%d kcal remaining today</string>
+    <string name="notif_budget_goal_hit">Calorie goal reached today! 🎉</string>
+    <string name="notif_budget_consumed">%d kcal logged today</string>
+    <string name="notif_budget_macros_remaining">P %dg · F %dg · C %dg remaining</string>
+    <string name="notif_budget_macros_consumed">P %dg · F %dg · C %dg logged</string>
+    <string name="settings_budget_notif_label">Live Budget</string>
+    <string name="settings_budget_notif_desc">Calories remaining in notification shade</string>
+
     <!-- Notification channel -->
     <string name="notif_channel_name">Daily Summary</string>
     <string name="notif_channel_desc">End-of-day calorie reminder</string>
     <string name="notif_summary_title">Daily Summary</string>
     <string name="notif_summary_remaining">%d kcal remaining today — keep it up!</string>
     <string name="notif_summary_goal_hit">You\'ve hit your calorie goal today! 🎉</string>
+
+    <!-- Progress Reports -->
+    <string name="nav_reports">Reports</string>
+    <string name="reports_title">Progress Report</string>
+    <string name="reports_this_week">This Week</string>
+    <string name="reports_this_month">This Month</string>
+    <string name="reports_section_calories">Calories</string>
+    <string name="reports_section_macros">Macros · avg per logged day</string>
+    <string name="reports_section_workouts">Workouts</string>
+    <string name="reports_section_streak">Consistency</string>
+    <string name="reports_avg_day">avg / day</string>
+    <string name="reports_target">target</string>
+    <string name="reports_on_target">on target</string>
+    <string name="reports_days_logged">%1$d of %2$d days logged</string>
+    <string name="reports_sessions">sessions</string>
+    <string name="reports_kcal_burned">kcal burned</string>
+    <string name="reports_current_streak">day streak</string>
+    <string name="reports_logged_days">days logged</string>
 
     <!-- Workout logging -->
     <string name="workout_section_title">Workouts</string>
@@ -259,6 +299,19 @@
     <!-- Profile logout -->
     <string name="profile_account_section">Account</string>
     <string name="profile_logout_confirm">Log out of Macro Max?</string>
+
+    <!-- Meal Breakdown card (home screen) -->
+    <string name="meal_breakdown_title">Meal Breakdown</string>
+    <string name="meal_short_breakfast">Bfast</string>
+    <string name="meal_short_lunch">Lunch</string>
+    <string name="meal_short_dinner">Dinner</string>
+    <string name="meal_short_snack">Snack</string>
+
+    <!-- Settings: Meal Targets -->
+    <string name="settings_meal_targets_section">Meal Targets</string>
+    <string name="settings_meal_targets_desc">% of daily calorie goal</string>
+    <string name="settings_meal_target_hint">Percentage (1–99)</string>
+    <string name="settings_meal_total">Total: %d%%</string>
 
     <!-- Facebook Login — replace with values from developers.facebook.com -->
     <string name="facebook_app_id">YOUR_FACEBOOK_APP_ID</string>
