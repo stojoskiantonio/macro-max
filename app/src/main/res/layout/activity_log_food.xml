@@ -184,6 +184,41 @@
 
         </LinearLayout>
 
+        <!-- Recent foods chips (last 5 quick-add) -->
+        <HorizontalScrollView
+            android:id="@+id/scrollRecentFoods"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="2dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recent_foods_label"
+                    android:textSize="11sp"
+                    android:alpha="0.5"
+                    android:layout_marginEnd="6dp" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cgRecentFoods"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleLine="true"
+                    app:chipSpacingHorizontal="4dp" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <!-- Content area — states swap via visibility -->
         <FrameLayout
             android:layout_width="match_parent"

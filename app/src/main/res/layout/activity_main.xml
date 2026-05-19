@@ -55,9 +55,7 @@
                 android:id="@+id/cardMacros"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                app:cardCornerRadius="18dp"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -66,7 +64,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
-                    android:paddingVertical="20dp">
+                    android:paddingVertical="18dp">
 
                     <com.example.macromax.MacroDonutView
                         android:id="@+id/macroDonut"
@@ -80,29 +78,13 @@
                         android:orientation="vertical"
                         android:layout_marginStart="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/main_daily_targets"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"
-                            android:layout_marginBottom="10dp" />
-
                         <!-- Protein row -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="3dp">
-
-                            <TextView
-                                android:layout_width="10dp"
-                                android:layout_height="wrap_content"
-                                android:text="●"
-                                android:textSize="8sp"
-                                android:textColor="#4CAF50" />
+                            android:layout_marginBottom="2dp">
 
                             <TextView
                                 android:layout_width="0dp"
@@ -110,8 +92,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/result_protein"
                                 android:textSize="11sp"
-                                android:alpha="0.55"
-                                android:layout_marginStart="5dp" />
+                                android:alpha="0.55" />
 
                             <TextView
                                 android:id="@+id/tvProteinVal"
@@ -126,8 +107,8 @@
                             android:id="@+id/pbProtein"
                             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="5dp"
-                            android:layout_marginBottom="9dp"
+                            android:layout_height="3dp"
+                            android:layout_marginBottom="8dp"
                             android:max="100"
                             android:progress="0"
                             android:progressTint="#4CAF50"
@@ -139,14 +120,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="3dp">
-
-                            <TextView
-                                android:layout_width="10dp"
-                                android:layout_height="wrap_content"
-                                android:text="●"
-                                android:textSize="8sp"
-                                android:textColor="#EF5350" />
+                            android:layout_marginBottom="2dp">
 
                             <TextView
                                 android:layout_width="0dp"
@@ -154,8 +128,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/result_fat"
                                 android:textSize="11sp"
-                                android:alpha="0.55"
-                                android:layout_marginStart="5dp" />
+                                android:alpha="0.55" />
 
                             <TextView
                                 android:id="@+id/tvFatVal"
@@ -170,8 +143,8 @@
                             android:id="@+id/pbFat"
                             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="5dp"
-                            android:layout_marginBottom="9dp"
+                            android:layout_height="3dp"
+                            android:layout_marginBottom="8dp"
                             android:max="100"
                             android:progress="0"
                             android:progressTint="#EF5350"
@@ -183,14 +156,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="3dp">
-
-                            <TextView
-                                android:layout_width="10dp"
-                                android:layout_height="wrap_content"
-                                android:text="●"
-                                android:textSize="8sp"
-                                android:textColor="#64B5F6" />
+                            android:layout_marginBottom="2dp">
 
                             <TextView
                                 android:layout_width="0dp"
@@ -198,8 +164,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/result_carbs"
                                 android:textSize="11sp"
-                                android:alpha="0.55"
-                                android:layout_marginStart="5dp" />
+                                android:alpha="0.55" />
 
                             <TextView
                                 android:id="@+id/tvCarbsVal"
@@ -214,11 +179,23 @@
                             android:id="@+id/pbCarbs"
                             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                             android:layout_width="match_parent"
-                            android:layout_height="5dp"
+                            android:layout_height="3dp"
+                            android:layout_marginBottom="8dp"
                             android:max="100"
                             android:progress="0"
                             android:progressTint="#64B5F6"
                             android:progressBackgroundTint="#3364B5F6" />
+
+                        <!-- Net calories -->
+                        <TextView
+                            android:id="@+id/tvNetCalories"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="11sp"
+                            android:alpha="0.55"
+                            android:gravity="end"
+                            android:visibility="gone"
+                            tools:text="1,450 kcal net" />
 
                     </LinearLayout>
                 </LinearLayout>
@@ -229,10 +206,8 @@
                 android:id="@+id/cardSteps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="56dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                app:cardCornerRadius="18dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -241,7 +216,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
-                    android:paddingVertical="20dp">
+                    android:paddingVertical="18dp">
 
                     <com.example.macromax.StepDonutView
                         android:id="@+id/stepDonut"
@@ -255,29 +230,13 @@
                         android:orientation="vertical"
                         android:layout_marginStart="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/main_activity_section"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"
-                            android:layout_marginBottom="10dp" />
-
                         <!-- Steps row -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <TextView
-                                android:layout_width="10dp"
-                                android:layout_height="wrap_content"
-                                android:text="●"
-                                android:textSize="8sp"
-                                android:textColor="#FF9800" />
+                            android:layout_marginBottom="6dp">
 
                             <TextView
                                 android:layout_width="0dp"
@@ -285,8 +244,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/main_steps_label"
                                 android:textSize="11sp"
-                                android:alpha="0.55"
-                                android:layout_marginStart="5dp" />
+                                android:alpha="0.55" />
 
                             <TextView
                                 android:id="@+id/tvStepCount"
@@ -305,20 +263,12 @@
                             android:gravity="center_vertical">
 
                             <TextView
-                                android:layout_width="10dp"
-                                android:layout_height="wrap_content"
-                                android:text="●"
-                                android:textSize="8sp"
-                                android:textColor="#FF9800" />
-
-                            <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/main_calories_burned_label"
                                 android:textSize="11sp"
-                                android:alpha="0.55"
-                                android:layout_marginStart="5dp" />
+                                android:alpha="0.55" />
 
                             <TextView
                                 android:id="@+id/tvCaloriesBurned"
@@ -338,10 +288,8 @@
                 android:id="@+id/cardWater"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                app:cardCornerRadius="18dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -349,8 +297,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="14dp">
+                    android:paddingTop="14dp"
+                    android:paddingBottom="12dp">
 
                     <!-- Title row -->
                     <LinearLayout
@@ -358,14 +306,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
-
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_water"
-                            android:layout_marginEnd="8dp"
-                            android:contentDescription="Water" />
+                        android:layout_marginBottom="8dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -391,8 +332,8 @@
                         android:id="@+id/pbWater"
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="6dp"
-                        android:layout_marginBottom="12dp"
+                        android:layout_height="4dp"
+                        android:layout_marginBottom="10dp"
                         android:max="100"
                         android:progress="0"
                         android:progressTint="#64B5F6"
@@ -450,10 +391,8 @@
                 android:id="@+id/cardWorkouts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                app:cardCornerRadius="18dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -461,7 +400,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
-                    android:paddingTop="14dp"
+                    android:paddingTop="12dp"
                     android:paddingBottom="6dp">
 
                     <!-- Header row -->
@@ -471,13 +410,6 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:layout_marginBottom="2dp">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_workout"
-                            android:layout_marginEnd="8dp"
-                            android:contentDescription="Workout" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -527,11 +459,9 @@
                 android:id="@+id/cardMealBreakdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginTop="12dp"
                 android:visibility="gone"
-                app:cardCornerRadius="18dp"
+                app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -758,25 +688,25 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="8dp"
-                android:paddingHorizontal="4dp">
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="6dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/main_todays_food"
-                    android:textSize="15sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
+                    android:alpha="0.6"
                     android:textColor="?attr/colorOnSurface" />
 
                 <TextView
                     android:id="@+id/tvTotalConsumed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:alpha="0.6"
+                    android:textSize="12sp"
+                    android:alpha="0.5"
                     tools:text="0 kcal" />
             </LinearLayout>
 
@@ -820,7 +750,7 @@
         android:src="@drawable/ic_add"
         android:contentDescription="@string/log_food_title" />
 
-    <!-- Bottom navigation bar — plain icon strip, no Material indicator -->
+    <!-- Bottom navigation bar -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -828,7 +758,7 @@
         android:layout_gravity="bottom"
         android:orientation="horizontal"
         android:background="?attr/colorSurface"
-        android:elevation="8dp">
+        android:elevation="2dp">
 
         <ImageButton
             android:id="@+id/navHome"

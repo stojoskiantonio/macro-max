@@ -96,6 +96,9 @@
     <string name="history_no_entries">Нема внесена храна за овој ден</string>
     <string name="history_weekly_chart">Оваа недела</string>
     <string name="history_pick_date">Избери датум</string>
+    <string name="history_search_hint">Пребарај историја на храна…</string>
+    <string name="history_search_no_results">Нема пронајдени записи</string>
+    <string name="recent_foods_label">Неодамна:</string>
 
     <!-- Профил -->
     <string name="profile_title">Профил</string>
@@ -107,6 +110,13 @@
     <string name="profile_no_targets">Сè уште нема поставени цели</string>
     <string name="profile_save">Зачувај и пресметај</string>
     <string name="profile_saved">Профилот е зачуван!</string>
+    <string name="profile_macro_split_title">Сопствена поделба на макроа</string>
+    <string name="profile_macro_split_desc">Промени автоматски пресметаните % за протеини/масти/јаглехидрати</string>
+    <string name="profile_macro_protein_pct">Протеини</string>
+    <string name="profile_macro_fat_pct">Масти</string>
+    <string name="profile_macro_carb_pct">Јаглехидрати</string>
+    <string name="profile_macro_split_preview">П %dg · М %dg · Ј %dg  (%d kcal вкупно)</string>
+    <string name="profile_macro_split_total_warn">Вкупно е %d%% (мора да биде 100%%)</string>
     <string name="nav_profile">Профил</string>
     <string name="nav_settings">Поставки</string>
     <!-- АИ анализа на фотографија -->

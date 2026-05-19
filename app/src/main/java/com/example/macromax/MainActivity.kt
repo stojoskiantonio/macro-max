@@ -56,8 +56,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var pbFat: ProgressBar
     private lateinit var pbCarbs: ProgressBar
     private lateinit var tvTotalConsumed: TextView
+    private lateinit var tvNetCalories: TextView
     private lateinit var tvNoFood: TextView
     private lateinit var rvFoodLog: RecyclerView
+
+    private var consumedCalToday = 0
+    private var burnedCalToday   = 0
 
     private lateinit var tvWaterCount: TextView
     private lateinit var tvWaterGlasses: TextView
@@ -93,6 +97,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         pbFat            = findViewById(R.id.pbFat)
         pbCarbs          = findViewById(R.id.pbCarbs)
         tvTotalConsumed  = findViewById(R.id.tvTotalConsumed)
+        tvNetCalories    = findViewById(R.id.tvNetCalories)
         tvNoFood         = findViewById(R.id.tvNoFood)
         rvFoodLog        = findViewById(R.id.rvFoodLog)
         tvStepCount      = findViewById(R.id.tvStepCount)
@@ -314,6 +319,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             )
         } else emptyMap()
 
+        // Net calories
+        consumedCalToday = totalCal
+        updateNetCaloriesDisplay()
+
         // Meal breakdown card (shown only when calorie targets are set)
         updateMealBreakdown(entries, mealTargets)
 
@@ -500,10 +509,25 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val goal         = stepGoal()
         val stepCalories = (steps * 0.04).toInt()
         val totalBurned  = stepCalories + workoutCaloriesToday
+        burnedCalToday        = totalBurned
         tvStepCount.text      = steps.toString()
         tvCaloriesBurned.text = "$totalBurned kcal"
         stepDonut.progress    = (steps.toFloat() / goal).coerceIn(0f, 1f)
         stepDonut.centerText  = totalBurned.toString()
+        updateNetCaloriesDisplay()
+    }
+
+    private fun updateNetCaloriesDisplay() {
+        val net = consumedCalToday - burnedCalToday
+        if (consumedCalToday == 0 && burnedCalToday == 0) {
+            tvNetCalories.visibility = View.GONE
+            return
+        }
+        tvNetCalories.visibility = View.VISIBLE
+        tvNetCalories.text = when {
+            burnedCalToday > 0 -> "Net ${net} kcal (${consumedCalToday} eaten − ${burnedCalToday} burned)"
+            else               -> "${consumedCalToday} kcal consumed"
+        }
     }
 
     // ── Workouts ──────────────────────────────────────────────────────────────

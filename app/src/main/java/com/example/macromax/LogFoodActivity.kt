@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -68,6 +69,8 @@ class LogFoodActivity : AppCompatActivity() {
     private lateinit var tvNoResults: TextView
     private lateinit var tvFavEmpty: TextView
     private lateinit var tvRecipesEmpty: TextView
+    private lateinit var scrollRecentFoods: View
+    private lateinit var cgRecentFoods: ChipGroup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +92,8 @@ class LogFoodActivity : AppCompatActivity() {
         tvNoResults     = findViewById(R.id.tvNoResults)
         tvFavEmpty      = findViewById(R.id.tvFavEmpty)
         tvRecipesEmpty  = findViewById(R.id.tvRecipesEmpty)
+        scrollRecentFoods = findViewById(R.id.scrollRecentFoods)
+        cgRecentFoods   = findViewById(R.id.cgRecentFoods)
 
         // Pre-select meal type based on time of day
         val defaultChipId = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
@@ -137,6 +142,60 @@ class LogFoodActivity : AppCompatActivity() {
         // Manage recipes button
         findViewById<MaterialButton>(R.id.btnManageRecipes).setOnClickListener {
             startActivity(Intent(this, RecipeListActivity::class.java))
+        }
+
+        // Recent foods chips
+        loadRecentFoods()
+    }
+
+    // ── Recent foods chips ────────────────────────────────────────────────────
+
+    private fun loadRecentFoods() {
+        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val fmt    = SimpleDateFormat("yyyyMMdd", Locale.US)
+        val seen   = linkedSetOf<String>()   // insertion-ordered unique names
+        val foods  = mutableListOf<FoodEntry>()
+
+        // Scan the last 14 days of logs, newest entries first
+        val cal = Calendar.getInstance()
+        outer@ for (d in 0..13) {
+            if (d > 0) cal.add(Calendar.DAY_OF_YEAR, -1)
+            val key  = fmt.format(cal.time)
+            val arr  = JSONArray(prefs.getString("food_log_$key", "[]") ?: "[]")
+            // Iterate in reverse so most recent entries come first
+            for (i in arr.length() - 1 downTo 0) {
+                val obj  = arr.getJSONObject(i)
+                val name = obj.optString("name").trim()
+                if (name.isNotEmpty() && seen.add(name)) {
+                    foods.add(FoodEntry(
+                        name     = name,
+                        calories = obj.optInt("cal"),
+                        proteinG = obj.optInt("pro"),
+                        fatG     = obj.optInt("fat"),
+                        carbsG   = obj.optInt("car"),
+                        mealType = obj.optString("meal", "other")
+                    ))
+                    if (foods.size >= 5) break@outer
+                }
+            }
+        }
+
+        if (foods.isEmpty()) return
+
+        scrollRecentFoods.visibility = View.VISIBLE
+        cgRecentFoods.removeAllViews()
+        for (food in foods) {
+            val chip = Chip(this).apply {
+                text     = food.name
+                isCheckable = false
+                setOnClickListener {
+                    saveEntry(food.copy(mealType = selectedMealType()))
+                    Toast.makeText(this@LogFoodActivity,
+                        getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            cgRecentFoods.addView(chip)
         }
     }
 

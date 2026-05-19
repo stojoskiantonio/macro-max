@@ -96,6 +96,9 @@
     <string name="history_no_entries">No food logged on this day</string>
     <string name="history_weekly_chart">This Week</string>
     <string name="history_pick_date">Select a date</string>
+    <string name="history_search_hint">Search food history…</string>
+    <string name="history_search_no_results">No matching entries found</string>
+    <string name="recent_foods_label">Recent:</string>
 
     <!-- Profile screen -->
     <string name="profile_title">Profile</string>
@@ -107,6 +110,13 @@
     <string name="profile_no_targets">No targets set yet</string>
     <string name="profile_save">Save &amp; Recalculate</string>
     <string name="profile_saved">Profile saved!</string>
+    <string name="profile_macro_split_title">Custom Macro Split</string>
+    <string name="profile_macro_split_desc">Override auto-calculated protein/fat/carb %</string>
+    <string name="profile_macro_protein_pct">Protein</string>
+    <string name="profile_macro_fat_pct">Fat</string>
+    <string name="profile_macro_carb_pct">Carbs</string>
+    <string name="profile_macro_split_preview">P %dg · F %dg · C %dg  (%d kcal total)</string>
+    <string name="profile_macro_split_total_warn">Total is %d%% (must equal 100%%)</string>
     <string name="nav_profile">Profile</string>
     <string name="nav_settings">Settings</string>
     <!-- Weight tracking -->

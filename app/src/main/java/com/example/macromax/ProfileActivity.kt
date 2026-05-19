@@ -4,6 +4,8 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -16,6 +18,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -52,6 +55,14 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvCurrentTargets: TextView
     private lateinit var tvCurrentMacros: TextView
     private lateinit var btnSaveProfile: MaterialButton
+
+    // Custom macro split
+    private lateinit var switchCustomMacroSplit: SwitchMaterial
+    private lateinit var rowMacroSplitInputs: View
+    private lateinit var etMacroProteinPct: TextInputEditText
+    private lateinit var etMacroFatPct: TextInputEditText
+    private lateinit var etMacroCarbPct: TextInputEditText
+    private lateinit var tvMacroSplitPreview: TextView
 
     private val avatarFile get() = File(filesDir, "profile_picture.jpg")
 
@@ -94,6 +105,27 @@ class ProfileActivity : AppCompatActivity() {
         tvCurrentTargets     = findViewById(R.id.tvCurrentTargets)
         tvCurrentMacros      = findViewById(R.id.tvCurrentMacros)
         btnSaveProfile       = findViewById(R.id.btnSaveProfile)
+        switchCustomMacroSplit = findViewById(R.id.switchCustomMacroSplit)
+        rowMacroSplitInputs  = findViewById(R.id.rowMacroSplitInputs)
+        etMacroProteinPct    = findViewById(R.id.etMacroProteinPct)
+        etMacroFatPct        = findViewById(R.id.etMacroFatPct)
+        etMacroCarbPct       = findViewById(R.id.etMacroCarbPct)
+        tvMacroSplitPreview  = findViewById(R.id.tvMacroSplitPreview)
+
+        // Toggle visibility
+        switchCustomMacroSplit.setOnCheckedChangeListener { _, isChecked ->
+            rowMacroSplitInputs.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+
+        // Live preview as user types
+        val splitWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) { updateMacroSplitPreview() }
+        }
+        etMacroProteinPct.addTextChangedListener(splitWatcher)
+        etMacroFatPct.addTextChangedListener(splitWatcher)
+        etMacroCarbPct.addTextChangedListener(splitWatcher)
 
         val openPicker = { pickImageLauncher.launch("image/*") }
         ivProfileAvatar.setOnClickListener { openPicker() }
@@ -230,6 +262,38 @@ class ProfileActivity : AppCompatActivity() {
             tvCurrentTargets.text = getString(R.string.profile_no_targets)
             tvCurrentMacros.text  = ""
         }
+
+        // Custom macro split
+        val customSplitEnabled = prefs.getBoolean("custom_macro_split_enabled", false)
+        switchCustomMacroSplit.isChecked = customSplitEnabled
+        rowMacroSplitInputs.visibility   = if (customSplitEnabled) View.VISIBLE else View.GONE
+        etMacroProteinPct.setText(prefs.getInt("custom_protein_pct", 30).toString())
+        etMacroFatPct.setText(prefs.getInt("custom_fat_pct",     25).toString())
+        etMacroCarbPct.setText(prefs.getInt("custom_carb_pct",   45).toString())
+        updateMacroSplitPreview()
+    }
+
+    private fun updateMacroSplitPreview() {
+        val prefs     = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val targetCal = prefs.getInt("target_calories", 0)
+        val p = etMacroProteinPct.text.toString().toIntOrNull() ?: 0
+        val f = etMacroFatPct.text.toString().toIntOrNull()     ?: 0
+        val c = etMacroCarbPct.text.toString().toIntOrNull()    ?: 0
+        val total = p + f + c
+
+        if (total != 100) {
+            tvMacroSplitPreview.text = getString(R.string.profile_macro_split_total_warn, total)
+            return
+        }
+        if (targetCal <= 0) {
+            tvMacroSplitPreview.text = ""
+            return
+        }
+        val protG = ((targetCal * p / 100.0) / 4).roundToInt()
+        val fatG  = ((targetCal * f / 100.0) / 9).roundToInt()
+        val carbG = ((targetCal * c / 100.0) / 4).roundToInt()
+        tvMacroSplitPreview.text = getString(R.string.profile_macro_split_preview,
+            protG, fatG, carbG, targetCal)
     }
 
     private fun saveProfile() {
@@ -295,11 +359,32 @@ class ProfileActivity : AppCompatActivity() {
             "lose" -> tdee - 400
             else   -> tdee
         }.roundToInt()
-        val proteinG = (weightKg * when (goal) {
-            "gain" -> 2.6; "lose" -> 1.8; else -> 1.6
-        }).roundToInt()
-        val fatG  = ((targetCalories * 0.25) / 9).roundToInt()
-        val carbG = ((targetCalories - proteinG * 4 - fatG * 9) / 4).coerceAtLeast(0)
+        // Determine final macro grams — custom split OR auto
+        val useCustomSplit = switchCustomMacroSplit.isChecked
+        val proteinG: Int
+        val fatG: Int
+        val carbG: Int
+
+        if (useCustomSplit) {
+            val p = etMacroProteinPct.text.toString().toIntOrNull() ?: 0
+            val f = etMacroFatPct.text.toString().toIntOrNull()     ?: 0
+            val c = etMacroCarbPct.text.toString().toIntOrNull()    ?: 0
+            if (p + f + c != 100) {
+                Snackbar.make(btnSaveProfile,
+                    getString(R.string.profile_macro_split_total_warn, p + f + c),
+                    Snackbar.LENGTH_SHORT).show()
+                return
+            }
+            proteinG = ((targetCalories * p / 100.0) / 4).roundToInt()
+            fatG     = ((targetCalories * f / 100.0) / 9).roundToInt()
+            carbG    = ((targetCalories * c / 100.0) / 4).roundToInt().coerceAtLeast(0)
+        } else {
+            proteinG = (weightKg * when (goal) {
+                "gain" -> 2.6; "lose" -> 1.8; else -> 1.6
+            }).roundToInt()
+            fatG  = ((targetCalories * 0.25) / 9).roundToInt()
+            carbG = ((targetCalories - proteinG * 4 - fatG * 9) / 4).coerceAtLeast(0)
+        }
 
         val waterGoal = etWaterGoal.text.toString().trim().toIntOrNull()?.coerceAtLeast(1) ?: 8
 
@@ -317,6 +402,12 @@ class ProfileActivity : AppCompatActivity() {
             putInt("target_protein_g",  proteinG)
             putInt("target_fat_g",      fatG)
             putInt("target_carbs_g",    carbG)
+            putBoolean("custom_macro_split_enabled", useCustomSplit)
+            if (useCustomSplit) {
+                putInt("custom_protein_pct", etMacroProteinPct.text.toString().toIntOrNull() ?: 30)
+                putInt("custom_fat_pct",     etMacroFatPct.text.toString().toIntOrNull()     ?: 25)
+                putInt("custom_carb_pct",    etMacroCarbPct.text.toString().toIntOrNull()    ?: 45)
+            }
             apply()
         }
 
