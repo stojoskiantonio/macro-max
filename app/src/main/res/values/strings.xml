@@ -66,6 +66,14 @@
     <string name="main_activity_section">Activity</string>
     <string name="main_steps_label">Steps</string>
     <string name="main_calories_burned_label">Calories Burned</string>
+    <string name="main_activity_ring">Activity Ring</string>
+    <string name="main_move_label">Move</string>
+    <string name="main_step_count">Step Count</string>
+    <string name="main_step_distance">Step Distance</string>
+    <string name="main_today_label">Today</string>
+    <string name="stats_activity_title">Activity</string>
+    <string name="stats_step_goal">Daily Step Goal</string>
+    <string name="stats_this_week">This Week</string>
     <string name="main_todays_food">Today\'s Food</string>
     <string name="main_no_food_logged">No food logged yet — tap + to add a meal</string>
     <string name="log_food_title">Log Food</string>
@@ -137,31 +145,21 @@
     <string name="settings_appearance">Appearance</string>
     <string name="settings_light_mode">Light mode</string>
 
-    <!-- AI Photo Analysis -->
-    <!-- Replace with your Gemini API key from https://aistudio.google.com/app/apikey -->
-    <string name="gemini_api_key">YOUR_GEMINI_API_KEY</string>
-    <string name="ai_scan_title">AI Meal Scan</string>
-    <string name="ai_scan_btn">AI Scan</string>
-    <string name="ai_scan_prompt">Point your camera at a meal</string>
-    <string name="ai_scan_sub">AI will estimate calories and macros from the photo</string>
-    <string name="ai_take_photo">Take Photo</string>
-    <string name="ai_pick_gallery">Choose from Gallery</string>
-    <string name="ai_analyze">Analyze with AI</string>
-    <string name="ai_retake">Retake</string>
-    <string name="ai_analyzing">Analyzing your meal…</string>
-    <string name="ai_analyzing_sub">Gemini is identifying foods and estimating portions</string>
-    <string name="ai_breakdown">Identified items</string>
-    <string name="ai_conf_high">High confidence</string>
-    <string name="ai_conf_medium">Medium confidence</string>
-    <string name="ai_conf_low">Low confidence</string>
-    <string name="ai_log_meal">Log This Meal</string>
-    <string name="ai_edit_log">Edit &amp; Log</string>
-    <string name="ai_edit_title">Review &amp; Edit</string>
-    <string name="ai_retry">Try Again</string>
-    <string name="ai_select_meal_type">Select meal type</string>
-    <string name="ai_log_confirm">Log</string>
-    <string name="ai_no_api_key">Gemini API key not configured. Add it in Settings → AI Features.</string>
-    <string name="ai_analysis_error">Analysis failed: %s</string>
+    <!-- Custom Foods -->
+    <string name="tab_my_foods">My Foods</string>
+    <string name="my_foods_empty">No custom foods yet — tap + to create one</string>
+    <string name="my_foods_title">My Foods</string>
+    <string name="custom_food_new">New food</string>
+    <string name="custom_food_edit_title">Edit food</string>
+    <string name="custom_food_name_hint">Food name</string>
+    <string name="custom_food_kcal_hint">kcal per 100g</string>
+    <string name="custom_food_protein_hint">Protein per 100g (g)</string>
+    <string name="custom_food_fat_hint">Fat per 100g (g)</string>
+    <string name="custom_food_carbs_hint">Carbs per 100g (g)</string>
+    <string name="custom_food_saved">Custom food saved!</string>
+    <string name="custom_food_deleted">Deleted</string>
+    <string name="custom_food_delete_title">Delete food</string>
+    <string name="custom_food_delete_message">Delete "%s"? This cannot be undone.</string>
 
     <!-- Recipes -->
     <string name="tab_recipes">Recipes</string>
@@ -195,16 +193,6 @@
     <string name="favourite_deleted">Removed from favourites</string>
     <string name="delete_favourite_title">Remove favourite</string>
     <string name="delete_favourite_message">Remove "%s" from favourites?</string>
-
-    <!-- Language -->
-    <string name="settings_ai_section">AI Features</string>
-    <string name="settings_gemini_key_label">Gemini API Key</string>
-    <string name="settings_gemini_key_hint_small">Required for AI meal photo analysis</string>
-    <string name="settings_gemini_key_field_hint">Paste your API key here</string>
-    <string name="settings_gemini_key_save">Save</string>
-    <string name="settings_gemini_key_saved">API key saved ✓</string>
-    <string name="settings_gemini_key_cleared">API key removed</string>
-    <string name="settings_gemini_key_footer">Get a free key at aistudio.google.com → Get API key. No credit card required.</string>
 
     <string name="settings_notifications_section">Notifications</string>
     <string name="settings_notif_summary_label">Daily Summary</string>

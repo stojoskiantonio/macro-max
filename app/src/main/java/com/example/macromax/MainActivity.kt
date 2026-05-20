@@ -30,8 +30,22 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -39,14 +53,21 @@ import java.util.Locale
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
+    private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
     private lateinit var sensorManager: SensorManager
     private var stepSensor: Sensor? = null
 
     private lateinit var tvGreeting: TextView
     private lateinit var tvStreak: TextView
     private lateinit var tvStepCount: TextView
-    private lateinit var tvCaloriesBurned: TextView
-    private lateinit var stepDonut: StepDonutView
+    private lateinit var tvStepDistance: TextView
+    private lateinit var activityRing: ActivityRingView
+    private lateinit var tvActivityKcal: TextView
+    private lateinit var tvActivityKcalGoal: TextView
+    private lateinit var stepBarChart: HourlyBarChartView
+    private lateinit var distanceBarChart: HourlyBarChartView
+    private lateinit var ivProfilePic: com.google.android.material.imageview.ShapeableImageView
 
     private lateinit var macroDonut: MacroDonutView
     private lateinit var tvProteinVal: TextView
@@ -100,9 +121,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         tvNetCalories    = findViewById(R.id.tvNetCalories)
         tvNoFood         = findViewById(R.id.tvNoFood)
         rvFoodLog        = findViewById(R.id.rvFoodLog)
-        tvStepCount      = findViewById(R.id.tvStepCount)
-        tvCaloriesBurned = findViewById(R.id.tvCaloriesBurned)
-        stepDonut        = findViewById(R.id.stepDonut)
+        tvStepCount       = findViewById(R.id.tvStepCount)
+        tvStepDistance    = findViewById(R.id.tvStepDistance)
+        activityRing      = findViewById(R.id.activityRing)
+        tvActivityKcal    = findViewById(R.id.tvActivityKcal)
+        tvActivityKcalGoal = findViewById(R.id.tvActivityKcalGoal)
+        stepBarChart      = findViewById(R.id.stepBarChart)
+        distanceBarChart  = findViewById(R.id.distanceBarChart)
+        ivProfilePic      = findViewById(R.id.ivProfilePic)
         tvWaterCount     = findViewById(R.id.tvWaterCount)
         tvWaterGlasses   = findViewById(R.id.tvWaterGlasses)
         pbWater          = findViewById(R.id.pbWater)
@@ -111,6 +137,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         // ── RecyclerView ──────────────────────────────────────────────────────
         rvFoodLog.layoutManager = LinearLayoutManager(this)
+
+        // ── Profile picture ───────────────────────────────────────────────────
+        ivProfilePic.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+        // ── Step stat cards ───────────────────────────────────────────────────
+        val stepStatsIntent = Intent(this, StepStatsActivity::class.java)
+        findViewById<View>(R.id.cardStepCount).setOnClickListener {
+            startActivity(stepStatsIntent)
+        }
+        findViewById<View>(R.id.cardStepDistance).setOnClickListener {
+            startActivity(stepStatsIntent)
+        }
 
         // ── FAB ───────────────────────────────────────────────────────────────
         findViewById<FloatingActionButton>(R.id.fabAddFood).setOnClickListener {
@@ -162,6 +202,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         updateGreeting()
+        loadProfilePhoto()
         refreshFoodLog()
         refreshWater()
         refreshStreak()
@@ -177,6 +218,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainScope.cancel()
     }
 
     // ── Greeting ─────────────────────────────────────────────────────────────
@@ -496,6 +542,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val todaySteps = (rawTotal - baseline).coerceAtLeast(0L).toInt()
 
         prefs.edit().putInt("steps_$todayKey", todaySteps).apply()
+        recordHourlySteps(prefs, todaySteps)
         updateStepUI(todaySteps)
     }
 
@@ -506,15 +553,84 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             .getInt(SettingsActivity.PREF_STEP_GOAL, 10_000)
 
     private fun updateStepUI(steps: Int) {
+        val prefs        = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val goal         = stepGoal()
         val stepCalories = (steps * 0.04).toInt()
         val totalBurned  = stepCalories + workoutCaloriesToday
-        burnedCalToday        = totalBurned
-        tvStepCount.text      = steps.toString()
-        tvCaloriesBurned.text = "$totalBurned kcal"
-        stepDonut.progress    = (steps.toFloat() / goal).coerceIn(0f, 1f)
-        stepDonut.centerText  = totalBurned.toString()
+        burnedCalToday   = totalBurned
+
+        // Activity ring
+        activityRing.progress   = (steps.toFloat() / goal).coerceIn(0f, 1f)
+        tvActivityKcal.text     = totalBurned.toString()
+        tvActivityKcalGoal.text = (goal * 0.04).toInt().toString()
+
+        // Step count
+        tvStepCount.text = steps.toString()
+
+        // Step distance
+        val distKm = steps * 0.00076
+        val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, "") == SettingsActivity.UNITS_IMPERIAL
+        tvStepDistance.text = if (isImperial) {
+            String.format("%.2f MI", distKm * 0.621371f)
+        } else {
+            String.format("%.2f KM", distKm)
+        }
+
+        // Hourly bar charts
+        val hourlyData = getHourlySteps(prefs)
+        stepBarChart.data     = hourlyData
+        distanceBarChart.data = hourlyData
+        distanceBarChart.barColor = android.graphics.Color.parseColor("#4DD0E1")
+
         updateNetCaloriesDisplay()
+    }
+
+    private fun recordHourlySteps(prefs: android.content.SharedPreferences, steps: Int) {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val key  = "steps_snap_${todayDateKey()}_$hour"
+        if (steps > prefs.getInt(key, 0)) prefs.edit().putInt(key, steps).apply()
+    }
+
+    private fun getHourlySteps(prefs: android.content.SharedPreferences): IntArray {
+        val today = todayDateKey()
+        val snaps = IntArray(24) { h -> prefs.getInt("steps_snap_${today}_$h", 0) }
+        return IntArray(24) { h ->
+            if (h == 0) snaps[0]
+            else (snaps[h] - snaps[h - 1]).coerceAtLeast(0)
+        }
+    }
+
+    private fun loadProfilePhoto() {
+        val user = FirebaseAuth.getInstance().currentUser
+        val photoUri = user?.photoUrl
+        if (photoUri == null) {
+            ivProfilePic.setImageResource(R.drawable.ic_person)
+            return
+        }
+        mainScope.launch {
+            val bmp = withContext(Dispatchers.IO) {
+                try {
+                    val conn = URL(photoUri.toString()).openConnection() as HttpURLConnection
+                    conn.connectTimeout = 5_000
+                    conn.readTimeout    = 5_000
+                    conn.connect()
+                    BitmapFactory.decodeStream(conn.inputStream)
+                } catch (e: Exception) { null }
+            }
+            if (bmp != null) {
+                val size = minOf(bmp.width, bmp.height)
+                val xOff = (bmp.width  - size) / 2
+                val yOff = (bmp.height - size) / 2
+                val sq   = android.graphics.Bitmap.createBitmap(bmp, xOff, yOff, size, size)
+                val out  = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+                val c    = Canvas(out)
+                val p    = Paint(Paint.ANTI_ALIAS_FLAG)
+                c.drawCircle(size / 2f, size / 2f, size / 2f, p)
+                p.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+                c.drawBitmap(sq, 0f, 0f, p)
+                ivProfilePic.setImageBitmap(out)
+            }
+        }
     }
 
     private fun updateNetCaloriesDisplay() {

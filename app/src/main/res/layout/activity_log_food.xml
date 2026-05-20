@@ -131,6 +131,17 @@
             android:insetTop="0dp"
             android:insetBottom="0dp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabMyFoods"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="@string/tab_my_foods"
+            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- ── SEARCH PANE ──────────────────────────────────────────────────── -->
@@ -341,6 +352,57 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:text="@string/recipe_manage" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- ── MY FOODS PANE ────────────────────────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/paneMyFoods"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <!-- Empty state -->
+        <TextView
+            android:id="@+id/tvMyFoodsEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/my_foods_empty"
+            android:gravity="center"
+            android:alpha="0.4"
+            android:textSize="14sp"
+            android:paddingHorizontal="32dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMyFoods"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_line" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNewCustomFood"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="@string/custom_food_new" />
 
         </LinearLayout>
 

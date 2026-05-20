@@ -71,6 +71,9 @@ class LogFoodActivity : AppCompatActivity() {
     private lateinit var tvRecipesEmpty: TextView
     private lateinit var scrollRecentFoods: View
     private lateinit var cgRecentFoods: ChipGroup
+    private lateinit var paneMyFoods: View
+    private lateinit var rvMyFoods: RecyclerView
+    private lateinit var tvMyFoodsEmpty: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +97,9 @@ class LogFoodActivity : AppCompatActivity() {
         tvRecipesEmpty  = findViewById(R.id.tvRecipesEmpty)
         scrollRecentFoods = findViewById(R.id.scrollRecentFoods)
         cgRecentFoods   = findViewById(R.id.cgRecentFoods)
+        paneMyFoods     = findViewById(R.id.paneMyFoods)
+        rvMyFoods       = findViewById(R.id.rvMyFoods)
+        tvMyFoodsEmpty  = findViewById(R.id.tvMyFoodsEmpty)
 
         // Pre-select meal type based on time of day
         val defaultChipId = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
@@ -107,6 +113,7 @@ class LogFoodActivity : AppCompatActivity() {
         rvResults.layoutManager    = LinearLayoutManager(this)
         rvFavourites.layoutManager = LinearLayoutManager(this)
         rvRecipesLog.layoutManager = LinearLayoutManager(this)
+        rvMyFoods.layoutManager    = LinearLayoutManager(this)
 
         // Tab toggle
         toggleTab.check(R.id.btnTabSearch)
@@ -116,6 +123,7 @@ class LogFoodActivity : AppCompatActivity() {
                 R.id.btnTabSearch    -> showSearchPane()
                 R.id.btnTabFavourites -> showFavouritesPane()
                 R.id.btnTabRecipes   -> showRecipesPane()
+                R.id.btnTabMyFoods   -> showMyFoodsPane()
             }
         }
 
@@ -142,6 +150,11 @@ class LogFoodActivity : AppCompatActivity() {
         // Manage recipes button
         findViewById<MaterialButton>(R.id.btnManageRecipes).setOnClickListener {
             startActivity(Intent(this, RecipeListActivity::class.java))
+        }
+
+        // New custom food button
+        findViewById<MaterialButton>(R.id.btnNewCustomFood).setOnClickListener {
+            showCustomFoodDialog(null)
         }
 
         // Recent foods chips
@@ -216,12 +229,14 @@ class LogFoodActivity : AppCompatActivity() {
         paneSearch.visibility     = View.VISIBLE
         paneFavourites.visibility = View.GONE
         paneRecipes.visibility    = View.GONE
+        paneMyFoods.visibility    = View.GONE
     }
 
     private fun showFavouritesPane() {
         paneSearch.visibility     = View.GONE
         paneFavourites.visibility = View.VISIBLE
         paneRecipes.visibility    = View.GONE
+        paneMyFoods.visibility    = View.GONE
         refreshFavourites()
     }
 
@@ -229,7 +244,16 @@ class LogFoodActivity : AppCompatActivity() {
         paneSearch.visibility     = View.GONE
         paneFavourites.visibility = View.GONE
         paneRecipes.visibility    = View.VISIBLE
+        paneMyFoods.visibility    = View.GONE
         refreshRecipes()
+    }
+
+    private fun showMyFoodsPane() {
+        paneSearch.visibility     = View.GONE
+        paneFavourites.visibility = View.GONE
+        paneRecipes.visibility    = View.GONE
+        paneMyFoods.visibility    = View.VISIBLE
+        refreshMyFoods()
     }
 
     private fun refreshRecipes() {
@@ -312,6 +336,177 @@ class LogFoodActivity : AppCompatActivity() {
                 FavouritesRepository.delete(prefs, fav.name)
                 Toast.makeText(this, getString(R.string.favourite_deleted), Toast.LENGTH_SHORT).show()
                 refreshFavourites()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    // ── My Foods ─────────────────────────────────────────────────────────────
+
+    private fun refreshMyFoods() {
+        val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val list  = CustomFoodsRepository.load(prefs)
+        if (list.isEmpty()) {
+            rvMyFoods.visibility      = View.GONE
+            tvMyFoodsEmpty.visibility = View.VISIBLE
+        } else {
+            tvMyFoodsEmpty.visibility = View.GONE
+            rvMyFoods.visibility      = View.VISIBLE
+            rvMyFoods.adapter = CustomFoodAdapter(
+                items    = list,
+                onAdd    = { food -> showCustomFoodPortionDialog(food) },
+                onEdit   = { food -> showCustomFoodDialog(food) },
+                onDelete = { food -> confirmDeleteCustomFood(food) }
+            )
+        }
+    }
+
+    private fun showCustomFoodPortionDialog(food: CustomFood) {
+        val dp    = resources.displayMetrics.density
+        val hPad  = (24 * dp).toInt()
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(hPad, 0, hPad, (8 * dp).toInt())
+        }
+
+        val tilGrams = TextInputLayout(this, null,
+            com.google.android.material.R.attr.textInputOutlinedStyle
+        ).apply {
+            hint       = getString(R.string.hint_amount_g)
+            suffixText = "g"
+        }
+        val etGrams = TextInputEditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or
+                        android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        tilGrams.addView(etGrams)
+        container.addView(tilGrams)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(food.name)
+            .setMessage(
+                "${food.kcalPer100g} kcal  ·  " +
+                "P ${food.proteinPer100g.toInt()}g  " +
+                "F ${food.fatPer100g.toInt()}g  " +
+                "C ${food.carbsPer100g.toInt()}g" +
+                "\n${getString(R.string.per_100g)}"
+            )
+            .setView(container)
+            .setPositiveButton(R.string.btn_add) { _, _ ->
+                val grams = etGrams.text.toString().toFloatOrNull()
+                if (grams == null || grams <= 0f) {
+                    Toast.makeText(this, getString(R.string.error_enter_amount), Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                val factor = grams / 100f
+                saveEntry(FoodEntry(
+                    name     = food.name,
+                    calories = (food.kcalPer100g    * factor).toInt(),
+                    proteinG = (food.proteinPer100g * factor).toInt(),
+                    fatG     = (food.fatPer100g     * factor).toInt(),
+                    carbsG   = (food.carbsPer100g   * factor).toInt(),
+                    mealType = selectedMealType()
+                ))
+                Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showCustomFoodDialog(existing: CustomFood?) {
+        val dp   = resources.displayMetrics.density
+        val hPad = (24 * dp).toInt()
+        val vGap = (8 * dp).toInt()
+
+        fun makeTil(hint: String, iType: Int): TextInputLayout {
+            val et = TextInputEditText(this).apply { inputType = iType }
+            return TextInputLayout(this, null,
+                com.google.android.material.R.attr.textInputOutlinedStyle
+            ).apply {
+                this.hint    = hint
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.bottomMargin = vGap }
+                addView(et)
+            }
+        }
+
+        val tilName    = makeTil(getString(R.string.custom_food_name_hint),
+                             android.text.InputType.TYPE_CLASS_TEXT or
+                             android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS)
+        val tilKcal    = makeTil(getString(R.string.custom_food_kcal_hint),
+                             android.text.InputType.TYPE_CLASS_NUMBER)
+        val tilProtein = makeTil(getString(R.string.custom_food_protein_hint),
+                             android.text.InputType.TYPE_CLASS_NUMBER or
+                             android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL)
+        val tilFat     = makeTil(getString(R.string.custom_food_fat_hint),
+                             android.text.InputType.TYPE_CLASS_NUMBER or
+                             android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL)
+        val tilCarbs   = makeTil(getString(R.string.custom_food_carbs_hint),
+                             android.text.InputType.TYPE_CLASS_NUMBER or
+                             android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL)
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(hPad, vGap, hPad, 0)
+            addView(tilName)
+            addView(tilKcal)
+            addView(tilProtein)
+            addView(tilFat)
+            addView(tilCarbs)
+        }
+
+        // Pre-fill if editing
+        existing?.let {
+            tilName.editText!!.setText(it.name)
+            tilKcal.editText!!.setText(it.kcalPer100g.toString())
+            tilProtein.editText!!.setText(it.proteinPer100g.toString())
+            tilFat.editText!!.setText(it.fatPer100g.toString())
+            tilCarbs.editText!!.setText(it.carbsPer100g.toString())
+        }
+
+        val title = if (existing == null) getString(R.string.custom_food_new)
+                    else getString(R.string.custom_food_edit_title)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setView(container)
+            .setPositiveButton(R.string.btn_save_food) { _, _ ->
+                val name = tilName.editText!!.text.toString().trim()
+                if (name.isEmpty()) {
+                    tilName.error = getString(R.string.error_required)
+                    return@setPositiveButton
+                }
+                tilName.error = null
+                val food = CustomFood(
+                    id             = existing?.id ?: java.util.UUID.randomUUID().toString(),
+                    name           = name,
+                    kcalPer100g    = tilKcal.editText!!.text.toString().toIntOrNull()     ?: 0,
+                    proteinPer100g = tilProtein.editText!!.text.toString().toFloatOrNull() ?: 0f,
+                    fatPer100g     = tilFat.editText!!.text.toString().toFloatOrNull()     ?: 0f,
+                    carbsPer100g   = tilCarbs.editText!!.text.toString().toFloatOrNull()   ?: 0f
+                )
+                val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                CustomFoodsRepository.save(prefs, food)
+                Toast.makeText(this, getString(R.string.custom_food_saved), Toast.LENGTH_SHORT).show()
+                refreshMyFoods()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun confirmDeleteCustomFood(food: CustomFood) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.custom_food_delete_title)
+            .setMessage(getString(R.string.custom_food_delete_message, food.name))
+            .setPositiveButton(R.string.btn_delete) { _, _ ->
+                val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                CustomFoodsRepository.delete(prefs, food.id)
+                Toast.makeText(this, getString(R.string.custom_food_deleted), Toast.LENGTH_SHORT).show()
+                refreshMyFoods()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

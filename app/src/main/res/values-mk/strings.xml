@@ -66,6 +66,14 @@
     <string name="main_activity_section">Активност</string>
     <string name="main_steps_label">Чекори</string>
     <string name="main_calories_burned_label">Изгорени калории</string>
+    <string name="main_activity_ring">Активносен прстен</string>
+    <string name="main_move_label">Движење</string>
+    <string name="main_step_count">Чекори</string>
+    <string name="main_step_distance">Изминато растојание</string>
+    <string name="main_today_label">Денес</string>
+    <string name="stats_activity_title">Активност</string>
+    <string name="stats_step_goal">Дневна цел за чекори</string>
+    <string name="stats_this_week">Оваа недела</string>
     <string name="main_todays_food">Денешна храна</string>
     <string name="main_no_food_logged">Сè уште нема додадена храна — притисни + за оброк</string>
     <string name="log_food_title">Додај оброк</string>
@@ -119,30 +127,21 @@
     <string name="profile_macro_split_total_warn">Вкупно е %d%% (мора да биде 100%%)</string>
     <string name="nav_profile">Профил</string>
     <string name="nav_settings">Поставки</string>
-    <!-- АИ анализа на фотографија -->
-    <string name="gemini_api_key">YOUR_GEMINI_API_KEY</string>
-    <string name="ai_scan_title">АИ скен на оброк</string>
-    <string name="ai_scan_btn">АИ скен</string>
-    <string name="ai_scan_prompt">Насочи ја камерата кон оброкот</string>
-    <string name="ai_scan_sub">АИ ќе ги процени калориите и макроите од фотографијата</string>
-    <string name="ai_take_photo">Сними фото</string>
-    <string name="ai_pick_gallery">Избери од галерија</string>
-    <string name="ai_analyze">Анализирај со АИ</string>
-    <string name="ai_retake">Пресними</string>
-    <string name="ai_analyzing">Анализирање на оброкот…</string>
-    <string name="ai_analyzing_sub">Gemini ги идентификува состојките и ги проценува порциите</string>
-    <string name="ai_breakdown">Идентификувани ставки</string>
-    <string name="ai_conf_high">Висока доверба</string>
-    <string name="ai_conf_medium">Средна доверба</string>
-    <string name="ai_conf_low">Ниска доверба</string>
-    <string name="ai_log_meal">Внеси го овој оброк</string>
-    <string name="ai_edit_log">Измени и внеси</string>
-    <string name="ai_edit_title">Прегледај и измени</string>
-    <string name="ai_retry">Обиди се повторно</string>
-    <string name="ai_select_meal_type">Избери вид на оброк</string>
-    <string name="ai_log_confirm">Внеси</string>
-    <string name="ai_no_api_key">Gemini API клучот не е конфигуриран. Додај го во Поставки.</string>
-    <string name="ai_analysis_error">Анализата не успеа: %s</string>
+    <!-- Прилагодени намирници -->
+    <string name="tab_my_foods">Моја храна</string>
+    <string name="my_foods_empty">Сè уште нема прилагодена храна — допри + за да создадеш</string>
+    <string name="my_foods_title">Моја храна</string>
+    <string name="custom_food_new">Нова намирница</string>
+    <string name="custom_food_edit_title">Измени намирница</string>
+    <string name="custom_food_name_hint">Назив на намирницата</string>
+    <string name="custom_food_kcal_hint">kcal на 100g</string>
+    <string name="custom_food_protein_hint">Протеини на 100g (g)</string>
+    <string name="custom_food_fat_hint">Масти на 100g (g)</string>
+    <string name="custom_food_carbs_hint">Јаглехидрати на 100g (g)</string>
+    <string name="custom_food_saved">Намирницата е зачувана!</string>
+    <string name="custom_food_deleted">Избришана</string>
+    <string name="custom_food_delete_title">Избриши намирница</string>
+    <string name="custom_food_delete_message">Да се избрише „%s"? Ова не може да се врати.</string>
 
     <!-- Рецепти -->
     <string name="tab_recipes">Рецепти</string>
@@ -196,15 +195,6 @@
     <string name="settings_light_mode">Светол режим</string>
 
     <!-- Јазик -->
-    <string name="settings_ai_section">АИ функции</string>
-    <string name="settings_gemini_key_label">Gemini API клуч</string>
-    <string name="settings_gemini_key_hint_small">Потребен за АИ анализа на фотографија</string>
-    <string name="settings_gemini_key_field_hint">Залепи го твојот API клуч тука</string>
-    <string name="settings_gemini_key_save">Зачувај</string>
-    <string name="settings_gemini_key_saved">API клучот е зачуван ✓</string>
-    <string name="settings_gemini_key_cleared">API клучот е отстранет</string>
-    <string name="settings_gemini_key_footer">Земи бесплатен клуч на aistudio.google.com → Get API key. Не треба кредитна картичка.</string>
-
     <string name="settings_notifications_section">Нотификации</string>
     <string name="settings_notif_summary_label">Дневен преглед</string>
     <string name="settings_notif_summary_desc">Потсетник за калории на крај од денот</string>
