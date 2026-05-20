@@ -74,6 +74,8 @@
     <string name="stats_activity_title">Активност</string>
     <string name="stats_step_goal">Дневна цел за чекори</string>
     <string name="stats_this_week">Оваа недела</string>
+    <string name="activity_history_title">Историја на активности</string>
+    <string name="activity_history_empty">Сè уште нема забележана активност</string>
     <string name="main_todays_food">Денешна храна</string>
     <string name="main_no_food_logged">Сè уште нема додадена храна — притисни + за оброк</string>
     <string name="log_food_title">Додај оброк</string>
@@ -84,6 +86,8 @@
     <string name="hint_carbs_g">Јаглехидрати (g)</string>
     <string name="btn_save_food">Зачувај</string>
     <string name="food_saved">Оброкот е зачуван!</string>
+    <string name="food_added_quick">%s додадено</string>
+    <string name="undo">Врати</string>
     <string name="error_required">Задолжително</string>
     <string name="hint_search_food">Пребарај храна…</string>
     <string name="search_food_hint">Внеси најмалку 2 знаци за пребарување</string>
@@ -202,6 +206,10 @@
     <string name="settings_activity_section">Активност</string>
     <string name="settings_step_goal_label">Дневна цел за чекори</string>
     <string name="settings_step_goal_hint">Чекори</string>
+    <string name="settings_water_section">Вода</string>
+    <string name="settings_water_unit_label">Единица за приказ</string>
+    <string name="settings_water_glasses">Чаши</string>
+    <string name="settings_water_ml">мл</string>
     <string name="settings_units_section">Единици</string>
     <string name="settings_units_label">Систем на мерење</string>
     <string name="settings_units_metric">Метрички (kg, cm)</string>
@@ -297,6 +305,7 @@
 
     <!-- Профил одјава -->
     <string name="profile_account_section">Сметка</string>
+    <string name="profile_remove_photo">Отстрани фотографија</string>
     <string name="profile_logout_confirm">Одјава од Macro Max?</string>
 
     <!-- Распределение на оброци (главен екран) -->

@@ -179,8 +179,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/weight_chart_label"
                         android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:alpha="0.5"
+                        android:alpha="0.45"
                         android:layout_marginBottom="8dp" />
 
                     <!-- Empty state -->
@@ -208,10 +207,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/weight_log_today"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="12dp" />
 
             <LinearLayout
@@ -252,10 +249,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/weight_history_title"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="12dp" />
 
             <LinearLayout

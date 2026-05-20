@@ -65,10 +65,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/result_calories"
-                        android:textSize="13sp"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"
-                        android:alpha="0.6" />
+                        android:textSize="12sp"
+                        android:alpha="0.5" />
 
                     <TextView
                         android:id="@+id/tvCalories"
@@ -122,9 +120,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/result_protein"
                             android:textSize="11sp"
-                            android:textAllCaps="true"
-                            android:letterSpacing="0.08"
-                            android:alpha="0.6" />
+                            android:alpha="0.5" />
 
                         <TextView
                             android:id="@+id/tvProtein"
@@ -166,9 +162,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/result_carbs"
                             android:textSize="11sp"
-                            android:textAllCaps="true"
-                            android:letterSpacing="0.08"
-                            android:alpha="0.6" />
+                            android:alpha="0.5" />
 
                         <TextView
                             android:id="@+id/tvCarbs"
@@ -210,9 +204,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/result_fat"
                             android:textSize="11sp"
-                            android:textAllCaps="true"
-                            android:letterSpacing="0.08"
-                            android:alpha="0.6" />
+                            android:alpha="0.5" />
 
                         <TextView
                             android:id="@+id/tvFat"

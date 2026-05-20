@@ -104,10 +104,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/recipe_ingredients_label"
-                    android:textSize="12sp"
-                    android:textAllCaps="true"
-                    android:alpha="0.5"
-                    android:letterSpacing="0.1"
+                    android:textSize="11sp"
+                    android:alpha="0.45"
                     android:layout_marginBottom="8dp" />
 
                 <!-- Ingredient rows added programmatically -->
@@ -140,10 +138,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/recipe_totals_label"
-                    android:textSize="12sp"
-                    android:textAllCaps="true"
-                    android:alpha="0.5"
-                    android:letterSpacing="0.1"
+                    android:textSize="11sp"
+                    android:alpha="0.45"
                     android:layout_marginBottom="10dp" />
 
                 <com.google.android.material.card.MaterialCardView

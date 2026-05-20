@@ -199,17 +199,45 @@ class LogFoodActivity : AppCompatActivity() {
         cgRecentFoods.removeAllViews()
         for (food in foods) {
             val chip = Chip(this).apply {
-                text     = food.name
+                text        = "${food.name}  ·  ${food.calories} kcal"
                 isCheckable = false
-                setOnClickListener {
-                    saveEntry(food.copy(mealType = selectedMealType()))
-                    Toast.makeText(this@LogFoodActivity,
-                        getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
-                    finish()
-                }
+                setOnClickListener { quickAddFood(food) }
             }
             cgRecentFoods.addView(chip)
         }
+    }
+
+    private fun quickAddFood(food: FoodEntry) {
+        val entry = food.copy(mealType = selectedMealType())
+        saveEntry(entry)
+
+        // Undo snackbar — removes the entry we just appended (last item in today's log)
+        com.google.android.material.snackbar.Snackbar
+            .make(
+                findViewById(android.R.id.content),
+                getString(R.string.food_added_quick, food.name),
+                com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+            )
+            .setAction(R.string.undo) {
+                undoLastEntry()
+            }
+            .addCallback(object : com.google.android.material.snackbar.Snackbar.Callback() {
+                override fun onDismissed(sb: com.google.android.material.snackbar.Snackbar, event: Int) {
+                    if (event != DISMISS_EVENT_ACTION) finish()
+                }
+            })
+            .show()
+    }
+
+    private fun undoLastEntry() {
+        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val logKey = "food_log_" + SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+        val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
+        if (arr.length() == 0) return
+        val updated = JSONArray()
+        for (i in 0 until arr.length() - 1) updated.put(arr.get(i))
+        prefs.edit().putString(logKey, updated.toString()).apply()
+        finish()
     }
 
     override fun onResume() {

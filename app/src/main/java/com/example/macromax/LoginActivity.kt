@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.activity.result.ActivityResultLauncher
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -25,7 +26,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
@@ -33,7 +33,8 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleClient: GoogleSignInClient
-    private lateinit var facebookCallbackManager: CallbackManager
+    private val facebookCallbackManager = CallbackManager.Factory.create()
+    private lateinit var facebookLauncher: ActivityResultLauncher<Collection<String>>
 
     // Notification permission (Android 13+) — asked once at app launch
     private val notificationPermLauncher =
@@ -56,6 +57,24 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        // Facebook: register launcher + callback before onStart
+        val fbContract = LoginManager.getInstance().createLogInActivityResultContract(facebookCallbackManager)
+        facebookLauncher = registerForActivityResult(fbContract) { /* results dispatched to callback */ }
+        LoginManager.getInstance().registerCallback(
+            facebookCallbackManager,
+            object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult) {
+                    signInWithCredential(
+                        com.google.firebase.auth.FacebookAuthProvider.getCredential(
+                            result.accessToken.token
+                        )
+                    )
+                }
+                override fun onCancel() {}
+                override fun onError(error: FacebookException) { toast("Facebook sign-in failed") }
+            }
+        )
+
         // Ask for notification permission before anything else (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -71,7 +90,6 @@ class LoginActivity : AppCompatActivity() {
 
         setupLanguageButton()
         setupGoogle()
-        setupFacebook()
 
         val etEmail = findViewById<TextInputEditText>(R.id.etEmail)
         val etPassword = findViewById<TextInputEditText>(R.id.etPassword)
@@ -105,9 +123,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         findViewById<MaterialButton>(R.id.btnFacebook).setOnClickListener {
-            LoginManager.getInstance().logInWithReadPermissions(
-                this, facebookCallbackManager, listOf("email", "public_profile")
-            )
+            facebookLauncher.launch(listOf("email", "public_profile"))
         }
 
         findViewById<MaterialButton>(R.id.btnGuest).setOnClickListener {
@@ -135,17 +151,6 @@ class LoginActivity : AppCompatActivity() {
             .requestEmail()
             .build()
         googleClient = GoogleSignIn.getClient(this, gso)
-    }
-
-    private fun setupFacebook() {
-        facebookCallbackManager = CallbackManager.Factory.create()
-        LoginManager.getInstance().registerCallback(facebookCallbackManager, object : FacebookCallback<LoginResult> {
-            override fun onSuccess(result: LoginResult) {
-                signInWithCredential(FacebookAuthProvider.getCredential(result.accessToken.token))
-            }
-            override fun onCancel() {}
-            override fun onError(error: FacebookException) { toast("Facebook sign-in failed") }
-        })
     }
 
     private fun signInWithCredential(credential: AuthCredential) {

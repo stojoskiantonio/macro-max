@@ -37,6 +37,11 @@ class SettingsActivity : AppCompatActivity() {
 
         const val PREF_BUDGET_NOTIF_ENABLED = "budget_notif_enabled"
 
+        const val PREF_WATER_UNIT    = "water_unit"
+        const val WATER_UNIT_GLASSES = "glasses"
+        const val WATER_UNIT_ML      = "ml"
+        const val ML_PER_GLASS       = 250
+
         const val PREF_MEAL_SPLIT_BREAKFAST = "meal_split_breakfast"
         const val PREF_MEAL_SPLIT_LUNCH     = "meal_split_lunch"
         const val PREF_MEAL_SPLIT_DINNER    = "meal_split_dinner"
@@ -159,6 +164,16 @@ class SettingsActivity : AppCompatActivity() {
                 .putString("weight_unit",   newWeightUnit)
                 .putInt("weight_value",     newWeightValue)
                 .apply()
+        }
+
+        // ── Water unit ────────────────────────────────────────────────────────
+        val toggleWaterUnit   = findViewById<MaterialButtonToggleGroup>(R.id.toggleWaterUnit)
+        val currentWaterUnit  = prefs.getString(PREF_WATER_UNIT, WATER_UNIT_GLASSES) ?: WATER_UNIT_GLASSES
+        toggleWaterUnit.check(if (currentWaterUnit == WATER_UNIT_ML) R.id.btnWaterMl else R.id.btnWaterGlasses)
+        toggleWaterUnit.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val unit = if (checkedId == R.id.btnWaterMl) WATER_UNIT_ML else WATER_UNIT_GLASSES
+            prefs.edit().putString(PREF_WATER_UNIT, unit).apply()
         }
 
         // ── Meal targets ──────────────────────────────────────────────────────

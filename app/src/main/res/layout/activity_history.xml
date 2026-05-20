@@ -117,10 +117,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/history_weekly_chart"
                         android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"
-                        android:alpha="0.5"
+                        android:alpha="0.45"
                         android:layout_marginBottom="10dp" />
 
                     <com.example.macromax.WeeklyCalorieChartView
@@ -146,17 +143,10 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="52dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="14dp">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_history"
-                        android:layout_marginEnd="12dp"
-                        android:contentDescription="Calendar" />
 
                     <TextView
                         android:id="@+id/tvSelectedDate"

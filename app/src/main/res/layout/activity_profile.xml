@@ -94,6 +94,19 @@
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface" />
 
+                <TextView
+                    android:id="@+id/tvRemovePhoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_remove_photo"
+                    android:textSize="12sp"
+                    android:textColor="#EF5350"
+                    android:alpha="0.8"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="4dp" />
+
             </LinearLayout>
 
             <!-- Section: Personal Info -->
@@ -101,10 +114,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_personal_info"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="12dp" />
 
             <!-- Age -->
@@ -204,10 +215,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gender_title"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="10dp" />
 
             <RadioGroup
@@ -237,10 +246,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/goal_title"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="10dp" />
 
             <RadioGroup
@@ -274,10 +281,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/activity_title"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="10dp" />
 
             <RadioGroup
@@ -560,10 +565,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_water_section"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginBottom="12dp" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -594,10 +597,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_account_section"
-                android:textSize="12sp"
-                android:textAllCaps="true"
-                android:alpha="0.5"
-                android:letterSpacing="0.1"
+                android:textSize="11sp"
+                android:alpha="0.45"
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="12dp" />
 

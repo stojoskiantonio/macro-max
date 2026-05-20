@@ -100,9 +100,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/reports_section_calories"
                         android:textSize="11sp"
-                        android:textAllCaps="true"
                         android:alpha="0.45"
-                        android:letterSpacing="0.1"
                         android:layout_marginBottom="14dp" />
 
                     <!-- 3-column stat row -->
@@ -224,9 +222,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/reports_section_macros"
                         android:textSize="11sp"
-                        android:textAllCaps="true"
                         android:alpha="0.45"
-                        android:letterSpacing="0.1"
                         android:layout_marginBottom="14dp" />
 
                     <!-- Protein -->
@@ -237,12 +233,10 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="4dp">
 
-                        <TextView
-                            android:layout_width="10dp"
-                            android:layout_height="wrap_content"
-                            android:text="●"
-                            android:textSize="8sp"
-                            android:textColor="#4CAF50" />
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#4CAF50" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -250,7 +244,7 @@
                             android:layout_weight="1"
                             android:text="@string/result_protein"
                             android:textSize="13sp"
-                            android:layout_marginStart="6dp" />
+                            android:layout_marginStart="8dp" />
 
                         <TextView
                             android:id="@+id/tvAvgPro"
@@ -288,12 +282,10 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="4dp">
 
-                        <TextView
-                            android:layout_width="10dp"
-                            android:layout_height="wrap_content"
-                            android:text="●"
-                            android:textSize="8sp"
-                            android:textColor="#EF5350" />
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#EF5350" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -301,7 +293,7 @@
                             android:layout_weight="1"
                             android:text="@string/result_fat"
                             android:textSize="13sp"
-                            android:layout_marginStart="6dp" />
+                            android:layout_marginStart="8dp" />
 
                         <TextView
                             android:id="@+id/tvAvgFat"
@@ -339,12 +331,10 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="4dp">
 
-                        <TextView
-                            android:layout_width="10dp"
-                            android:layout_height="wrap_content"
-                            android:text="●"
-                            android:textSize="8sp"
-                            android:textColor="#64B5F6" />
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#64B5F6" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -352,7 +342,7 @@
                             android:layout_weight="1"
                             android:text="@string/result_carbs"
                             android:textSize="13sp"
-                            android:layout_marginStart="6dp" />
+                            android:layout_marginStart="8dp" />
 
                         <TextView
                             android:id="@+id/tvAvgCarbs"
@@ -403,9 +393,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/reports_section_workouts"
                         android:textSize="11sp"
-                        android:textAllCaps="true"
                         android:alpha="0.45"
-                        android:letterSpacing="0.1"
                         android:layout_marginBottom="14dp" />
 
                     <LinearLayout
@@ -483,9 +471,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/reports_section_streak"
                         android:textSize="11sp"
-                        android:textAllCaps="true"
                         android:alpha="0.45"
-                        android:letterSpacing="0.1"
                         android:layout_marginBottom="14dp" />
 
                     <LinearLayout

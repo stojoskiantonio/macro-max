@@ -64,6 +64,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var etMacroCarbPct: TextInputEditText
     private lateinit var tvMacroSplitPreview: TextView
 
+    private lateinit var tvRemovePhoto: TextView
     private val avatarFile get() = File(filesDir, "profile_picture.jpg")
 
     private val pickImageLauncher =
@@ -127,9 +128,23 @@ class ProfileActivity : AppCompatActivity() {
         etMacroFatPct.addTextChangedListener(splitWatcher)
         etMacroCarbPct.addTextChangedListener(splitWatcher)
 
+        tvRemovePhoto = findViewById(R.id.tvRemovePhoto)
+
         val openPicker = { pickImageLauncher.launch("image/*") }
         ivProfileAvatar.setOnClickListener { openPicker() }
         findViewById<ImageView>(R.id.ivEditBadge).setOnClickListener { openPicker() }
+
+        tvRemovePhoto.setOnClickListener {
+            avatarFile.delete()
+            ivProfileAvatar.setImageResource(R.drawable.ic_person)
+            ivProfileAvatar.setPadding(
+                (18 * resources.displayMetrics.density).toInt(),
+                (18 * resources.displayMetrics.density).toInt(),
+                (18 * resources.displayMetrics.density).toInt(),
+                (18 * resources.displayMetrics.density).toInt()
+            )
+            tvRemovePhoto.visibility = View.GONE
+        }
 
         loadProfile()
 
@@ -167,7 +182,7 @@ class ProfileActivity : AppCompatActivity() {
             }
             displaySavedAvatar()
         } catch (e: Exception) {
-            Snackbar.make(btnSaveProfile, "Could not load image", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(btnSaveProfile, getString(R.string.error_required), Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -177,8 +192,11 @@ class ProfileActivity : AppCompatActivity() {
             if (bmp != null) {
                 ivProfileAvatar.setImageBitmap(bmp)
                 ivProfileAvatar.setPadding(0, 0, 0, 0)
+                tvRemovePhoto.visibility = View.VISIBLE
+                return
             }
         }
+        tvRemovePhoto.visibility = View.GONE
     }
 
     // ── Load / Save profile ──────────────────────────────────────────────────

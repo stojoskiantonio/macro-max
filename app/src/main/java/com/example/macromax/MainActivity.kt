@@ -77,7 +77,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var pbFat: ProgressBar
     private lateinit var pbCarbs: ProgressBar
     private lateinit var tvTotalConsumed: TextView
+    private lateinit var rowNetCalories: View
     private lateinit var tvNetCalories: TextView
+    private lateinit var tvNetBreakdown: TextView
     private lateinit var tvNoFood: TextView
     private lateinit var rvFoodLog: RecyclerView
 
@@ -86,7 +88,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var tvWaterCount: TextView
     private lateinit var tvWaterGlasses: TextView
-    private lateinit var pbWater: ProgressBar
+    private lateinit var waterDropsView: WaterDropsView
 
     private lateinit var tvWorkoutsEmpty: TextView
     private lateinit var containerWorkouts: LinearLayout
@@ -118,7 +120,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         pbFat            = findViewById(R.id.pbFat)
         pbCarbs          = findViewById(R.id.pbCarbs)
         tvTotalConsumed  = findViewById(R.id.tvTotalConsumed)
+        rowNetCalories   = findViewById(R.id.rowNetCalories)
         tvNetCalories    = findViewById(R.id.tvNetCalories)
+        tvNetBreakdown   = findViewById(R.id.tvNetBreakdown)
         tvNoFood         = findViewById(R.id.tvNoFood)
         rvFoodLog        = findViewById(R.id.rvFoodLog)
         tvStepCount       = findViewById(R.id.tvStepCount)
@@ -129,9 +133,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         stepBarChart      = findViewById(R.id.stepBarChart)
         distanceBarChart  = findViewById(R.id.distanceBarChart)
         ivProfilePic      = findViewById(R.id.ivProfilePic)
-        tvWaterCount     = findViewById(R.id.tvWaterCount)
-        tvWaterGlasses   = findViewById(R.id.tvWaterGlasses)
-        pbWater          = findViewById(R.id.pbWater)
+        tvWaterCount   = findViewById(R.id.tvWaterCount)
+        tvWaterGlasses = findViewById(R.id.tvWaterGlasses)
+        waterDropsView = findViewById(R.id.waterDropsView)
         tvWorkoutsEmpty  = findViewById(R.id.tvWorkoutsEmpty)
         containerWorkouts = findViewById(R.id.containerWorkouts)
 
@@ -141,6 +145,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         // ── Profile picture ───────────────────────────────────────────────────
         ivProfilePic.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+        // ── Macro card → detail sheet ─────────────────────────────────────────
+        findViewById<View>(R.id.cardMacros).setOnClickListener { showMacroDetail() }
+
+        // ── Activity ring → history ───────────────────────────────────────────
+        findViewById<View>(R.id.cardActivityRing).setOnClickListener {
+            startActivity(Intent(this, ActivityHistoryActivity::class.java))
         }
 
         // ── Step stat cards ───────────────────────────────────────────────────
@@ -161,9 +173,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         findViewById<ImageButton>(R.id.navHome).setOnClickListener { /* already here */ }
         findViewById<ImageButton>(R.id.navHistory).setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
-        }
-        findViewById<ImageButton>(R.id.navProfile).setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
         }
         findViewById<ImageButton>(R.id.navReports).setOnClickListener {
             startActivity(Intent(this, ReportsActivity::class.java))
@@ -289,10 +298,25 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun updateWaterUI(glasses: Int) {
-        val goal = waterGoal()
-        tvWaterCount.text   = "$glasses / $goal"
-        tvWaterGlasses.text = getString(R.string.water_glasses_label, glasses)
-        pbWater.progress    = if (goal > 0) (glasses * 100 / goal).coerceAtMost(100) else 0
+        val goal   = waterGoal()
+        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val useMl  = prefs.getString(SettingsActivity.PREF_WATER_UNIT, SettingsActivity.WATER_UNIT_GLASSES) ==
+                     SettingsActivity.WATER_UNIT_ML
+        val mlPer  = SettingsActivity.ML_PER_GLASS
+
+        if (useMl) {
+            val consumedMl = glasses * mlPer
+            val goalMl     = goal    * mlPer
+            tvWaterCount.text   = "$consumedMl ml / $goalMl ml"
+            tvWaterGlasses.text = "${glasses} of ${goal} glasses"
+        } else {
+            tvWaterCount.text   = "$glasses / $goal"
+            tvWaterGlasses.text = getString(R.string.water_glasses_label, glasses)
+        }
+
+        // Drops view
+        waterDropsView.total  = goal
+        waterDropsView.filled = glasses
     }
 
     // ── Food log ─────────────────────────────────────────────────────────────
@@ -601,8 +625,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun loadProfilePhoto() {
-        val user = FirebaseAuth.getInstance().currentUser
-        val photoUri = user?.photoUrl
+        // 1. Local file set by the user in ProfileActivity takes priority
+        val localFile = java.io.File(filesDir, "profile_picture.jpg")
+        if (localFile.exists()) {
+            val bmp = BitmapFactory.decodeFile(localFile.absolutePath)
+            if (bmp != null) {
+                ivProfilePic.setImageBitmap(circleCrop(bmp))
+                return
+            }
+        }
+
+        // 2. Firebase Auth photo URL (Google / Facebook sign-in)
+        val photoUri = FirebaseAuth.getInstance().currentUser?.photoUrl
         if (photoUri == null) {
             ivProfilePic.setImageResource(R.drawable.ic_person)
             return
@@ -617,33 +651,117 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     BitmapFactory.decodeStream(conn.inputStream)
                 } catch (e: Exception) { null }
             }
-            if (bmp != null) {
-                val size = minOf(bmp.width, bmp.height)
-                val xOff = (bmp.width  - size) / 2
-                val yOff = (bmp.height - size) / 2
-                val sq   = android.graphics.Bitmap.createBitmap(bmp, xOff, yOff, size, size)
-                val out  = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
-                val c    = Canvas(out)
-                val p    = Paint(Paint.ANTI_ALIAS_FLAG)
-                c.drawCircle(size / 2f, size / 2f, size / 2f, p)
-                p.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-                c.drawBitmap(sq, 0f, 0f, p)
-                ivProfilePic.setImageBitmap(out)
-            }
+            if (bmp != null) ivProfilePic.setImageBitmap(circleCrop(bmp))
         }
     }
 
+    private fun circleCrop(bmp: android.graphics.Bitmap): android.graphics.Bitmap {
+        val size = minOf(bmp.width, bmp.height)
+        val xOff = (bmp.width  - size) / 2
+        val yOff = (bmp.height - size) / 2
+        val sq   = android.graphics.Bitmap.createBitmap(bmp, xOff, yOff, size, size)
+        val out  = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+        val c    = Canvas(out)
+        val p    = Paint(Paint.ANTI_ALIAS_FLAG)
+        c.drawCircle(size / 2f, size / 2f, size / 2f, p)
+        p.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        c.drawBitmap(sq, 0f, 0f, p)
+        return out
+    }
+
+    private fun showMacroDetail() {
+        val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val targetCal  = prefs.getInt("target_calories",  0)
+        val targetPro  = prefs.getInt("target_protein_g", 0)
+        val targetFat  = prefs.getInt("target_fat_g",     0)
+        val targetCarb = prefs.getInt("target_carbs_g",   0)
+
+        val logKey = "food_log_${todayDateKey()}"
+        val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
+        var totalCal  = 0; var totalPro  = 0; var totalFat  = 0; var totalCarb = 0
+        for (i in 0 until arr.length()) {
+            val o = arr.getJSONObject(i)
+            totalCal  += o.getInt("cal"); totalPro  += o.getInt("pro")
+            totalFat  += o.getInt("fat"); totalCarb += o.getInt("car")
+        }
+
+        val sheet = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val v = layoutInflater.inflate(R.layout.bottom_sheet_macros, null)
+        sheet.setContentView(v)
+
+        // Calories
+        v.findViewById<android.widget.TextView>(R.id.bsCaloriesConsumed).text = "$totalCal kcal"
+        v.findViewById<android.widget.TextView>(R.id.bsCaloriesTarget).text =
+            if (targetCal > 0) "/ $targetCal" else ""
+        val calPct = if (targetCal > 0) ((totalCal * 100) / targetCal).coerceAtMost(100) else 0
+        v.findViewById<android.widget.ProgressBar>(R.id.bsPbCalories).progress = calPct
+        val remaining = targetCal - totalCal
+        v.findViewById<android.widget.TextView>(R.id.bsCaloriesRemaining).text = when {
+            targetCal <= 0          -> ""
+            remaining > 0           -> "$remaining kcal remaining"
+            remaining == 0          -> "Goal reached"
+            else                    -> "${-remaining} kcal over"
+        }
+
+        // Protein
+        val proKcal = totalPro * 4
+        v.findViewById<android.widget.TextView>(R.id.bsProteinGrams).text =
+            if (targetPro > 0) "${totalPro}g / ${targetPro}g" else "${totalPro}g"
+        v.findViewById<android.widget.TextView>(R.id.bsProteinKcal).text =
+            if (totalCal > 0) "· $proKcal kcal (${proKcal * 100 / totalCal}%)" else "· $proKcal kcal"
+        v.findViewById<android.widget.ProgressBar>(R.id.bsPbProtein).progress =
+            if (targetPro > 0) ((totalPro * 100) / targetPro).coerceAtMost(100) else 0
+
+        // Fat
+        val fatKcal = totalFat * 9
+        v.findViewById<android.widget.TextView>(R.id.bsFatGrams).text =
+            if (targetFat > 0) "${totalFat}g / ${targetFat}g" else "${totalFat}g"
+        v.findViewById<android.widget.TextView>(R.id.bsFatKcal).text =
+            if (totalCal > 0) "· $fatKcal kcal (${fatKcal * 100 / totalCal}%)" else "· $fatKcal kcal"
+        v.findViewById<android.widget.ProgressBar>(R.id.bsPbFat).progress =
+            if (targetFat > 0) ((totalFat * 100) / targetFat).coerceAtMost(100) else 0
+
+        // Carbs
+        val carbKcal = totalCarb * 4
+        v.findViewById<android.widget.TextView>(R.id.bsCarbsGrams).text =
+            if (targetCarb > 0) "${totalCarb}g / ${targetCarb}g" else "${totalCarb}g"
+        v.findViewById<android.widget.TextView>(R.id.bsCarbsKcal).text =
+            if (totalCal > 0) "· $carbKcal kcal (${carbKcal * 100 / totalCal}%)" else "· $carbKcal kcal"
+        v.findViewById<android.widget.ProgressBar>(R.id.bsPbCarbs).progress =
+            if (targetCarb > 0) ((totalCarb * 100) / targetCarb).coerceAtMost(100) else 0
+
+        // Burned / Net (shown only when there's activity data)
+        if (burnedCalToday > 0) {
+            val net = totalCal - burnedCalToday
+            val netDetails = v.findViewById<android.view.View>(R.id.bsNetDetails)
+            netDetails.visibility = android.view.View.VISIBLE
+            v.findViewById<android.widget.TextView>(R.id.bsBurned).text = "−$burnedCalToday kcal"
+            v.findViewById<android.widget.TextView>(R.id.bsNet).text    = "$net kcal"
+        }
+
+        sheet.show()
+    }
+
     private fun updateNetCaloriesDisplay() {
-        val net = consumedCalToday - burnedCalToday
-        if (consumedCalToday == 0 && burnedCalToday == 0) {
-            tvNetCalories.visibility = View.GONE
+        if (burnedCalToday <= 0) {
+            rowNetCalories.visibility = View.GONE
             return
         }
-        tvNetCalories.visibility = View.VISIBLE
-        tvNetCalories.text = when {
-            burnedCalToday > 0 -> "Net ${net} kcal (${consumedCalToday} eaten − ${burnedCalToday} burned)"
-            else               -> "${consumedCalToday} kcal consumed"
-        }
+        val net = consumedCalToday - burnedCalToday
+        rowNetCalories.visibility = View.VISIBLE
+        tvNetCalories.text  = "${net} kcal"
+        tvNetBreakdown.text = "${consumedCalToday} eaten − ${burnedCalToday} burned"
+
+        // Colour the net number: green if under budget (net < target), amber if over
+        val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val targetCal  = prefs.getInt("target_calories", 0)
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+        tvNetCalories.setTextColor(when {
+            targetCal > 0 && net > targetCal              -> android.graphics.Color.parseColor("#EF5350")
+            targetCal > 0 && net <= (targetCal * 0.85).toInt() -> android.graphics.Color.parseColor("#4CAF50")
+            else                                           -> typedValue.data
+        })
     }
 
     // ── Workouts ──────────────────────────────────────────────────────────────

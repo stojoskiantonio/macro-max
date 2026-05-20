@@ -74,6 +74,8 @@
     <string name="stats_activity_title">Activity</string>
     <string name="stats_step_goal">Daily Step Goal</string>
     <string name="stats_this_week">This Week</string>
+    <string name="activity_history_title">Activity History</string>
+    <string name="activity_history_empty">No activity recorded yet</string>
     <string name="main_todays_food">Today\'s Food</string>
     <string name="main_no_food_logged">No food logged yet — tap + to add a meal</string>
     <string name="log_food_title">Log Food</string>
@@ -84,6 +86,8 @@
     <string name="hint_carbs_g">Carbs (g)</string>
     <string name="btn_save_food">Save</string>
     <string name="food_saved">Food logged!</string>
+    <string name="food_added_quick">%s added</string>
+    <string name="undo">Undo</string>
     <string name="error_required">Required</string>
     <string name="hint_search_food">Search food…</string>
     <string name="search_food_hint">Type at least 2 characters to search</string>
@@ -201,6 +205,10 @@
     <string name="settings_activity_section">Activity</string>
     <string name="settings_step_goal_label">Daily step goal</string>
     <string name="settings_step_goal_hint">Steps</string>
+    <string name="settings_water_section">Water</string>
+    <string name="settings_water_unit_label">Display unit</string>
+    <string name="settings_water_glasses">Glasses</string>
+    <string name="settings_water_ml">ml</string>
     <string name="settings_units_section">Units</string>
     <string name="settings_units_label">Measurement system</string>
     <string name="settings_units_metric">Metric (kg, cm)</string>
@@ -296,6 +304,7 @@
 
     <!-- Profile logout -->
     <string name="profile_account_section">Account</string>
+    <string name="profile_remove_photo">Remove photo</string>
     <string name="profile_logout_confirm">Log out of Macro Max?</string>
 
     <!-- Meal Breakdown card (home screen) -->

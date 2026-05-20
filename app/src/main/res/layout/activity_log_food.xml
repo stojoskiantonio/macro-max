@@ -196,29 +196,30 @@
         </LinearLayout>
 
         <!-- Recent foods chips (last 5 quick-add) -->
-        <HorizontalScrollView
+        <LinearLayout
             android:id="@+id/scrollRecentFoods"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="2dp"
-            android:visibility="gone">
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:text="@string/recent_foods_label"
+                android:textSize="11sp"
+                android:alpha="0.4"
+                android:paddingStart="16dp"
+                android:layout_marginBottom="4dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/recent_foods_label"
-                    android:textSize="11sp"
-                    android:alpha="0.5"
-                    android:layout_marginEnd="6dp" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/cgRecentFoods"
@@ -227,8 +228,8 @@
                     app:singleLine="true"
                     app:chipSpacingHorizontal="4dp" />
 
-            </LinearLayout>
-        </HorizontalScrollView>
+            </HorizontalScrollView>
+        </LinearLayout>
 
         <!-- Content area — states swap via visibility -->
         <FrameLayout

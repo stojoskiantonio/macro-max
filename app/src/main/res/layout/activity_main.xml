@@ -51,8 +51,8 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivProfilePic"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_person"
                     app:shapeAppearanceOverlay="@style/CircleImageView"
@@ -65,8 +65,18 @@
                 android:id="@+id/cardMacros"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -196,29 +206,87 @@
                             android:progressTint="#64B5F6"
                             android:progressBackgroundTint="#3364B5F6" />
 
-                        <!-- Net calories -->
-                        <TextView
-                            android:id="@+id/tvNetCalories"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="11sp"
-                            android:alpha="0.55"
-                            android:gravity="end"
-                            android:visibility="gone"
-                            tools:text="1,450 kcal net" />
-
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- Net calories row — shown only when there's burned data -->
+                <LinearLayout
+                    android:id="@+id/rowNetCalories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider_line" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Net"
+                            android:textSize="12sp"
+                            android:alpha="0.45"
+                            android:layout_marginEnd="10dp" />
+
+                        <TextView
+                            android:id="@+id/tvNetCalories"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface"
+                            tools:text="1,450 kcal" />
+
+                        <TextView
+                            android:id="@+id/tvNetBreakdown"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="11sp"
+                            android:alpha="0.45"
+                            tools:text="2,100 eaten − 650 burned" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.25"
+                    android:contentDescription="Details" />
+
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ── ACTIVITY RING CARD ──────────────────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardActivityRing"
+                android:foreground="?attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 app:cardCornerRadius="14dp"
                 app:cardElevation="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -323,6 +391,17 @@
                     </LinearLayout>
 
                 </LinearLayout>
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.25"
+                    android:contentDescription="Details" />
+
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ── STEP COUNT + DISTANCE ROW ──────────────────────────────────── -->
@@ -493,7 +572,7 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="14dp"
-                    android:paddingBottom="12dp">
+                    android:paddingBottom="14dp">
 
                     <!-- Title row -->
                     <LinearLayout
@@ -501,7 +580,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -518,21 +597,17 @@
                             android:layout_height="wrap_content"
                             android:textSize="12sp"
                             android:textStyle="bold"
-                            tools:text="3 / 8" />
+                            android:textColor="#64B5F6"
+                            tools:text="750 ml / 2000 ml" />
 
                     </LinearLayout>
 
-                    <!-- Progress bar -->
-                    <ProgressBar
-                        android:id="@+id/pbWater"
-                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    <!-- Segmented drop visualisation -->
+                    <com.example.macromax.WaterDropsView
+                        android:id="@+id/waterDropsView"
                         android:layout_width="match_parent"
-                        android:layout_height="4dp"
-                        android:layout_marginBottom="10dp"
-                        android:max="100"
-                        android:progress="0"
-                        android:progressTint="#64B5F6"
-                        android:progressBackgroundTint="#3364B5F6" />
+                        android:layout_height="36dp"
+                        android:layout_marginBottom="12dp" />
 
                     <!-- Controls -->
                     <LinearLayout
@@ -560,9 +635,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:textSize="13sp"
-                            android:alpha="0.7"
-                            tools:text="0 glasses" />
+                            android:textSize="12sp"
+                            android:alpha="0.5"
+                            tools:text="3 of 8 glasses" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnWaterPlus"
@@ -949,11 +1024,21 @@
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="57dp"
         android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        android:background="?attr/colorSurface"
-        android:elevation="2dp">
+        android:orientation="vertical"
+        android:background="?attr/colorSurface">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/navHome"
@@ -974,15 +1059,6 @@
             android:contentDescription="@string/menu_history" />
 
         <ImageButton
-            android:id="@+id/navProfile"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_person"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/nav_profile" />
-
-        <ImageButton
             android:id="@+id/navReports"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -999,6 +1075,8 @@
             android:src="@drawable/ic_settings"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/nav_settings" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -15,11 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textSize="11sp"
-        android:textStyle="bold"
-        android:textAllCaps="true"
-        android:letterSpacing="0.12"
-        android:textColor="?attr/colorPrimary"
-        android:alpha="0.85" />
+        android:textColor="?attr/colorOnSurface"
+        android:alpha="0.45" />
 
     <TextView
         android:id="@+id/tvMealCalories"
