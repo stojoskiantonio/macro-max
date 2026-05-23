@@ -11,14 +11,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.util.Calendar
-import kotlin.math.roundToInt
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -75,17 +72,6 @@ class SettingsActivity : AppCompatActivity() {
             )
         }
 
-        // ── Language ──────────────────────────────────────────────────────────
-        val toggleLanguage = findViewById<MaterialButtonToggleGroup>(R.id.toggleLanguage)
-        val currentLang = AppCompatDelegate.getApplicationLocales()
-            .let { if (it.isEmpty) "en" else (it[0]?.language ?: "en") }
-        toggleLanguage.check(if (currentLang == "mk") R.id.btnLangMacedonian else R.id.btnLangEnglish)
-        toggleLanguage.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            val tag = if (checkedId == R.id.btnLangMacedonian) "mk" else "en"
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
-        }
-
         // ── Notifications ─────────────────────────────────────────────────────
         tvNotifTime      = findViewById(R.id.tvNotifTime)
         rowNotifTime     = findViewById(R.id.rowNotifTime)
@@ -138,42 +124,6 @@ class SettingsActivity : AppCompatActivity() {
                 prefs.edit().putInt(PREF_STEP_GOAL, newGoal).apply()
                 tvStepGoal.text = "%,d".format(newGoal)
             }
-        }
-
-        // ── Units ─────────────────────────────────────────────────────────────
-        val toggleUnits  = findViewById<MaterialButtonToggleGroup>(R.id.toggleUnits)
-        val currentUnits = prefs.getString(PREF_UNITS, UNITS_METRIC) ?: UNITS_METRIC
-        toggleUnits.check(if (currentUnits == UNITS_IMPERIAL) R.id.btnImperial else R.id.btnMetric)
-        toggleUnits.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            val toImperial    = checkedId == R.id.btnImperial
-            val newUnitSystem = if (toImperial) UNITS_IMPERIAL else UNITS_METRIC
-            val newWeightUnit = if (toImperial) "lbs" else "kg"
-
-            // Convert weight_value if the unit is actually changing
-            val oldWeightUnit  = prefs.getString("weight_unit", "kg") ?: "kg"
-            val oldWeightValue = prefs.getInt("weight_value", 0)
-            val newWeightValue = when {
-                oldWeightUnit == newWeightUnit -> oldWeightValue          // no change
-                toImperial                     -> (oldWeightValue * 2.205).roundToInt()  // kg → lbs
-                else                           -> (oldWeightValue / 2.205).roundToInt()  // lbs → kg
-            }
-
-            prefs.edit()
-                .putString(PREF_UNITS,      newUnitSystem)
-                .putString("weight_unit",   newWeightUnit)
-                .putInt("weight_value",     newWeightValue)
-                .apply()
-        }
-
-        // ── Water unit ────────────────────────────────────────────────────────
-        val toggleWaterUnit   = findViewById<MaterialButtonToggleGroup>(R.id.toggleWaterUnit)
-        val currentWaterUnit  = prefs.getString(PREF_WATER_UNIT, WATER_UNIT_GLASSES) ?: WATER_UNIT_GLASSES
-        toggleWaterUnit.check(if (currentWaterUnit == WATER_UNIT_ML) R.id.btnWaterMl else R.id.btnWaterGlasses)
-        toggleWaterUnit.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            val unit = if (checkedId == R.id.btnWaterMl) WATER_UNIT_ML else WATER_UNIT_GLASSES
-            prefs.edit().putString(PREF_WATER_UNIT, unit).apply()
         }
 
         // ── Meal targets ──────────────────────────────────────────────────────

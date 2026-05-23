@@ -102,7 +102,7 @@
     <string name="delete_entry_title">Delete Entry</string>
     <string name="delete_entry_message">Remove this item from today\'s log?</string>
     <string name="btn_delete">Delete</string>
-    <string name="nav_home">Home</string>
+    <string name="nav_home">Summary</string>
     <string name="menu_history">History</string>
     <string name="history_empty">No history yet.\nStart logging food to see past days here.</string>
     <string name="history_no_entries">No food logged on this day</string>

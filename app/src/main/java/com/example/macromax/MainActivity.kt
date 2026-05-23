@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -27,7 +28,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import android.graphics.BitmapFactory
@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var stepSensor: Sensor? = null
 
     private lateinit var tvGreeting: TextView
+    private lateinit var tvTodayDate: TextView
     private lateinit var tvStreak: TextView
     private lateinit var tvStepCount: TextView
     private lateinit var tvStepDistance: TextView
@@ -111,6 +112,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         // ── Bind views ───────────────────────────────────────────────────────
         tvGreeting       = findViewById(R.id.tvGreeting)
+        tvTodayDate      = findViewById(R.id.tvTodayDate)
         tvStreak         = findViewById(R.id.tvStreak)
         macroDonut       = findViewById(R.id.macroDonut)
         tvProteinVal     = findViewById(R.id.tvProteinVal)
@@ -142,13 +144,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         // ── RecyclerView ──────────────────────────────────────────────────────
         rvFoodLog.layoutManager = LinearLayoutManager(this)
 
-        // ── Profile picture ───────────────────────────────────────────────────
-        ivProfilePic.setOnClickListener {
+        // ── Profile chip ──────────────────────────────────────────────────────
+        val profileChipClick = View.OnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
+        ivProfilePic.setOnClickListener(profileChipClick)
+        findViewById<View>(R.id.layoutProfileChip).setOnClickListener(profileChipClick)
 
         // ── Macro card → detail sheet ─────────────────────────────────────────
         findViewById<View>(R.id.cardMacros).setOnClickListener { showMacroDetail() }
+        findViewById<View>(R.id.btnAddFoodFromCard).setOnClickListener {
+            startActivity(Intent(this, LogFoodActivity::class.java))
+        }
 
         // ── Activity ring → history ───────────────────────────────────────────
         findViewById<View>(R.id.cardActivityRing).setOnClickListener {
@@ -164,23 +171,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             startActivity(stepStatsIntent)
         }
 
-        // ── FAB ───────────────────────────────────────────────────────────────
-        findViewById<FloatingActionButton>(R.id.fabAddFood).setOnClickListener {
-            startActivity(Intent(this, LogFoodActivity::class.java))
-        }
-
         // ── Bottom navigation ─────────────────────────────────────────────────
-        findViewById<ImageButton>(R.id.navHome).setOnClickListener { /* already here */ }
-        findViewById<ImageButton>(R.id.navHistory).setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
-        }
-        findViewById<ImageButton>(R.id.navReports).setOnClickListener {
-            startActivity(Intent(this, ReportsActivity::class.java))
-        }
-        findViewById<ImageButton>(R.id.navSettings).setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
-
+        BottomNavHelper.setup(this, R.id.navHome)
         // ── Workout logging ───────────────────────────────────────────────────
         findViewById<MaterialButton>(R.id.btnLogWorkout).setOnClickListener {
             startActivity(Intent(this, WorkoutLogActivity::class.java))
@@ -210,6 +202,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        BottomNavHelper.setup(this, R.id.navHome)
         updateGreeting()
         loadProfilePhoto()
         refreshFoodLog()
@@ -237,12 +230,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // ── Greeting ─────────────────────────────────────────────────────────────
 
     private fun updateGreeting() {
-        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        tvGreeting.text = when {
-            hour < 12 -> "Good morning! ☀️"
-            hour < 18 -> "Good afternoon! 🌤"
-            else      -> "Good evening! 🌙"
-        }
+        tvGreeting.text = "Summary"
+        val fmt = java.text.SimpleDateFormat("EEEE, d MMM", java.util.Locale.getDefault())
+        tvTodayDate.text = fmt.format(java.util.Date())
     }
 
     // ── Streak ───────────────────────────────────────────────────────────────
@@ -630,6 +620,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (localFile.exists()) {
             val bmp = BitmapFactory.decodeFile(localFile.absolutePath)
             if (bmp != null) {
+                ivProfilePic.imageTintList = null
                 ivProfilePic.setImageBitmap(circleCrop(bmp))
                 return
             }
@@ -651,7 +642,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     BitmapFactory.decodeStream(conn.inputStream)
                 } catch (e: Exception) { null }
             }
-            if (bmp != null) ivProfilePic.setImageBitmap(circleCrop(bmp))
+            if (bmp != null) {
+                ivProfilePic.imageTintList = null
+                ivProfilePic.setImageBitmap(circleCrop(bmp))
+            }
         }
     }
 
@@ -756,7 +750,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val targetCal  = prefs.getInt("target_calories", 0)
         val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
         tvNetCalories.setTextColor(when {
             targetCal > 0 && net > targetCal              -> android.graphics.Color.parseColor("#EF5350")
             targetCal > 0 && net <= (targetCal * 0.85).toInt() -> android.graphics.Color.parseColor("#4CAF50")

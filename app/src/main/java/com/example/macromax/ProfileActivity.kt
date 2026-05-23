@@ -14,7 +14,11 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.Snackbar
@@ -30,41 +34,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var ivProfileAvatar: ShapeableImageView
     private lateinit var tvProfileName: TextView
-    private lateinit var etProfileAge: TextInputEditText
-    private lateinit var etProfileWeight: TextInputEditText
-    private lateinit var tilProfileWeight: TextInputLayout
-    private lateinit var etProfileHeight: TextInputEditText
-    private lateinit var tilHeightMetric: TextInputLayout
-    private lateinit var rowHeightImperial: View
-    private lateinit var etProfileHeightFt: TextInputEditText
-    private lateinit var etProfileHeightIn: TextInputEditText
-    private lateinit var rgGender: RadioGroup
-    private lateinit var rbMale: RadioButton
-    private lateinit var rbFemale: RadioButton
-    private lateinit var rgGoal: RadioGroup
-    private lateinit var rbLose: RadioButton
-    private lateinit var rbMaintain: RadioButton
-    private lateinit var rbGain: RadioButton
-    private lateinit var rgActivity: RadioGroup
-    private lateinit var rbSedentary: RadioButton
-    private lateinit var rbLight: RadioButton
-    private lateinit var rbModerate: RadioButton
-    private lateinit var rbActive: RadioButton
-    private lateinit var rbExtra: RadioButton
-    private lateinit var etWaterGoal: TextInputEditText
-    private lateinit var tvCurrentTargets: TextView
-    private lateinit var tvCurrentMacros: TextView
-    private lateinit var btnSaveProfile: MaterialButton
-
-    // Custom macro split
-    private lateinit var switchCustomMacroSplit: SwitchMaterial
-    private lateinit var rowMacroSplitInputs: View
-    private lateinit var etMacroProteinPct: TextInputEditText
-    private lateinit var etMacroFatPct: TextInputEditText
-    private lateinit var etMacroCarbPct: TextInputEditText
-    private lateinit var tvMacroSplitPreview: TextView
-
-    private lateinit var tvRemovePhoto: TextView
+    private lateinit var tvProfileEmail: TextView
     private val avatarFile get() = File(filesDir, "profile_picture.jpg")
 
     private val pickImageLauncher =
@@ -76,132 +46,45 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+        ivProfileAvatar = findViewById(R.id.ivProfileAvatar)
+        tvProfileName   = findViewById(R.id.tvProfileName)
+        tvProfileEmail  = findViewById(R.id.tvProfileEmail)
+
+        // Close button
         findViewById<ImageButton>(R.id.btnProfileBack).setOnClickListener { finish() }
 
-        // Bind views
-        ivProfileAvatar      = findViewById(R.id.ivProfileAvatar)
-        tvProfileName        = findViewById(R.id.tvProfileName)
-        etProfileAge         = findViewById(R.id.etProfileAge)
-        etProfileWeight      = findViewById(R.id.etProfileWeight)
-        tilProfileWeight     = findViewById(R.id.tilProfileWeight)
-        etProfileHeight      = findViewById(R.id.etProfileHeight)
-        tilHeightMetric      = findViewById(R.id.tilHeightMetric)
-        rowHeightImperial    = findViewById(R.id.rowHeightImperial)
-        etProfileHeightFt    = findViewById(R.id.etProfileHeightFt)
-        etProfileHeightIn    = findViewById(R.id.etProfileHeightIn)
-        rgGender             = findViewById(R.id.rgGender)
-        rbMale               = findViewById(R.id.rbMale)
-        rbFemale             = findViewById(R.id.rbFemale)
-        rgGoal               = findViewById(R.id.rgGoal)
-        rbLose               = findViewById(R.id.rbLose)
-        rbMaintain           = findViewById(R.id.rbMaintain)
-        rbGain               = findViewById(R.id.rbGain)
-        rgActivity           = findViewById(R.id.rgActivity)
-        rbSedentary          = findViewById(R.id.rbSedentary)
-        rbLight              = findViewById(R.id.rbLight)
-        rbModerate           = findViewById(R.id.rbModerate)
-        rbActive             = findViewById(R.id.rbActive)
-        rbExtra              = findViewById(R.id.rbExtra)
-        etWaterGoal          = findViewById(R.id.etWaterGoal)
-        tvCurrentTargets     = findViewById(R.id.tvCurrentTargets)
-        tvCurrentMacros      = findViewById(R.id.tvCurrentMacros)
-        btnSaveProfile       = findViewById(R.id.btnSaveProfile)
-        switchCustomMacroSplit = findViewById(R.id.switchCustomMacroSplit)
-        rowMacroSplitInputs  = findViewById(R.id.rowMacroSplitInputs)
-        etMacroProteinPct    = findViewById(R.id.etMacroProteinPct)
-        etMacroFatPct        = findViewById(R.id.etMacroFatPct)
-        etMacroCarbPct       = findViewById(R.id.etMacroCarbPct)
-        tvMacroSplitPreview  = findViewById(R.id.tvMacroSplitPreview)
-
-        // Toggle visibility
-        switchCustomMacroSplit.setOnCheckedChangeListener { _, isChecked ->
-            rowMacroSplitInputs.visibility = if (isChecked) View.VISIBLE else View.GONE
-        }
-
-        // Live preview as user types
-        val splitWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { updateMacroSplitPreview() }
-        }
-        etMacroProteinPct.addTextChangedListener(splitWatcher)
-        etMacroFatPct.addTextChangedListener(splitWatcher)
-        etMacroCarbPct.addTextChangedListener(splitWatcher)
-
-        tvRemovePhoto = findViewById(R.id.tvRemovePhoto)
-
+        // Avatar tap
         val openPicker = { pickImageLauncher.launch("image/*") }
         ivProfileAvatar.setOnClickListener { openPicker() }
         findViewById<ImageView>(R.id.ivEditBadge).setOnClickListener { openPicker() }
 
-        tvRemovePhoto.setOnClickListener {
-            avatarFile.delete()
-            ivProfileAvatar.setImageResource(R.drawable.ic_person)
-            ivProfileAvatar.setPadding(
-                (18 * resources.displayMetrics.density).toInt(),
-                (18 * resources.displayMetrics.density).toInt(),
-                (18 * resources.displayMetrics.density).toInt(),
-                (18 * resources.displayMetrics.density).toInt()
-            )
-            tvRemovePhoto.visibility = View.GONE
+        // Row click listeners
+        findViewById<View>(R.id.rowHealthDetails).setOnClickListener   { showHealthDetailsSheet() }
+        findViewById<View>(R.id.rowNutritionGoals).setOnClickListener  { showNutritionGoalsSheet() }
+        findViewById<View>(R.id.rowUnitsLanguage).setOnClickListener   { showUnitsLanguageSheet() }
+        findViewById<View>(R.id.rowWaterGoal).setOnClickListener       { showWaterGoalSheet() }
+        findViewById<View>(R.id.rowSettings).setOnClickListener        {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        loadProfile()
-
-        btnSaveProfile.setOnClickListener { saveProfile() }
-
-        // Weight progress shortcut
+        // Weight progress
         findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardWeightProgress)
-            .setOnClickListener {
-                startActivity(Intent(this, WeightHistoryActivity::class.java))
-            }
+            .setOnClickListener { startActivity(Intent(this, WeightHistoryActivity::class.java)) }
 
-        // Logout
-        findViewById<MaterialButton>(R.id.btnLogOut).setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setMessage(R.string.profile_logout_confirm)
-                .setPositiveButton(R.string.btn_log_out) { _, _ ->
-                    FirebaseAuth.getInstance().signOut()
-                    val intent = Intent(this, LoginActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        }
+        // Log out
+        findViewById<View>(R.id.btnLogOut).setOnClickListener { confirmLogOut() }
+
+        loadUserInfo()
     }
 
-    // ── Avatar ────────────────────────────────────────────────────────────────
-
-    private fun saveAndDisplayAvatar(uri: Uri) {
-        try {
-            contentResolver.openInputStream(uri)?.use { input ->
-                FileOutputStream(avatarFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-            displaySavedAvatar()
-        } catch (e: Exception) {
-            Snackbar.make(btnSaveProfile, getString(R.string.error_required), Snackbar.LENGTH_SHORT).show()
-        }
+    override fun onResume() {
+        super.onResume()
+        loadUserInfo()
     }
 
-    private fun displaySavedAvatar() {
-        if (avatarFile.exists()) {
-            val bmp = BitmapFactory.decodeFile(avatarFile.absolutePath)
-            if (bmp != null) {
-                ivProfileAvatar.setImageBitmap(bmp)
-                ivProfileAvatar.setPadding(0, 0, 0, 0)
-                tvRemovePhoto.visibility = View.VISIBLE
-                return
-            }
-        }
-        tvRemovePhoto.visibility = View.GONE
-    }
+    // ── User info ─────────────────────────────────────────────────────────────
 
-    // ── Load / Save profile ──────────────────────────────────────────────────
-
-    private fun loadProfile() {
+    private fun loadUserInfo() {
         val user  = FirebaseAuth.getInstance().currentUser
         val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
 
@@ -210,228 +93,363 @@ class ProfileActivity : AppCompatActivity() {
             !user?.email.isNullOrBlank()       -> user!!.email!!.substringBefore("@")
             else                               -> prefs.getString("user_name", "") ?: ""
         }
-        tvProfileName.text = displayName
+        tvProfileName.text  = displayName
+        tvProfileEmail.text = user?.email ?: ""
         displaySavedAvatar()
+    }
 
-        val age       = prefs.getInt("user_age", 0)
-        val weightVal = prefs.getInt("weight_value", 0)
-        val heightCm  = prefs.getInt("height_cm", 0)
-        val gender    = prefs.getString("user_gender", "male")    ?: "male"
-        val goal      = prefs.getString("user_goal", "maintain")  ?: "maintain"
+    // ── Avatar ────────────────────────────────────────────────────────────────
 
-        val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, SettingsActivity.UNITS_METRIC) ==
-                SettingsActivity.UNITS_IMPERIAL
-
-        // Weight field
-        if (age > 0)       etProfileAge.setText(age.toString())
-        if (weightVal > 0) etProfileWeight.setText(weightVal.toString())
-        tilProfileWeight.hint = getString(R.string.profile_weight) +
-                if (isImperial) " (${getString(R.string.weight_lbs)})"
-                else            " (${getString(R.string.weight_kg)})"
-
-        // Height field(s)
-        if (isImperial) {
-            tilHeightMetric.visibility   = View.GONE
-            rowHeightImperial.visibility = View.VISIBLE
-            if (heightCm > 0) {
-                val totalInches = (heightCm / 2.54).toInt()
-                etProfileHeightFt.setText((totalInches / 12).toString())
-                etProfileHeightIn.setText((totalInches % 12).toString())
+    private fun saveAndDisplayAvatar(uri: Uri) {
+        try {
+            contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(avatarFile).use { output -> input.copyTo(output) }
             }
-        } else {
-            tilHeightMetric.visibility   = View.VISIBLE
-            rowHeightImperial.visibility = View.GONE
-            if (heightCm > 0) etProfileHeight.setText(heightCm.toString())
-        }
-
-        val waterGoal = prefs.getInt("water_goal", 8)
-        etWaterGoal.setText(waterGoal.toString())
-
-        // Gender
-        if (gender == "female") rbFemale.isChecked = true else rbMale.isChecked = true
-
-        // Goal
-        when (goal) {
-            "lose" -> rbLose.isChecked = true
-            "gain" -> rbGain.isChecked = true
-            else   -> rbMaintain.isChecked = true
-        }
-
-        // Activity level
-        val activityLevel = prefs.getString("activity_level", "moderate") ?: "moderate"
-        when (activityLevel) {
-            "sedentary" -> rbSedentary.isChecked = true
-            "light"     -> rbLight.isChecked     = true
-            "active"    -> rbActive.isChecked    = true
-            "extra"     -> rbExtra.isChecked     = true
-            else        -> rbModerate.isChecked  = true
-        }
-
-        // Current targets
-        val targetCal  = prefs.getInt("target_calories",  0)
-        val targetPro  = prefs.getInt("target_protein_g", 0)
-        val targetFat  = prefs.getInt("target_fat_g",     0)
-        val targetCarb = prefs.getInt("target_carbs_g",   0)
-
-        if (targetCal > 0) {
-            tvCurrentTargets.text = "$targetCal kcal / day"
-            tvCurrentMacros.text  = "P ${targetPro}g  ·  F ${targetFat}g  ·  C ${targetCarb}g"
-        } else {
-            tvCurrentTargets.text = getString(R.string.profile_no_targets)
-            tvCurrentMacros.text  = ""
-        }
-
-        // Custom macro split
-        val customSplitEnabled = prefs.getBoolean("custom_macro_split_enabled", false)
-        switchCustomMacroSplit.isChecked = customSplitEnabled
-        rowMacroSplitInputs.visibility   = if (customSplitEnabled) View.VISIBLE else View.GONE
-        etMacroProteinPct.setText(prefs.getInt("custom_protein_pct", 30).toString())
-        etMacroFatPct.setText(prefs.getInt("custom_fat_pct",     25).toString())
-        etMacroCarbPct.setText(prefs.getInt("custom_carb_pct",   45).toString())
-        updateMacroSplitPreview()
+            displaySavedAvatar()
+        } catch (_: Exception) {}
     }
 
-    private fun updateMacroSplitPreview() {
-        val prefs     = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val targetCal = prefs.getInt("target_calories", 0)
-        val p = etMacroProteinPct.text.toString().toIntOrNull() ?: 0
-        val f = etMacroFatPct.text.toString().toIntOrNull()     ?: 0
-        val c = etMacroCarbPct.text.toString().toIntOrNull()    ?: 0
-        val total = p + f + c
-
-        if (total != 100) {
-            tvMacroSplitPreview.text = getString(R.string.profile_macro_split_total_warn, total)
-            return
+    private fun displaySavedAvatar() {
+        if (avatarFile.exists()) {
+            val bmp = BitmapFactory.decodeFile(avatarFile.absolutePath)
+            if (bmp != null) {
+                ivProfileAvatar.setImageBitmap(bmp)
+                ivProfileAvatar.setPadding(0, 0, 0, 0)
+                return
+            }
         }
-        if (targetCal <= 0) {
-            tvMacroSplitPreview.text = ""
-            return
-        }
-        val protG = ((targetCal * p / 100.0) / 4).roundToInt()
-        val fatG  = ((targetCal * f / 100.0) / 9).roundToInt()
-        val carbG = ((targetCal * c / 100.0) / 4).roundToInt()
-        tvMacroSplitPreview.text = getString(R.string.profile_macro_split_preview,
-            protG, fatG, carbG, targetCal)
     }
 
-    private fun saveProfile() {
-        val ageStr    = etProfileAge.text.toString().trim()
-        val weightStr = etProfileWeight.text.toString().trim()
+    // ── Health Details sheet ──────────────────────────────────────────────────
+
+    private fun showHealthDetailsSheet() {
+        val sheet  = BottomSheetDialog(this)
+        val view   = layoutInflater.inflate(R.layout.bottom_sheet_health_details, null)
+        sheet.setContentView(view)
 
         val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, SettingsActivity.UNITS_METRIC) ==
                 SettingsActivity.UNITS_IMPERIAL
-        val weightUnit = if (isImperial) "lbs" else "kg"
 
-        // Validate
-        var valid = true
-        if (ageStr.isEmpty())    { etProfileAge.error    = getString(R.string.error_required); valid = false }
-        if (weightStr.isEmpty()) { etProfileWeight.error = getString(R.string.error_required); valid = false }
+        val etAge      = view.findViewById<TextInputEditText>(R.id.etHdAge)
+        val etWeight   = view.findViewById<TextInputEditText>(R.id.etHdWeight)
+        val tilWeight  = view.findViewById<TextInputLayout>(R.id.tilHdWeight)
+        val tilMetric  = view.findViewById<TextInputLayout>(R.id.tilHdHeightMetric)
+        val etHeightCm = view.findViewById<TextInputEditText>(R.id.etHdHeightCm)
+        val rowImp     = view.findViewById<View>(R.id.rowHdHeightImperial)
+        val etFt       = view.findViewById<TextInputEditText>(R.id.etHdHeightFt)
+        val etIn       = view.findViewById<TextInputEditText>(R.id.etHdHeightIn)
+        val rgGender   = view.findViewById<RadioGroup>(R.id.rgHdGender)
+        val rbMale     = view.findViewById<RadioButton>(R.id.rbHdMale)
+        val rbFemale   = view.findViewById<RadioButton>(R.id.rbHdFemale)
+        val rgActivity = view.findViewById<RadioGroup>(R.id.rgHdActivity)
+        val rbSed      = view.findViewById<RadioButton>(R.id.rbHdSedentary)
+        val rbLight    = view.findViewById<RadioButton>(R.id.rbHdLight)
+        val rbMod      = view.findViewById<RadioButton>(R.id.rbHdModerate)
+        val rbActive   = view.findViewById<RadioButton>(R.id.rbHdActive)
+        val rbExtra    = view.findViewById<RadioButton>(R.id.rbHdExtra)
+        val rgGoal     = view.findViewById<RadioGroup>(R.id.rgHdGoal)
+        val rbLose     = view.findViewById<RadioButton>(R.id.rbHdLose)
+        val rbMaintain = view.findViewById<RadioButton>(R.id.rbHdMaintain)
+        val rbGain     = view.findViewById<RadioButton>(R.id.rbHdGain)
+
+        // Pre-fill
+        val age       = prefs.getInt("user_age", 0)
+        val weightVal = prefs.getInt("weight_value", 0)
+        val heightCm  = prefs.getInt("height_cm", 0)
+        val gender    = prefs.getString("user_gender", "male") ?: "male"
+        val goal      = prefs.getString("user_goal", "maintain") ?: "maintain"
+        val activity  = prefs.getString("activity_level", "moderate") ?: "moderate"
+
+        if (age > 0)       etAge.setText(age.toString())
+        if (weightVal > 0) etWeight.setText(weightVal.toString())
+        tilWeight.hint = getString(R.string.profile_weight) +
+                if (isImperial) " (${getString(R.string.weight_lbs)})"
+                else            " (${getString(R.string.weight_kg)})"
+
         if (isImperial) {
-            if (etProfileHeightFt.text.toString().trim().isEmpty()) {
-                etProfileHeightFt.error = getString(R.string.error_required); valid = false
+            tilMetric.visibility = View.GONE
+            rowImp.visibility    = View.VISIBLE
+            if (heightCm > 0) {
+                val totalInches = (heightCm / 2.54).toInt()
+                etFt.setText((totalInches / 12).toString())
+                etIn.setText((totalInches % 12).toString())
             }
         } else {
-            if (etProfileHeight.text.toString().trim().isEmpty()) {
-                etProfileHeight.error = getString(R.string.error_required); valid = false
+            tilMetric.visibility = View.VISIBLE
+            rowImp.visibility    = View.GONE
+            if (heightCm > 0) etHeightCm.setText(heightCm.toString())
+        }
+
+        if (gender == "female") rbFemale.isChecked = true else rbMale.isChecked = true
+        when (activity) {
+            "sedentary" -> rbSed.isChecked    = true
+            "light"     -> rbLight.isChecked  = true
+            "active"    -> rbActive.isChecked = true
+            "extra"     -> rbExtra.isChecked  = true
+            else        -> rbMod.isChecked    = true
+        }
+        when (goal) {
+            "lose" -> rbLose.isChecked     = true
+            "gain" -> rbGain.isChecked     = true
+            else   -> rbMaintain.isChecked = true
+        }
+
+        view.findViewById<MaterialButton>(R.id.btnHealthDetailsSave).setOnClickListener {
+            val ageStr    = etAge.text.toString().trim()
+            val weightStr = etWeight.text.toString().trim()
+            if (ageStr.isEmpty() || weightStr.isEmpty()) return@setOnClickListener
+
+            val ageVal    = ageStr.toIntOrNull() ?: return@setOnClickListener
+            val weightVl  = weightStr.toIntOrNull() ?: return@setOnClickListener
+            val heightVal: Int = if (isImperial) {
+                val ft  = etFt.text.toString().trim().toIntOrNull() ?: 0
+                val ins = etIn.text.toString().trim().toIntOrNull() ?: 0
+                ((ft * 12 + ins) * 2.54).roundToInt()
+            } else {
+                etHeightCm.text.toString().trim().toIntOrNull() ?: return@setOnClickListener
             }
+
+            val genderStr   = if (rbFemale.isChecked) "female" else "male"
+            val goalStr     = when { rbLose.isChecked -> "lose"; rbGain.isChecked -> "gain"; else -> "maintain" }
+            val activityStr = when {
+                rbSed.isChecked    -> "sedentary"
+                rbLight.isChecked  -> "light"
+                rbActive.isChecked -> "active"
+                rbExtra.isChecked  -> "extra"
+                else               -> "moderate"
+            }
+
+            val weightUnit  = if (isImperial) "lbs" else "kg"
+            val weightKg    = if (isImperial) weightVl / 2.205 else weightVl.toDouble()
+            val bmr = if (genderStr == "male")
+                10 * weightKg + 6.25 * heightVal - 5 * ageVal + 5
+            else
+                10 * weightKg + 6.25 * heightVal - 5 * ageVal - 161
+            val tdee           = bmr * ActivityLevelSelectionActivity.multiplier(activityStr)
+            val targetCalories = when (goalStr) {
+                "gain" -> tdee + 700; "lose" -> tdee - 400; else -> tdee
+            }.roundToInt()
+
+            // Check if custom split is enabled — recalculate macros accordingly
+            val useCustom  = prefs.getBoolean("custom_macro_split_enabled", false)
+            val proteinG: Int; val fatG: Int; val carbG: Int
+            if (useCustom) {
+                val p = prefs.getInt("custom_protein_pct", 30)
+                val f = prefs.getInt("custom_fat_pct",     25)
+                val c = prefs.getInt("custom_carb_pct",    45)
+                proteinG = ((targetCalories * p / 100.0) / 4).roundToInt()
+                fatG     = ((targetCalories * f / 100.0) / 9).roundToInt()
+                carbG    = ((targetCalories * c / 100.0) / 4).roundToInt().coerceAtLeast(0)
+            } else {
+                proteinG = (weightKg * when (goalStr) { "gain" -> 2.6; "lose" -> 1.8; else -> 1.6 }).roundToInt()
+                fatG     = ((targetCalories * 0.25) / 9).roundToInt()
+                carbG    = ((targetCalories - proteinG * 4 - fatG * 9) / 4).coerceAtLeast(0)
+            }
+
+            prefs.edit().apply {
+                putInt("user_age",          ageVal)
+                putInt("weight_value",      weightVl)
+                putString("weight_unit",    weightUnit)
+                putInt("height_cm",         heightVal)
+                putString("user_gender",    genderStr)
+                putString("user_goal",      goalStr)
+                putString("activity_level", activityStr)
+                putInt("target_calories",   targetCalories)
+                putInt("target_protein_g",  proteinG)
+                putInt("target_fat_g",      fatG)
+                putInt("target_carbs_g",    carbG)
+                apply()
+            }
+            sheet.dismiss()
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
         }
-        if (!valid) return
 
-        val age       = ageStr.toIntOrNull()   ?: return
-        val weightVal = weightStr.toIntOrNull() ?: return
+        sheet.show()
+    }
 
-        // Height: convert ft+in → cm for storage (always stored as cm internally)
-        val heightCm: Int = if (isImperial) {
-            val ft  = etProfileHeightFt.text.toString().trim().toIntOrNull() ?: 0
-            val ins = etProfileHeightIn.text.toString().trim().toIntOrNull() ?: 0
-            ((ft * 12 + ins) * 2.54).roundToInt()
+    // ── Nutrition Goals sheet ─────────────────────────────────────────────────
+
+    private fun showNutritionGoalsSheet() {
+        val sheet = BottomSheetDialog(this)
+        val view  = layoutInflater.inflate(R.layout.bottom_sheet_nutrition_goals, null)
+        sheet.setContentView(view)
+
+        val prefs       = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val targetCal   = prefs.getInt("target_calories",  0)
+        val targetPro   = prefs.getInt("target_protein_g", 0)
+        val targetFat   = prefs.getInt("target_fat_g",     0)
+        val targetCarb  = prefs.getInt("target_carbs_g",   0)
+
+        val tvTargets   = view.findViewById<TextView>(R.id.tvNgCurrentTargets)
+        val tvMacros    = view.findViewById<TextView>(R.id.tvNgCurrentMacros)
+        val toggle      = view.findViewById<SwitchMaterial>(R.id.switchNgCustomSplit)
+        val rowInputs   = view.findViewById<View>(R.id.rowNgSplitInputs)
+        val etProtein   = view.findViewById<TextInputEditText>(R.id.etNgProteinPct)
+        val etFat       = view.findViewById<TextInputEditText>(R.id.etNgFatPct)
+        val etCarb      = view.findViewById<TextInputEditText>(R.id.etNgCarbPct)
+        val tvPreview   = view.findViewById<TextView>(R.id.tvNgSplitPreview)
+
+        if (targetCal > 0) {
+            tvTargets.text = "$targetCal kcal / day"
+            tvMacros.text  = "P ${targetPro}g  ·  F ${targetFat}g  ·  C ${targetCarb}g"
         } else {
-            etProfileHeight.text.toString().trim().toIntOrNull() ?: return
+            tvTargets.text = getString(R.string.profile_no_targets)
+            tvMacros.text  = ""
         }
 
-        val gender = if (rbFemale.isChecked) "female" else "male"
-        val goal = when {
-            rbLose.isChecked -> "lose"
-            rbGain.isChecked -> "gain"
-            else             -> "maintain"
-        }
-        val activityLevel = when {
-            rbSedentary.isChecked -> "sedentary"
-            rbLight.isChecked     -> "light"
-            rbActive.isChecked    -> "active"
-            rbExtra.isChecked     -> "extra"
-            else                  -> "moderate"
-        }
+        val customEnabled = prefs.getBoolean("custom_macro_split_enabled", false)
+        toggle.isChecked     = customEnabled
+        rowInputs.visibility = if (customEnabled) View.VISIBLE else View.GONE
+        etProtein.setText(prefs.getInt("custom_protein_pct", 30).toString())
+        etFat.setText(prefs.getInt("custom_fat_pct",         25).toString())
+        etCarb.setText(prefs.getInt("custom_carb_pct",       45).toString())
 
-        // Recalculate targets (Mifflin-St Jeor)
-        val weightKg = if (weightUnit == "lbs") weightVal / 2.205 else weightVal.toDouble()
-        val bmr = if (gender == "male") {
-            10 * weightKg + 6.25 * heightCm - 5 * age + 5
-        } else {
-            10 * weightKg + 6.25 * heightCm - 5 * age - 161
-        }
-        val tdee = bmr * ActivityLevelSelectionActivity.multiplier(activityLevel)
-        val targetCalories = when (goal) {
-            "gain" -> tdee + 700
-            "lose" -> tdee - 400
-            else   -> tdee
-        }.roundToInt()
-        // Determine final macro grams — custom split OR auto
-        val useCustomSplit = switchCustomMacroSplit.isChecked
-        val proteinG: Int
-        val fatG: Int
-        val carbG: Int
-
-        if (useCustomSplit) {
-            val p = etMacroProteinPct.text.toString().toIntOrNull() ?: 0
-            val f = etMacroFatPct.text.toString().toIntOrNull()     ?: 0
-            val c = etMacroCarbPct.text.toString().toIntOrNull()    ?: 0
-            if (p + f + c != 100) {
-                Snackbar.make(btnSaveProfile,
-                    getString(R.string.profile_macro_split_total_warn, p + f + c),
-                    Snackbar.LENGTH_SHORT).show()
+        fun updatePreview() {
+            val p = etProtein.text.toString().toIntOrNull() ?: 0
+            val f = etFat.text.toString().toIntOrNull()     ?: 0
+            val c = etCarb.text.toString().toIntOrNull()    ?: 0
+            val total = p + f + c
+            if (total != 100) {
+                tvPreview.text = getString(R.string.profile_macro_split_total_warn, total)
                 return
             }
-            proteinG = ((targetCalories * p / 100.0) / 4).roundToInt()
-            fatG     = ((targetCalories * f / 100.0) / 9).roundToInt()
-            carbG    = ((targetCalories * c / 100.0) / 4).roundToInt().coerceAtLeast(0)
-        } else {
-            proteinG = (weightKg * when (goal) {
-                "gain" -> 2.6; "lose" -> 1.8; else -> 1.6
-            }).roundToInt()
-            fatG  = ((targetCalories * 0.25) / 9).roundToInt()
-            carbG = ((targetCalories - proteinG * 4 - fatG * 9) / 4).coerceAtLeast(0)
+            if (targetCal <= 0) { tvPreview.text = ""; return }
+            val protG = ((targetCal * p / 100.0) / 4).roundToInt()
+            val fatG  = ((targetCal * f / 100.0) / 9).roundToInt()
+            val carbG = ((targetCal * c / 100.0) / 4).roundToInt()
+            tvPreview.text = getString(R.string.profile_macro_split_preview, protG, fatG, carbG, targetCal)
         }
 
-        val waterGoal = etWaterGoal.text.toString().trim().toIntOrNull()?.coerceAtLeast(1) ?: 8
+        toggle.setOnCheckedChangeListener { _, isChecked ->
+            rowInputs.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
 
-        // Save to prefs
-        prefs.edit().apply {
-            putInt("water_goal",        waterGoal)
-            putInt("user_age",          age)
-            putInt("weight_value",      weightVal)
-            putString("weight_unit",    weightUnit)
-            putInt("height_cm",         heightCm)
-            putString("user_gender",    gender)
-            putString("user_goal",      goal)
-            putString("activity_level", activityLevel)
-            putInt("target_calories",   targetCalories)
-            putInt("target_protein_g",  proteinG)
-            putInt("target_fat_g",      fatG)
-            putInt("target_carbs_g",    carbG)
-            putBoolean("custom_macro_split_enabled", useCustomSplit)
-            if (useCustomSplit) {
-                putInt("custom_protein_pct", etMacroProteinPct.text.toString().toIntOrNull() ?: 30)
-                putInt("custom_fat_pct",     etMacroFatPct.text.toString().toIntOrNull()     ?: 25)
-                putInt("custom_carb_pct",    etMacroCarbPct.text.toString().toIntOrNull()    ?: 45)
+        val watcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+            override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
+            override fun afterTextChanged(s: Editable?) { updatePreview() }
+        }
+        etProtein.addTextChangedListener(watcher)
+        etFat.addTextChangedListener(watcher)
+        etCarb.addTextChangedListener(watcher)
+        updatePreview()
+
+        view.findViewById<MaterialButton>(R.id.btnNutritionSave).setOnClickListener {
+            val useCustom = toggle.isChecked
+            val p = etProtein.text.toString().toIntOrNull() ?: 0
+            val f = etFat.text.toString().toIntOrNull()     ?: 0
+            val c = etCarb.text.toString().toIntOrNull()    ?: 0
+
+            if (useCustom && p + f + c != 100) {
+                Snackbar.make(view, getString(R.string.profile_macro_split_total_warn, p + f + c), Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            apply()
+
+            prefs.edit().apply {
+                putBoolean("custom_macro_split_enabled", useCustom)
+                if (useCustom) {
+                    putInt("custom_protein_pct", p)
+                    putInt("custom_fat_pct",     f)
+                    putInt("custom_carb_pct",    c)
+                    // Recalculate macro grams from existing calorie target
+                    if (targetCal > 0) {
+                        putInt("target_protein_g", ((targetCal * p / 100.0) / 4).roundToInt())
+                        putInt("target_fat_g",     ((targetCal * f / 100.0) / 9).roundToInt())
+                        putInt("target_carbs_g",   ((targetCal * c / 100.0) / 4).roundToInt().coerceAtLeast(0))
+                    }
+                }
+                apply()
+            }
+            sheet.dismiss()
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
         }
 
-        tvCurrentTargets.text = "$targetCalories kcal / day"
-        tvCurrentMacros.text  = "P ${proteinG}g  ·  F ${fatG}g  ·  C ${carbG}g"
+        sheet.show()
+    }
 
-        Snackbar.make(btnSaveProfile, getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
+    // ── Units & Language sheet ────────────────────────────────────────────────
+
+    private fun showUnitsLanguageSheet() {
+        val sheet = BottomSheetDialog(this)
+        val view  = layoutInflater.inflate(R.layout.bottom_sheet_units_language, null)
+        sheet.setContentView(view)
+
+        val prefs    = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val toggleUnits    = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleUlUnits)
+        val btnMetric      = view.findViewById<MaterialButton>(R.id.btnUlMetric)
+        val btnImperial    = view.findViewById<MaterialButton>(R.id.btnUlImperial)
+        val toggleWater    = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleUlWaterUnit)
+        val btnGlasses     = view.findViewById<MaterialButton>(R.id.btnUlGlasses)
+        val btnMl          = view.findViewById<MaterialButton>(R.id.btnUlMl)
+        val toggleLanguage = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleUlLanguage)
+        val btnEnglish     = view.findViewById<MaterialButton>(R.id.btnUlEnglish)
+        val btnMacedonian  = view.findViewById<MaterialButton>(R.id.btnUlMacedonian)
+
+        // Pre-select current values
+        val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, SettingsActivity.UNITS_METRIC) == SettingsActivity.UNITS_IMPERIAL
+        toggleUnits.check(if (isImperial) R.id.btnUlImperial else R.id.btnUlMetric)
+
+        val isMl = prefs.getString(SettingsActivity.PREF_WATER_UNIT, SettingsActivity.WATER_UNIT_GLASSES) == SettingsActivity.WATER_UNIT_ML
+        toggleWater.check(if (isMl) R.id.btnUlMl else R.id.btnUlGlasses)
+
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        val langTag = currentLocales.toLanguageTags()
+        toggleLanguage.check(if (langTag.startsWith("mk")) R.id.btnUlMacedonian else R.id.btnUlEnglish)
+
+        // Live save on toggle changes
+        toggleUnits.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val unit = if (checkedId == R.id.btnUlImperial) SettingsActivity.UNITS_IMPERIAL else SettingsActivity.UNITS_METRIC
+            prefs.edit().putString(SettingsActivity.PREF_UNITS, unit).apply()
+        }
+        toggleWater.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val unit = if (checkedId == R.id.btnUlMl) SettingsActivity.WATER_UNIT_ML else SettingsActivity.WATER_UNIT_GLASSES
+            prefs.edit().putString(SettingsActivity.PREF_WATER_UNIT, unit).apply()
+        }
+        toggleLanguage.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val locale = if (checkedId == R.id.btnUlMacedonian) "mk" else "en"
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(locale))
+        }
+
+        sheet.show()
+    }
+
+    // ── Water Goal sheet ──────────────────────────────────────────────────────
+
+    private fun showWaterGoalSheet() {
+        val sheet = BottomSheetDialog(this)
+        val view  = layoutInflater.inflate(R.layout.bottom_sheet_water_goal, null)
+        sheet.setContentView(view)
+
+        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val etGoal = view.findViewById<TextInputEditText>(R.id.etWaterGoalValue)
+        etGoal.setText(prefs.getInt("water_goal", 8).toString())
+
+        view.findViewById<MaterialButton>(R.id.btnWaterGoalSave).setOnClickListener {
+            val goal = etGoal.text.toString().trim().toIntOrNull()?.coerceAtLeast(1) ?: 8
+            prefs.edit().putInt("water_goal", goal).apply()
+            sheet.dismiss()
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
+        }
+
+        sheet.show()
+    }
+
+    // ── Log out ───────────────────────────────────────────────────────────────
+
+    private fun confirmLogOut() {
+        MaterialAlertDialogBuilder(this)
+            .setMessage(R.string.profile_logout_confirm)
+            .setPositiveButton(R.string.btn_log_out) { _, _ ->
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 }

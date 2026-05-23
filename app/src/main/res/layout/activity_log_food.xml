@@ -3,12 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="8dp">
 
     <!-- Header bar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="52dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="4dp"
@@ -34,27 +35,22 @@
 
     </LinearLayout>
 
-    <!-- Thin divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_line" />
-
     <!-- Meal type chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
-        android:paddingHorizontal="12dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="4dp">
+        android:paddingHorizontal="16dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="12dp">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/cgMealType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:singleSelection="true"
-            app:selectionRequired="true">
+            app:selectionRequired="true"
+            app:chipSpacingHorizontal="6dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipBreakfast"
@@ -87,14 +83,59 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <!-- Search / Favourites tab toggle -->
+    <!-- Search bar + scan button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilSearch"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/hint_search_food"
+            app:boxCornerRadiusTopStart="24dp"
+            app:boxCornerRadiusTopEnd="24dp"
+            app:boxCornerRadiusBottomStart="24dp"
+            app:boxCornerRadiusBottomEnd="24dp"
+            app:startIconDrawable="@drawable/ic_search"
+            app:startIconTint="?attr/colorOnSurfaceVariant"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:imeOptions="actionSearch"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/btnScanBarcode"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_barcode_scan"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/scan_barcode" />
+
+    </LinearLayout>
+
+    <!-- Tab toggle: Search / Favourites / Recipes / My Foods -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleTab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="2dp"
+        android:layout_marginBottom="8dp"
         app:singleSelection="true"
         app:selectionRequired="true">
 
@@ -102,10 +143,10 @@
             android:id="@+id/btnTabSearch"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="34dp"
             android:layout_weight="1"
             android:text="@string/tab_search"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:insetTop="0dp"
             android:insetBottom="0dp" />
 
@@ -113,10 +154,10 @@
             android:id="@+id/btnTabFavourites"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="34dp"
             android:layout_weight="1"
             android:text="@string/tab_favourites"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:insetTop="0dp"
             android:insetBottom="0dp" />
 
@@ -124,10 +165,10 @@
             android:id="@+id/btnTabRecipes"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="34dp"
             android:layout_weight="1"
             android:text="@string/tab_recipes"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:insetTop="0dp"
             android:insetBottom="0dp" />
 
@@ -135,10 +176,10 @@
             android:id="@+id/btnTabMyFoods"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="34dp"
             android:layout_weight="1"
             android:text="@string/tab_my_foods"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:insetTop="0dp"
             android:insetBottom="0dp" />
 
@@ -152,49 +193,6 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <!-- Search bar + scan button -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="4dp">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilSearch"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/hint_search_food"
-                app:startIconDrawable="@drawable/ic_search"
-                app:startIconTint="?attr/colorOnSurfaceVariant"
-                app:endIconMode="clear_text">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:imeOptions="actionSearch"
-                    android:singleLine="true" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <ImageButton
-                android:id="@+id/btnScanBarcode"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_barcode_scan"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/scan_barcode" />
-
-        </LinearLayout>
-
         <!-- Recent foods chips (last 5 quick-add) -->
         <LinearLayout
             android:id="@+id/scrollRecentFoods"
@@ -202,7 +200,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
-            android:paddingTop="8dp"
+            android:paddingTop="4dp"
             android:paddingBottom="4dp">
 
             <TextView
@@ -245,7 +243,7 @@
                 android:layout_gravity="center"
                 android:text="@string/search_food_hint"
                 android:gravity="center"
-                android:alpha="0.4"
+                android:alpha="0.35"
                 android:textSize="14sp"
                 android:paddingHorizontal="32dp"
                 android:visibility="visible" />
@@ -293,19 +291,14 @@
 
         </FrameLayout>
 
-        <!-- Divider above bottom buttons -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_line" />
-
-        <!-- Bottom action row: manual entry -->
+        <!-- Bottom action: manual entry -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnManualEntry"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="@string/btn_add_manually" />
+            android:text="@string/btn_add_manually"
+            android:alpha="0.6" />
 
     </LinearLayout>
 
@@ -342,17 +335,13 @@
                 android:clipToPadding="false"
                 android:paddingBottom="8dp" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider_line" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnManageRecipes"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:text="@string/recipe_manage" />
+                android:text="@string/recipe_manage"
+                android:alpha="0.6" />
 
         </LinearLayout>
 
@@ -366,7 +355,6 @@
         android:layout_weight="1"
         android:visibility="gone">
 
-        <!-- Empty state -->
         <TextView
             android:id="@+id/tvMyFoodsEmpty"
             android:layout_width="match_parent"
@@ -393,17 +381,13 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="8dp" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider_line" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNewCustomFood"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:text="@string/custom_food_new" />
+                android:text="@string/custom_food_new"
+                android:alpha="0.6" />
 
         </LinearLayout>
 
@@ -417,7 +401,6 @@
         android:layout_weight="1"
         android:visibility="gone">
 
-        <!-- Empty state -->
         <TextView
             android:id="@+id/tvFavEmpty"
             android:layout_width="match_parent"
@@ -430,7 +413,6 @@
             android:paddingHorizontal="32dp"
             android:visibility="gone" />
 
-        <!-- Favourites list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFavourites"
             android:layout_width="match_parent"

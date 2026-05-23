@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1C1C1E">
+
+    <!-- Handle -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        android:background="#3A3A3C" />
+
+    <!-- Title row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Health Details"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHealthDetailsSave"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="32dp">
+
+            <!-- Age -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/profile_age"
+                android:layout_marginBottom="14dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHdAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Weight -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilHdWeight"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/profile_weight"
+                android:layout_marginBottom="14dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHdWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Height metric -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilHdHeightMetric"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/profile_height_cm"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHdHeightCm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Height imperial (ft + in) -->
+            <LinearLayout
+                android:id="@+id/rowHdHeightImperial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/height_ft"
+                    android:layout_marginEnd="8dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHdHeightFt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:imeOptions="actionNext" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/height_in">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHdHeightIn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:imeOptions="actionNext" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- Gender -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gender_title"
+                android:textSize="11sp"
+                android:textColor="#AAAAAA"
+                android:layout_marginBottom="10dp" />
+
+            <RadioGroup
+                android:id="@+id/rgHdGender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
+
+                <RadioButton
+                    android:id="@+id/rbHdMale"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/gender_male"
+                    android:textColor="#FFFFFF" />
+
+                <RadioButton
+                    android:id="@+id/rbHdFemale"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/gender_female"
+                    android:textColor="#FFFFFF" />
+            </RadioGroup>
+
+            <!-- Activity level -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_title"
+                android:textSize="11sp"
+                android:textColor="#AAAAAA"
+                android:layout_marginBottom="10dp" />
+
+            <RadioGroup
+                android:id="@+id/rgHdActivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
+
+                <RadioButton android:id="@+id/rbHdSedentary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/activity_sedentary" android:textColor="#FFFFFF" />
+                <RadioButton android:id="@+id/rbHdLight"     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/activity_light"     android:textColor="#FFFFFF" />
+                <RadioButton android:id="@+id/rbHdModerate"  android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/activity_moderate"  android:textColor="#FFFFFF" />
+                <RadioButton android:id="@+id/rbHdActive"    android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/activity_active"    android:textColor="#FFFFFF" />
+                <RadioButton android:id="@+id/rbHdExtra"     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/activity_extra"     android:textColor="#FFFFFF" />
+            </RadioGroup>
+
+            <!-- Goal -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/goal_title"
+                android:textSize="11sp"
+                android:textColor="#AAAAAA"
+                android:layout_marginBottom="10dp" />
+
+            <RadioGroup
+                android:id="@+id/rgHdGoal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
+
+                <RadioButton android:id="@+id/rbHdLose"     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/goal_lose"     android:textColor="#FFFFFF" />
+                <RadioButton android:id="@+id/rbHdMaintain" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/goal_maintain" android:textColor="#FFFFFF" />
+                <RadioButton android:id="@+id/rbHdGain"     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/goal_gain"     android:textColor="#FFFFFF" />
+            </RadioGroup>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

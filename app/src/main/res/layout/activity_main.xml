@@ -29,15 +29,32 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
 
-                <TextView
-                    android:id="@+id/tvGreeting"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface"
-                    tools:text="Good morning!" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Summary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        tools:text="Summary" />
+
+                    <TextView
+                        android:id="@+id/tvTodayDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:alpha="0.45"
+                        android:textColor="?attr/colorOnSurface"
+                        tools:text="Saturday, 23 May" />
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvStreak"
@@ -49,14 +66,26 @@
                     android:layout_marginEnd="8dp"
                     tools:text="🔥 5 day streak" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivProfilePic"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_person"
-                    app:shapeAppearanceOverlay="@style/CircleImageView"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
+                <LinearLayout
+                    android:id="@+id/layoutProfileChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivProfilePic"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_person"
+                        android:tint="#888888"
+                        app:shapeAppearanceOverlay="@style/CircleImageView" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -263,13 +292,18 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:id="@+id/btnAddFoodFromCard"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_gravity="top|end"
-                    android:layout_margin="10dp"
-                    android:src="@drawable/ic_chevron_right"
-                    android:alpha="0.25"
-                    android:contentDescription="Details" />
+                    android:layout_margin="6dp"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_add"
+                    android:alpha="0.6"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/log_food_title" />
 
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -315,8 +349,8 @@
 
                         <com.example.macromax.ActivityRingView
                             android:id="@+id/activityRing"
-                            android:layout_width="130dp"
-                            android:layout_height="130dp" />
+                            android:layout_width="88dp"
+                            android:layout_height="88dp" />
 
                     </LinearLayout>
 
@@ -1001,83 +1035,14 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_food_log" />
 
-            <!-- Bottom spacer so FAB doesn't cover last item -->
+            <!-- Bottom spacer so pill nav doesn't cover last item -->
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="88dp" />
+                android:layout_height="80dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- FAB — sits above the bottom nav bar -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddFood"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="76dp"
-        android:src="@drawable/ic_add"
-        android:contentDescription="@string/log_food_title" />
-
-    <!-- Bottom navigation bar -->
-    <LinearLayout
-        android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="57dp"
-        android:layout_gravity="bottom"
-        android:orientation="vertical"
-        android:background="?attr/colorSurface">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_line" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/navHome"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_home"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/nav_home" />
-
-        <ImageButton
-            android:id="@+id/navHistory"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_history"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/menu_history" />
-
-        <ImageButton
-            android:id="@+id/navReports"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_bar_chart"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/nav_reports" />
-
-        <ImageButton
-            android:id="@+id/navSettings"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_settings"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/nav_settings" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    <include layout="@layout/include_bottom_nav" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -44,6 +44,7 @@ class ReportsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reports)
 
+        BottomNavHelper.setup(this, R.id.navReports)
         findViewById<ImageButton>(R.id.btnReportsBack).setOnClickListener { finish() }
 
         tvAvgCal          = findViewById(R.id.tvAvgCal)

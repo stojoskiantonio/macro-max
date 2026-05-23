@@ -44,6 +44,7 @@ class HistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
 
+        BottomNavHelper.setup(this, R.id.navHistory)
         findViewById<ImageButton>(R.id.btnHistoryBack).setOnClickListener { finish() }
 
         weeklyChart          = findViewById(R.id.weeklyChart)
