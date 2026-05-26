@@ -277,6 +277,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val current = prefs.getInt(waterKey(), 0)
         val updated = (current + delta).coerceAtLeast(0)
         prefs.edit().putInt(waterKey(), updated).apply()
+        FirestoreRepository.syncWater(todayDateKey(), updated)
         updateWaterUI(updated)
     }
 
@@ -488,22 +489,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun updateEntryInLog(index: Int, updated: FoodEntry) {
-        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val logKey = "food_log_${todayDateKey()}"
-        val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val dateKey = todayDateKey()
+        val logKey  = "food_log_$dateKey"
+        val arr     = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
         arr.put(index, JSONObject().apply {
             put("name", updated.name); put("cal", updated.calories)
             put("pro",  updated.proteinG); put("fat", updated.fatG); put("car", updated.carbsG)
         })
         prefs.edit().putString(logKey, arr.toString()).apply()
+        FirestoreRepository.syncFoodLog(dateKey, prefs)
     }
 
     private fun removeEntryFromLog(index: Int) {
-        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val logKey = "food_log_${todayDateKey()}"
-        val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val dateKey = todayDateKey()
+        val logKey  = "food_log_$dateKey"
+        val arr     = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
         arr.remove(index)
         prefs.edit().putString(logKey, arr.toString()).apply()
+        FirestoreRepository.syncFoodLog(dateKey, prefs)
     }
 
     // ── Daily notification ───────────────────────────────────────────────────

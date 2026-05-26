@@ -233,13 +233,15 @@ class LogFoodActivity : AppCompatActivity() {
     }
 
     private fun undoLastEntry() {
-        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val logKey = "food_log_" + SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
-        val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val dateKey = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+        val logKey  = "food_log_$dateKey"
+        val arr     = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
         if (arr.length() == 0) return
         val updated = JSONArray()
         for (i in 0 until arr.length() - 1) updated.put(arr.get(i))
         prefs.edit().putString(logKey, updated.toString()).apply()
+        FirestoreRepository.syncFoodLog(dateKey, prefs)
         finish()
     }
 
@@ -831,9 +833,10 @@ class LogFoodActivity : AppCompatActivity() {
     // ── Persistence ───────────────────────────────────────────────────────────
 
     private fun saveEntry(entry: FoodEntry) {
-        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val logKey = "food_log_" + SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
-        val arr    = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val dateKey = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+        val logKey  = "food_log_$dateKey"
+        val arr     = JSONArray(prefs.getString(logKey, "[]") ?: "[]")
         arr.put(JSONObject().apply {
             put("name", entry.name)
             put("cal",  entry.calories)
@@ -843,5 +846,6 @@ class LogFoodActivity : AppCompatActivity() {
             put("meal", entry.mealType)
         })
         prefs.edit().putString(logKey, arr.toString()).apply()
+        FirestoreRepository.syncFoodLog(dateKey, prefs)
     }
 }

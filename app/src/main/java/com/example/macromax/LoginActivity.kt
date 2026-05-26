@@ -188,19 +188,33 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToMain() {
-        val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val prefs      = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val currentUid = auth.currentUser?.uid.orEmpty()
         val storedUid  = prefs.getString("user_uid", "").orEmpty()
+        val isNewDevice = currentUid != storedUid
 
-        if (currentUid != storedUid) {
+        if (isNewDevice) {
             // Different account — reset all onboarding data for this new user
             prefs.edit().clear().putString("user_uid", currentUid).apply()
         }
 
-        val dest = if (prefs.getBoolean("onboarding_complete", false)) MainActivity::class.java
-                   else AgeSelectionActivity::class.java
-        startActivity(Intent(this, dest))
-        finish()
+        val goNext = {
+            val dest = if (prefs.getBoolean("onboarding_complete", false)) MainActivity::class.java
+                       else AgeSelectionActivity::class.java
+            startActivity(Intent(this, dest))
+            finish()
+        }
+
+        // On a new device, pull profile + today's data from Firestore first
+        if (isNewDevice) {
+            val dateKey = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US)
+                            .format(java.util.Date())
+            FirestoreRepository.pullProfile(prefs) {
+                FirestoreRepository.pullTodayData(dateKey, prefs) { goNext() }
+            }
+        } else {
+            goNext()
+        }
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()

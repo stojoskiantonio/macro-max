@@ -119,6 +119,7 @@ class WorkoutLogActivity : AppCompatActivity() {
                 caloriesBurned  = estimateCalories(duration)
             )
         )
+        FirestoreRepository.syncWorkouts(dateKey, prefs)
 
         Toast.makeText(this, getString(R.string.workout_saved), Toast.LENGTH_SHORT).show()
         finish()

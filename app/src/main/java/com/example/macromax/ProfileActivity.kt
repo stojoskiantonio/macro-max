@@ -261,6 +261,7 @@ class ProfileActivity : AppCompatActivity() {
                 putInt("target_carbs_g",    carbG)
                 apply()
             }
+            FirestoreRepository.syncProfile(prefs)
             sheet.dismiss()
             Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
         }
@@ -361,6 +362,7 @@ class ProfileActivity : AppCompatActivity() {
                 }
                 apply()
             }
+            FirestoreRepository.syncProfile(prefs)
             sheet.dismiss()
             Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
         }
