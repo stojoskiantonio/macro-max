@@ -31,15 +31,16 @@ class ActivityRingView @JvmOverloads constructor(
         style       = Paint.Style.STROKE
         strokeWidth = dp(22f)
         color       = ringColor
-        strokeCap   = Paint.Cap.ROUND
+        strokeCap   = Paint.Cap.BUTT
     }
 
-    private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ringColor
+    private val arrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
         style = Paint.Style.FILL
     }
 
-    private val oval = RectF()
+    private val oval      = RectF()
+    private val arrowPath = Path()
 
     override fun onDraw(canvas: Canvas) {
         val cx     = width  / 2f
@@ -53,16 +54,37 @@ class ActivityRingView @JvmOverloads constructor(
         trackPaint.strokeWidth = sw
         canvas.drawCircle(cx, cy, radius, trackPaint)
 
-        // Progress arc — starts at 12 o'clock (-90°)
+        // Progress arc — starts at 12 o'clock (-90°), BUTT cap so arrow sits cleanly
         if (progress > 0f) {
             arcPaint.strokeWidth = sw
             canvas.drawArc(oval, -90f, progress * 360f, false, arcPaint)
 
-            // Glowing dot at arc head
-            val angleRad = Math.toRadians((-90.0 + progress * 360.0))
-            val dotX = (cx + radius * cos(angleRad)).toFloat()
-            val dotY = (cy + radius * sin(angleRad)).toFloat()
-            canvas.drawCircle(dotX, dotY, sw / 2f + dp(1f), dotPaint)
+            // ── Arrow pointer at the arc head ──────────────────────────────
+            val angleDeg = -90f + progress * 360f
+            val angleRad = Math.toRadians(angleDeg.toDouble()).toFloat()
+
+            // Outward radial unit vector
+            val nx = cos(angleRad)
+            val ny = sin(angleRad)
+            // Perpendicular (tangential) unit vector
+            val px = -sin(angleRad)
+            val py =  cos(angleRad)
+
+            // Tip: just outside the ring's outer edge
+            val tipX = cx + (radius + sw / 2f + dp(5f)) * nx
+            val tipY = cy + (radius + sw / 2f + dp(5f)) * ny
+
+            // Base centre: just inside the ring's inner edge
+            val baseCx = cx + (radius - sw / 2f - dp(2f)) * nx
+            val baseCy = cy + (radius - sw / 2f - dp(2f)) * ny
+
+            val hw = dp(6f)   // half-width of arrow base
+            arrowPath.reset()
+            arrowPath.moveTo(tipX, tipY)
+            arrowPath.lineTo(baseCx + hw * px, baseCy + hw * py)
+            arrowPath.lineTo(baseCx - hw * px, baseCy - hw * py)
+            arrowPath.close()
+            canvas.drawPath(arrowPath, arrowPaint)
         }
     }
 

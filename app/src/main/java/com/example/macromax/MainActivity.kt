@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var tvGreeting: TextView
     private lateinit var tvTodayDate: TextView
-    private lateinit var tvStreak: TextView
     private lateinit var tvStepCount: TextView
     private lateinit var tvStepDistance: TextView
     private lateinit var activityRing: ActivityRingView
@@ -113,7 +112,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         // ── Bind views ───────────────────────────────────────────────────────
         tvGreeting       = findViewById(R.id.tvGreeting)
         tvTodayDate      = findViewById(R.id.tvTodayDate)
-        tvStreak         = findViewById(R.id.tvStreak)
         macroDonut       = findViewById(R.id.macroDonut)
         tvProteinVal     = findViewById(R.id.tvProteinVal)
         tvFatVal         = findViewById(R.id.tvFatVal)
@@ -170,6 +168,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         findViewById<View>(R.id.cardStepDistance).setOnClickListener {
             startActivity(stepStatsIntent)
         }
+
+        // ── Top scroll shadow ─────────────────────────────────────────────────
+        val topShadow = findViewById<View>(R.id.topScrollShadow)
+        findViewById<androidx.core.widget.NestedScrollView>(R.id.mainScrollView)
+            .setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                // Fade in over the first 80px of scroll
+                topShadow.alpha = (scrollY / 80f).coerceIn(0f, 1f)
+            }
 
         // ── Bottom navigation ─────────────────────────────────────────────────
         BottomNavHelper.setup(this, R.id.navHome)
@@ -238,14 +244,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // ── Streak ───────────────────────────────────────────────────────────────
 
     private fun refreshStreak() {
-        val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
-        val streak = calculateStreak(prefs)
-        if (streak > 0) {
-            tvStreak.text       = getString(R.string.streak_days, streak)
-            tvStreak.visibility = View.VISIBLE
-        } else {
-            tvStreak.visibility = View.GONE
-        }
+        // Streak display removed from UI; keep calculation for potential future use
     }
 
     private fun calculateStreak(prefs: android.content.SharedPreferences): Int {

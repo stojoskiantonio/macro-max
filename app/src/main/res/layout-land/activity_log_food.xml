@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Landscape phone: content centred with generous horizontal margins -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="4dp">
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/log_food_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginStart="4dp" />
+
+    </LinearLayout>
+
+    <!-- Main content row: left = controls, right = result panes -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <!-- Left: meal chips + search + tabs -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:orientation="vertical">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:paddingHorizontal="12dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="8dp">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cgMealType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    app:chipSpacingHorizontal="4dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipBreakfast"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meal_breakfast" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLunch"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meal_lunch" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipDinner"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meal_dinner" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipSnack"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meal_snack" />
+
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <!-- Search bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilSearch"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/hint_search_food"
+                    app:boxCornerRadiusTopStart="24dp"
+                    app:boxCornerRadiusTopEnd="24dp"
+                    app:boxCornerRadiusBottomStart="24dp"
+                    app:boxCornerRadiusBottomEnd="24dp"
+                    app:startIconDrawable="@drawable/ic_search"
+                    app:startIconTint="?attr/colorOnSurfaceVariant"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:imeOptions="actionSearch"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/btnScanBarcode"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_barcode_scan"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/scan_barcode" />
+
+            </LinearLayout>
+
+            <!-- Tabs -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/toggleTab"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                app:tabMode="fixed"
+                app:tabGravity="fill"
+                app:tabIndicatorHeight="2dp"
+                app:tabIndicatorColor="?attr/colorPrimary"
+                app:tabTextAppearance="@android:style/TextAppearance.Small"
+                app:tabTextColor="#80FFFFFF"
+                app:tabSelectedTextColor="?attr/colorOnSurface"
+                app:tabRippleColor="@android:color/transparent"
+                app:tabBackground="@android:color/transparent">
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/btnTabSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_search" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/btnTabFavourites"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_favourites" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/btnTabRecipes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_recipes" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/btnTabMyFoods"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_my_foods" />
+
+            </com.google.android.material.tabs.TabLayout>
+
+        </LinearLayout>
+
+        <!-- Right: result panes -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6">
+
+            <!-- SEARCH PANE -->
+            <LinearLayout
+                android:id="@+id/paneSearch"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/scrollRecentFoods"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/recent_foods_label"
+                        android:textSize="11sp"
+                        android:alpha="0.4"
+                        android:paddingStart="12dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/cgRecentFoods"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleLine="true"
+                            app:chipSpacingHorizontal="4dp" />
+
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/tvSearchHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/search_food_hint"
+                        android:gravity="center"
+                        android:alpha="0.35"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="32dp"
+                        android:visibility="visible" />
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressSearch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:visibility="gone" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvSearchResults"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="8dp"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutNoResults"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingHorizontal="32dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tvNoResults"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/search_no_results"
+                            android:alpha="0.5"
+                            android:textSize="14sp"
+                            android:gravity="center" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManualEntry"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="@string/btn_add_manually"
+                    android:alpha="0.6" />
+
+            </LinearLayout>
+
+            <!-- RECIPES PANE -->
+            <FrameLayout
+                android:id="@+id/paneRecipes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvRecipesEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/recipes_empty"
+                    android:gravity="center"
+                    android:alpha="0.4"
+                    android:textSize="14sp"
+                    android:paddingHorizontal="32dp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRecipesLog"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:clipToPadding="false"
+                        android:paddingBottom="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnManageRecipes"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="@string/recipe_manage"
+                        android:alpha="0.6" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- MY FOODS PANE -->
+            <FrameLayout
+                android:id="@+id/paneMyFoods"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvMyFoodsEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/my_foods_empty"
+                    android:gravity="center"
+                    android:alpha="0.4"
+                    android:textSize="14sp"
+                    android:paddingHorizontal="32dp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvMyFoods"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:clipToPadding="false"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNewCustomFood"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="@string/custom_food_new"
+                        android:alpha="0.6" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- FAVOURITES PANE -->
+            <FrameLayout
+                android:id="@+id/paneFavourites"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvFavEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/favourites_empty"
+                    android:gravity="center"
+                    android:alpha="0.4"
+                    android:textSize="14sp"
+                    android:paddingHorizontal="32dp"
+                    android:visibility="gone" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvFavourites"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp" />
+
+            </FrameLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

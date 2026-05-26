@@ -16,8 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.chip.Chip
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -56,7 +56,7 @@ class LogFoodActivity : AppCompatActivity() {
     }
 
     private lateinit var cgMealType: ChipGroup
-    private lateinit var toggleTab: MaterialButtonToggleGroup
+    private lateinit var toggleTab: TabLayout
     private lateinit var paneSearch: LinearLayout
     private lateinit var paneFavourites: View
     private lateinit var paneRecipes: View
@@ -115,17 +115,20 @@ class LogFoodActivity : AppCompatActivity() {
         rvRecipesLog.layoutManager = LinearLayoutManager(this)
         rvMyFoods.layoutManager    = LinearLayoutManager(this)
 
-        // Tab toggle
-        toggleTab.check(R.id.btnTabSearch)
-        toggleTab.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            when (checkedId) {
-                R.id.btnTabSearch    -> showSearchPane()
-                R.id.btnTabFavourites -> showFavouritesPane()
-                R.id.btnTabRecipes   -> showRecipesPane()
-                R.id.btnTabMyFoods   -> showMyFoodsPane()
+        // Tab bar — index order: 0=Search, 1=Favourites, 2=Recipes, 3=My Foods
+        toggleTab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                when (tab.position) {
+                    0 -> showSearchPane()
+                    1 -> showFavouritesPane()
+                    2 -> showRecipesPane()
+                    3 -> showMyFoodsPane()
+                }
             }
-        }
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
+        toggleTab.selectTab(toggleTab.getTabAt(0))
 
         // Live search with 500 ms debounce
         findViewById<TextInputEditText>(R.id.etSearch).addTextChangedListener(object : TextWatcher {

@@ -129,61 +129,47 @@
 
     </LinearLayout>
 
-    <!-- Tab toggle: Search / Favourites / Recipes / My Foods -->
-    <com.google.android.material.button.MaterialButtonToggleGroup
+    <!-- Tab bar: underline-style -->
+    <com.google.android.material.tabs.TabLayout
         android:id="@+id/toggleTab"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+        android:layout_height="40dp"
+        android:layout_marginBottom="4dp"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabIndicatorHeight="2dp"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabTextAppearance="@android:style/TextAppearance.Small"
+        app:tabTextColor="#80FFFFFF"
+        app:tabSelectedTextColor="?attr/colorOnSurface"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabBackground="@android:color/transparent">
 
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/btnTabSearch"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:text="@string/tab_search"
-            android:textSize="12sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_search" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/btnTabFavourites"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:text="@string/tab_favourites"
-            android:textSize="12sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_favourites" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/btnTabRecipes"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:text="@string/tab_recipes"
-            android:textSize="12sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_recipes" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/btnTabMyFoods"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="34dp"
-            android:layout_weight="1"
-            android:text="@string/tab_my_foods"
-            android:textSize="12sp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_my_foods" />
 
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+    </com.google.android.material.tabs.TabLayout>
 
     <!-- ── SEARCH PANE ──────────────────────────────────────────────────── -->
     <LinearLayout

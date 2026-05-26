@@ -5,6 +5,8 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.graphics.ColorUtils
+import kotlin.math.cos
+import kotlin.math.sin
 
 class MacroDonutView @JvmOverloads constructor(
     context: Context,
@@ -92,6 +94,7 @@ class MacroDonutView @JvmOverloads constructor(
             if (carbSweep > gap)    canvas.drawArc(oval, start + gap / 2f, carbSweep    - gap, false, carbPaint)
         }
 
+        // ── Centre text ───────────────────────────────────────────────────────
         val calText  = totalCalories.toString()
         val label    = if (targetCalories > 0) "/ $targetCalories kcal" else "kcal"
         val calH     = calPaint.descent()   - calPaint.ascent()
