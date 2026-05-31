@@ -47,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
-            signInWithCredential(GoogleAuthProvider.getCredential(account.idToken, null))
+            signInWithCredential(GoogleAuthProvider.getCredential(account.idToken, null), method = "google")
         } catch (e: ApiException) {
             toast("Google sign-in failed")
         }
@@ -67,7 +67,8 @@ class LoginActivity : AppCompatActivity() {
                     signInWithCredential(
                         com.google.firebase.auth.FacebookAuthProvider.getCredential(
                             result.accessToken.token
-                        )
+                        ),
+                        method = "facebook"
                     )
                 }
                 override fun onCancel() {}
@@ -99,7 +100,13 @@ class LoginActivity : AppCompatActivity() {
             val pass = etPassword.text.toString()
             if (email.isEmpty() || pass.isEmpty()) { toast("Enter email and password"); return@setOnClickListener }
             auth.signInWithEmailAndPassword(email, pass)
-                .addOnSuccessListener { goToMain() }
+                .addOnSuccessListener { result ->
+                    result.user?.let { u ->
+                        FirestoreRepository.registerUser(u.uid, u.email ?: email, u.displayName ?: "")
+                    }
+                    Analytics.logLogin("email")
+                    goToMain()
+                }
                 .addOnFailureListener { toast(it.message ?: "Sign-in failed") }
         }
 
@@ -108,7 +115,13 @@ class LoginActivity : AppCompatActivity() {
             val pass = etPassword.text.toString()
             if (email.isEmpty() || pass.isEmpty()) { toast("Enter email and password"); return@setOnClickListener }
             auth.createUserWithEmailAndPassword(email, pass)
-                .addOnSuccessListener { goToMain() }
+                .addOnSuccessListener { result ->
+                    result.user?.let { u ->
+                        FirestoreRepository.registerUser(u.uid, u.email ?: email, u.displayName ?: "")
+                    }
+                    Analytics.logSignUp("email")
+                    goToMain()
+                }
                 .addOnFailureListener { toast(it.message ?: "Account creation failed") }
         }
 
@@ -153,9 +166,16 @@ class LoginActivity : AppCompatActivity() {
         googleClient = GoogleSignIn.getClient(this, gso)
     }
 
-    private fun signInWithCredential(credential: AuthCredential) {
+    private fun signInWithCredential(credential: AuthCredential, method: String) {
         auth.signInWithCredential(credential)
-            .addOnSuccessListener { goToMain() }
+            .addOnSuccessListener { result ->
+                result.user?.let { u ->
+                    FirestoreRepository.registerUser(u.uid, u.email ?: "", u.displayName ?: "")
+                }
+                if (result.additionalUserInfo?.isNewUser == true) Analytics.logSignUp(method)
+                else Analytics.logLogin(method)
+                goToMain()
+            }
             .addOnFailureListener { toast(it.message ?: "Sign-in failed") }
     }
 
@@ -180,7 +200,7 @@ class LoginActivity : AppCompatActivity() {
                 getSharedPreferences("macromax_prefs", MODE_PRIVATE)
                     .edit().putString("guest_name", name).apply()
                 auth.signInAnonymously()
-                    .addOnSuccessListener { goToMain() }
+                    .addOnSuccessListener { Analytics.logLogin("guest"); goToMain() }
                     .addOnFailureListener { toast(it.message ?: "Guest sign-in failed") }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -194,8 +214,13 @@ class LoginActivity : AppCompatActivity() {
         val isNewDevice = currentUid != storedUid
 
         if (isNewDevice) {
-            // Different account — reset all onboarding data for this new user
             prefs.edit().clear().putString("user_uid", currentUid).apply()
+        }
+
+        // Fallback registration for returning users who are already logged in
+        // when the app opens (didn't go through a fresh sign-in callback above).
+        auth.currentUser?.let { u ->
+            FirestoreRepository.registerUser(u.uid, u.email ?: "", u.displayName ?: "")
         }
 
         val goNext = {

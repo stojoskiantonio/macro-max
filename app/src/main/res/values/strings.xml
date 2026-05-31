@@ -10,6 +10,8 @@
     <string name="btn_facebook">Continue with Facebook</string>
     <string name="btn_guest">Continue as Guest</string>
     <string name="btn_log_out">Log Out</string>
+    <string name="profile_guest_account">Guest account</string>
+    <string name="profile_saving">Saving your data…</string>
     <string name="main_daily_targets">Today\'s Targets</string>
     <string name="age_title">How old are you?</string>
     <string name="age_years_old">years old</string>
@@ -253,12 +255,43 @@
     <string name="settings_budget_notif_label">Live Budget</string>
     <string name="settings_budget_notif_desc">Calories remaining in notification shade</string>
 
-    <!-- Notification channel -->
+    <!-- Notification channels -->
     <string name="notif_channel_name">Daily Summary</string>
     <string name="notif_channel_desc">End-of-day calorie reminder</string>
+    <string name="notif_channel_reminders_name">Reminders</string>
+    <string name="notif_channel_reminders_desc">Daily meal and hydration reminders</string>
+    <string name="notif_channel_updates_name">App Updates</string>
+    <string name="notif_channel_updates_desc">New features and general announcements</string>
     <string name="notif_summary_title">Daily Summary</string>
     <string name="notif_summary_remaining">%d kcal remaining today — keep it up!</string>
     <string name="notif_summary_goal_hit">You\'ve hit your calorie goal today! 🎉</string>
+
+    <!-- Friends -->
+    <string name="nav_friends">Friends</string>
+    <string name="friends_add">Add Friend</string>
+    <string name="friends_send_request">Send Request</string>
+    <string name="friends_email_hint">Friend\'s email address</string>
+    <string name="friends_empty">No friends yet.\nAdd a friend to see their daily progress.</string>
+    <string name="friends_requests_header">Friend Requests</string>
+    <string name="friends_today_header">Today</string>
+    <string name="friends_accept">Accept</string>
+    <string name="friends_decline">Decline</string>
+    <string name="friends_remove">Remove Friend</string>
+    <string name="friends_remove_confirm">Remove %s from your friends?</string>
+    <string name="friends_accepted">You are now friends with %s!</string>
+    <string name="friends_stats_hidden">🔒 Stats hidden</string>
+    <string name="friends_share_stats">Share my stats with friends</string>
+    <string name="friends_from_contacts">📱 From contacts</string>
+    <string name="friends_by_email">✉️ By email address</string>
+    <string name="friends_add_btn">Add</string>
+    <string name="friends_sent">Sent</string>
+    <string name="friends_contacts_rationale_title">Access contacts?</string>
+    <string name="friends_contacts_rationale_msg">MacroMax needs access to your contacts to find friends who are already using the app. No contact data is stored on our servers.</string>
+    <string name="friends_grant">Grant access</string>
+    <string name="friends_scanning">Finding friends in your contacts…</string>
+    <string name="friends_no_contacts_email">No email addresses found in your contacts.</string>
+    <string name="friends_no_matches">None of your contacts are using MacroMax yet.</string>
+    <string name="friends_contacts_found">%d contact(s) found on MacroMax</string>
 
     <!-- Progress Reports -->
     <string name="nav_reports">Reports</string>

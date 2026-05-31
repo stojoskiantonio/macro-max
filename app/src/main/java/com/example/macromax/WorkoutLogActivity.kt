@@ -109,6 +109,7 @@ class WorkoutLogActivity : AppCompatActivity() {
         val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val dateKey = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
 
+        val calories = estimateCalories(duration)
         WorkoutRepository.save(
             prefs, dateKey,
             WorkoutEntry(
@@ -116,10 +117,11 @@ class WorkoutLogActivity : AppCompatActivity() {
                 exerciseType    = exerciseKey,
                 exerciseName    = exerciseName,
                 durationMinutes = duration,
-                caloriesBurned  = estimateCalories(duration)
+                caloriesBurned  = calories
             )
         )
         FirestoreRepository.syncWorkouts(dateKey, prefs)
+        Analytics.logWorkoutLogged(exerciseKey, duration, calories)
 
         Toast.makeText(this, getString(R.string.workout_saved), Toast.LENGTH_SHORT).show()
         finish()

@@ -36,6 +36,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -204,11 +205,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         // ── Daily summary notification ────────────────────────────────────────
         scheduleDailySummaryNotification()
+
+        // ── Firebase Analytics ────────────────────────────────────────────────
+        Analytics.logScreenView(this, "Home")
+
+        // ── Firebase Cloud Messaging ──────────────────────────────────────────
+        setupFcm()
     }
 
     override fun onResume() {
         super.onResume()
         BottomNavHelper.setup(this, R.id.navHome)
+
+        // Ensure this user's email is always indexed in Firestore so friend
+        // search works even for users who logged in before registerUser existed.
+        FirebaseAuth.getInstance().currentUser?.let { u ->
+            FirestoreRepository.registerUser(u.uid, u.email ?: "", u.displayName ?: "")
+        }
+
         updateGreeting()
         loadProfilePhoto()
         refreshFoodLog()
@@ -278,6 +292,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val updated = (current + delta).coerceAtLeast(0)
         prefs.edit().putInt(waterKey(), updated).apply()
         FirestoreRepository.syncWater(todayDateKey(), updated)
+        Analytics.logWaterUpdated(updated)
         updateWaterUI(updated)
     }
 
@@ -481,7 +496,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             .setTitle(R.string.delete_entry_title)
             .setMessage(R.string.delete_entry_message)
             .setPositiveButton(R.string.btn_delete) { _, _ ->
+                // Capture meal type before removal for analytics
+                val prefs  = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+                val arr    = org.json.JSONArray(prefs.getString("food_log_${todayDateKey()}", "[]") ?: "[]")
+                val meal   = if (index < arr.length()) arr.getJSONObject(index).optString("meal", "other") else "other"
                 removeEntryFromLog(index)
+                Analytics.logFoodDeleted(meal)
                 refreshFoodLog()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -620,7 +640,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun loadProfilePhoto() {
         // 1. Local file set by the user in ProfileActivity takes priority
-        val localFile = java.io.File(filesDir, "profile_picture.jpg")
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default"
+        val localFile = java.io.File(filesDir, "profile_picture_$uid.jpg")
         if (localFile.exists()) {
             val bmp = BitmapFactory.decodeFile(localFile.absolutePath)
             if (bmp != null) {
@@ -851,10 +872,43 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             .setPositiveButton(R.string.btn_delete) { _, _ ->
                 val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
                 WorkoutRepository.delete(prefs, todayDateKey(), workout.id)
+                Analytics.logWorkoutDeleted(workout.exerciseType)
                 refreshWorkouts()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    // ── Firebase Messaging ────────────────────────────────────────────────────
+
+    private fun setupFcm() {
+        val messaging = FirebaseMessaging.getInstance()
+
+        // Subscribe to broadcast topics
+        messaging.subscribeToTopic("daily_reminder")
+        messaging.subscribeToTopic("app_updates")
+
+        // Retrieve and persist the current FCM token so Firestore stays in sync
+        messaging.token.addOnSuccessListener { token ->
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .update(
+                    mapOf(
+                        "fcmToken"       to token,
+                        "tokenUpdatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    )
+                )
+                .addOnFailureListener {
+                    // Doc might not exist yet — set instead of update
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                        .collection("users").document(uid)
+                        .set(mapOf(
+                            "fcmToken"       to token,
+                            "tokenUpdatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                        ))
+                }
+        }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

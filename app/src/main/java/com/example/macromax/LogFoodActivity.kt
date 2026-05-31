@@ -78,6 +78,7 @@ class LogFoodActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log_food)
+        Analytics.logScreenView(this, "LogFood")
 
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
 
@@ -212,7 +213,7 @@ class LogFoodActivity : AppCompatActivity() {
 
     private fun quickAddFood(food: FoodEntry) {
         val entry = food.copy(mealType = selectedMealType())
-        saveEntry(entry)
+        saveEntry(entry, source = "recent")
 
         // Undo snackbar — removes the entry we just appended (last item in today's log)
         com.google.android.material.snackbar.Snackbar
@@ -320,7 +321,7 @@ class LogFoodActivity : AppCompatActivity() {
                     fatG     = recipe.fatPerServing,
                     carbsG   = recipe.carbPerServing,
                     mealType = selectedMealType()
-                ))
+                ), source = "recipe")
                 Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
                 finish()
             }
@@ -354,7 +355,8 @@ class LogFoodActivity : AppCompatActivity() {
                 fatG     = fav.fatG,
                 carbsG   = fav.carbsG,
                 mealType = selectedMealType()
-            )
+            ),
+            source = "favourite"
         )
         Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
         finish()
@@ -440,7 +442,7 @@ class LogFoodActivity : AppCompatActivity() {
                     fatG     = (food.fatPer100g     * factor).toInt(),
                     carbsG   = (food.carbsPer100g   * factor).toInt(),
                     mealType = selectedMealType()
-                ))
+                ), source = "my_foods")
                 Toast.makeText(this, getString(R.string.food_saved), Toast.LENGTH_SHORT).show()
                 finish()
             }
@@ -640,7 +642,7 @@ class LogFoodActivity : AppCompatActivity() {
 
     // ── Portion dialog ────────────────────────────────────────────────────────
 
-    private fun showPortionDialog(food: FoodSearchResult) {
+    private fun showPortionDialog(food: FoodSearchResult, source: String = "search") {
         val dp = resources.displayMetrics.density
         val hPad = (24 * dp).toInt()
 
@@ -693,7 +695,7 @@ class LogFoodActivity : AppCompatActivity() {
                     carbsG   = (food.carbsPer100g    * factor).toInt(),
                     mealType = selectedMealType()
                 )
-                saveEntry(entry)
+                saveEntry(entry, source = source)
 
                 if (cbFavourite.isChecked) {
                     val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
@@ -749,7 +751,7 @@ class LogFoodActivity : AppCompatActivity() {
                     carbsG   = etCarbs.text.toString().trim().toIntOrNull() ?: 0,
                     mealType = selectedMealType()
                 )
-                saveEntry(entry)
+                saveEntry(entry, source = "manual")
 
                 if (cbFav.isChecked) {
                     val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
@@ -780,11 +782,12 @@ class LogFoodActivity : AppCompatActivity() {
         searchJob?.cancel()
         searchJob = scope.launch {
             val food = try { fetchByBarcode(barcode) } catch (e: Exception) { null }
+            Analytics.logBarcodeScanned(success = food != null)
             if (food == null) {
                 showNoResults(getString(R.string.barcode_not_found))
             } else {
                 showState(State.HINT)
-                showPortionDialog(food)
+                showPortionDialog(food, source = "barcode")
             }
         }
     }
@@ -832,7 +835,7 @@ class LogFoodActivity : AppCompatActivity() {
 
     // ── Persistence ───────────────────────────────────────────────────────────
 
-    private fun saveEntry(entry: FoodEntry) {
+    private fun saveEntry(entry: FoodEntry, source: String = "unknown") {
         val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
         val dateKey = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
         val logKey  = "food_log_$dateKey"
@@ -847,5 +850,6 @@ class LogFoodActivity : AppCompatActivity() {
         })
         prefs.edit().putString(logKey, arr.toString()).apply()
         FirestoreRepository.syncFoodLog(dateKey, prefs)
+        Analytics.logFoodLogged(entry.name, entry.calories, entry.mealType, source)
     }
 }

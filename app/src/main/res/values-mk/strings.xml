@@ -257,9 +257,41 @@
     <!-- Нотификации -->
     <string name="notif_channel_name">Дневен преглед</string>
     <string name="notif_channel_desc">Потсетник за калории на крај од денот</string>
+    <string name="notif_channel_reminders_name">Потсетници</string>
+    <string name="notif_channel_reminders_desc">Дневни потсетници за оброци и хидрација</string>
+    <string name="notif_channel_updates_name">Новости</string>
+    <string name="notif_channel_updates_desc">Нови функции и општи соопштенија</string>
     <string name="notif_summary_title">Дневен преглед</string>
     <string name="notif_summary_remaining">Уште %d kcal за денес — продолжи!</string>
     <string name="notif_summary_goal_hit">Ја достигна калориската цел денес! 🎉</string>
+
+    <!-- Пријатели -->
+    <string name="nav_friends">Пријатели</string>
+    <string name="friends_add">Додај пријател</string>
+    <string name="friends_send_request">Испрати барање</string>
+    <string name="friends_email_hint">Е-маил на пријателот</string>
+    <string name="friends_empty">Сè уште нема пријатели.\nДодај пријател за да го следиш нивниот дневен напредок.</string>
+    <string name="friends_requests_header">Барања за пријателство</string>
+    <string name="friends_today_header">Денес</string>
+    <string name="friends_accept">Прифати</string>
+    <string name="friends_decline">Одбиј</string>
+    <string name="friends_remove">Отстрани пријател</string>
+    <string name="friends_remove_confirm">Да го отстраниш %s од пријателите?</string>
+    <string name="friends_accepted">Сега сте пријатели со %s!</string>
+    <string name="friends_stats_hidden">🔒 Статистиките се скриени</string>
+    <string name="friends_share_stats">Споделувај ги моите статистики со пријателите</string>
+    <string name="profile_saving">Зачувување на податоците…</string>
+    <string name="friends_from_contacts">📱 Од контакти</string>
+    <string name="friends_by_email">✉️ Преку е-маил адреса</string>
+    <string name="friends_add_btn">Додај</string>
+    <string name="friends_sent">Испратено</string>
+    <string name="friends_contacts_rationale_title">Пристап до контакти?</string>
+    <string name="friends_contacts_rationale_msg">MacroMax треба пристап до контактите за да пронајде пријатели кои веќе ја користат апликацијата. Ниеден контакт не се зачувува на нашите сервери.</string>
+    <string name="friends_grant">Дозволи пристап</string>
+    <string name="friends_scanning">Барање пријатели во контактите…</string>
+    <string name="friends_no_contacts_email">Нема е-маил адреси во контактите.</string>
+    <string name="friends_no_matches">Ниеден контакт сè уште не ја користи MacroMax.</string>
+    <string name="friends_contacts_found">%d контакт(и) пронајдени на MacroMax</string>
 
     <!-- Извештаи -->
     <string name="nav_reports">Извештај</string>

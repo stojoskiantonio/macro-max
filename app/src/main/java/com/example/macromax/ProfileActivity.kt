@@ -32,10 +32,19 @@ import kotlin.math.roundToInt
 
 class ProfileActivity : AppCompatActivity() {
 
-    private lateinit var ivProfileAvatar: ShapeableImageView
-    private lateinit var tvProfileName: TextView
-    private lateinit var tvProfileEmail: TextView
-    private val avatarFile get() = File(filesDir, "profile_picture.jpg")
+    private lateinit var ivProfileAvatar:   ShapeableImageView
+    private lateinit var tvProfileName:     TextView
+    private lateinit var tvProfileEmail:    TextView
+    private lateinit var tvProfileAuth:     TextView
+    private lateinit var tvProfileAge:      TextView
+    private lateinit var tvProfileWeight:   TextView
+    private lateinit var tvProfileHeight:   TextView
+    private lateinit var tvProfileCalTarget: TextView
+    private lateinit var tvProfileGoal:     TextView
+    private val avatarFile get(): File {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default"
+        return File(filesDir, "profile_picture_$uid.jpg")
+    }
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -46,9 +55,17 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        ivProfileAvatar = findViewById(R.id.ivProfileAvatar)
-        tvProfileName   = findViewById(R.id.tvProfileName)
-        tvProfileEmail  = findViewById(R.id.tvProfileEmail)
+        ivProfileAvatar    = findViewById(R.id.ivProfileAvatar)
+        tvProfileName      = findViewById(R.id.tvProfileName)
+        tvProfileEmail     = findViewById(R.id.tvProfileEmail)
+        tvProfileAuth      = findViewById(R.id.tvProfileAuthMethod)
+        tvProfileAge       = findViewById(R.id.tvProfileAge)
+        tvProfileWeight    = findViewById(R.id.tvProfileWeight)
+        tvProfileHeight    = findViewById(R.id.tvProfileHeight)
+        tvProfileCalTarget = findViewById(R.id.tvProfileCalTarget)
+        tvProfileGoal      = findViewById(R.id.tvProfileGoal)
+
+        Analytics.logScreenView(this, "Profile")
 
         // Close button
         findViewById<ImageButton>(R.id.btnProfileBack).setOnClickListener { finish() }
@@ -88,13 +105,63 @@ class ProfileActivity : AppCompatActivity() {
         val user  = FirebaseAuth.getInstance().currentUser
         val prefs = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
 
+        // Name
         val displayName = when {
-            !user?.displayName.isNullOrBlank() -> user!!.displayName!!
-            !user?.email.isNullOrBlank()       -> user!!.email!!.substringBefore("@")
-            else                               -> prefs.getString("user_name", "") ?: ""
+            !prefs.getString("user_name", "").isNullOrBlank() -> prefs.getString("user_name", "")!!
+            !user?.displayName.isNullOrBlank()                -> user!!.displayName!!
+            !user?.email.isNullOrBlank()                      -> user!!.email!!.substringBefore("@")
+            else                                              -> getString(R.string.btn_guest)
         }
-        tvProfileName.text  = displayName
-        tvProfileEmail.text = user?.email ?: ""
+        tvProfileName.text = displayName
+
+        // Email
+        val email = user?.email
+        tvProfileEmail.text = if (!email.isNullOrBlank()) email else getString(R.string.profile_guest_account)
+
+        // Auth method badge
+        val providerIds = user?.providerData?.map { it.providerId } ?: emptyList()
+        tvProfileAuth.text = when {
+            "google.com"   in providerIds -> "Signed in with Google"
+            "facebook.com" in providerIds -> "Signed in with Facebook"
+            "password"     in providerIds -> "Signed in with Email"
+            user?.isAnonymous == true     -> "Guest account"
+            else                          -> ""
+        }
+
+        // Health stats
+        val age     = prefs.getInt("user_age",      0)
+        val weight  = prefs.getInt("weight_value",  0)
+        val height  = prefs.getInt("height_cm",     0)
+        val target  = prefs.getInt("target_calories", 0)
+        val isLbs   = prefs.getString("weight_unit", "kg") == "lbs"
+        val isImperial = prefs.getString(SettingsActivity.PREF_UNITS, "") == SettingsActivity.UNITS_IMPERIAL
+
+        tvProfileAge.text       = if (age    > 0) "$age"                        else "—"
+        tvProfileWeight.text    = if (weight > 0) "$weight ${if (isLbs) "lbs" else "kg"}" else "—"
+        tvProfileCalTarget.text = if (target > 0) "$target"                     else "—"
+
+        tvProfileHeight.text = when {
+            height <= 0      -> "—"
+            isImperial       -> {
+                val totalInches = (height / 2.54).toInt()
+                val ft = totalInches / 12
+                val inch = totalInches % 12
+                "${ft}′${inch}″"
+            }
+            else             -> "${height} cm"
+        }
+
+        // Goal chip
+        val goalType = prefs.getString("goal_type", "") ?: ""
+        tvProfileGoal.text = when (goalType) {
+            "lose"     -> "🎯 Losing weight"
+            "gain"     -> "💪 Gaining muscle"
+            "maintain" -> "⚖️ Maintaining weight"
+            else       -> ""
+        }
+        tvProfileGoal.visibility = if (goalType.isEmpty()) android.view.View.GONE
+                                   else android.view.View.VISIBLE
+
         displaySavedAvatar()
     }
 
@@ -262,6 +329,7 @@ class ProfileActivity : AppCompatActivity() {
                 apply()
             }
             FirestoreRepository.syncProfile(prefs)
+            Analytics.logProfileUpdated("health_details")
             sheet.dismiss()
             Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
         }
@@ -363,6 +431,7 @@ class ProfileActivity : AppCompatActivity() {
                 apply()
             }
             FirestoreRepository.syncProfile(prefs)
+            Analytics.logProfileUpdated("nutrition_goals")
             sheet.dismiss()
             Snackbar.make(findViewById(android.R.id.content), getString(R.string.profile_saved), Snackbar.LENGTH_SHORT).show()
         }
@@ -446,12 +515,41 @@ class ProfileActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setMessage(R.string.profile_logout_confirm)
             .setPositiveButton(R.string.btn_log_out) { _, _ ->
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                performLogout()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun performLogout() {
+        val prefs   = getSharedPreferences("macromax_prefs", MODE_PRIVATE)
+        val dateKey = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US)
+                        .format(java.util.Date())
+
+        val saving = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setMessage(getString(R.string.profile_saving))
+            .setCancelable(false)
+            .show()
+
+        var loggedOut = false
+        fun doSignOut() {
+            if (loggedOut) return
+            loggedOut = true
+            if (saving.isShowing) saving.dismiss()
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
+        // Safety net: never stay stuck longer than 5 seconds
+        val handler = android.os.Handler(mainLooper)
+        handler.postDelayed({ doSignOut() }, 5_000)
+
+        // Sync everything to Firestore BEFORE revoking the auth token
+        FirestoreRepository.syncBeforeLogout(prefs, dateKey) {
+            handler.removeCallbacksAndMessages(null)
+            doSignOut()
+        }
     }
 }
